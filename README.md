@@ -80,9 +80,21 @@ stop losses and deals, and a news feed with a reports and dividends calendar.
 
 ## Install
 
-Download the latest build for your platform from
+macOS and Linux:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/AnteWall/avanza-desk/main/scripts/install.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/AnteWall/avanza-desk/main/scripts/install.ps1 | iex
+```
+
+The app updates itself after that. Or download the latest build for your platform from
 [Releases](https://github.com/AnteWall/avanza-desk/releases/latest):
-`.dmg` for macOS (Apple silicon and Intel), `.msi`/`.exe` for Windows, `.AppImage`/`.deb` for Linux.
+`.dmg` for macOS (Apple silicon and Intel), `.msi`/`.exe` for Windows, `.AppImage`/`.deb`/`.rpm` for Linux.
 
 ## Build from source
 
