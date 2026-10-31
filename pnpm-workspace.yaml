@@ -1,0 +1,2 @@
+minimumReleaseAgeExclude:
+  - avanza-ts@1.2.0
