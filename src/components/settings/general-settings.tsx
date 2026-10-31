@@ -4,6 +4,7 @@ import { useInAppFrame } from "@/components/layout/window/use-in-app-frame";
 import { SettingsRow } from "@/components/settings/settings-row";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { ThemePreview } from "@/components/settings/theme-preview";
+import { UpdateRow } from "@/components/settings/update-row";
 import { Switch } from "@/components/ui/switch";
 import { getStartPrivate, setStartPrivate } from "@/lib/privacy";
 import { getTheme, setTheme, type Theme } from "@/lib/theme";
@@ -72,6 +73,9 @@ export function GeneralSettings() {
             className="data-checked:bg-brand"
           />
         </SettingsRow>
+      </SettingsSection>
+      <SettingsSection title="Updates">
+        <UpdateRow />
       </SettingsSection>
       <SettingsSection title="Privacy">
         <SettingsRow

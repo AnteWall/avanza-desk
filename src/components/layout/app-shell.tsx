@@ -14,6 +14,7 @@ import { Snapshotter } from "@/components/layout/snapshotter";
 import { StatusBar } from "@/components/layout/status-bar";
 import { TopBar } from "@/components/layout/top-bar";
 import { TradingFeed } from "@/components/layout/trading-feed";
+import { Updater } from "@/components/layout/updater";
 import { ResizeEdges } from "@/components/layout/window/resize-edges";
 import { useInAppFrame } from "@/components/layout/window/use-in-app-frame";
 import { Toaster } from "@/components/ui/sonner";
@@ -51,6 +52,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         </>
       )}
       <AuthGate />
+      {/* Outside the session gate: updates need no Avanza sign-in. */}
+      <Updater />
       <Toaster position="bottom-right" />
     </div>
   );

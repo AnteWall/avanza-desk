@@ -23,11 +23,26 @@
     "security": {
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://api.elbstream.com; font-src 'self' data:; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'self'; frame-src 'none'",
       "devCsp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://api.elbstream.com; font-src 'self' data:; connect-src ipc: http://ipc.localhost ws://localhost:*; object-src 'none'; base-uri 'self'; frame-src 'none'",
-      "dangerousDisableAssetCspModification": ["style-src"]
+      "dangerousDisableAssetCspModification": [
+        "style-src"
+      ]
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDgwM0EwREJFMzkyMDRGRjMKUldUelR5QTV2ZzA2Z09nWVBWckROaWtWSk5CZDYyOVRBNUtnR1ZVRHdpdVhlMVNXZHlER1JHQmkK",
+      "endpoints": [
+        "https://github.com/AnteWall/avanza-desk/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      },
+      "requireSignedVersion": true
     }
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "targets": "all",
     "icon": [
       "icons/32x32.png",
