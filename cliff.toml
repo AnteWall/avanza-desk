@@ -1,0 +1,42 @@
+# Changelog from Conventional Commit subjects (git-cliff). The subject is the user-facing line:
+# `just changelog` previews what's unreleased, `just release` writes CHANGELOG.md, and the release
+# workflow puts the new version's section in the GitHub release (and the updater's notes).
+
+[changelog]
+header = """
+# Changelog
+
+What changed in each AvanzaDesk release. Generated from commit messages by git-cliff.\n
+"""
+body = """
+{% if version %}\
+## {{ version | trim_start_matches(pat="v") }} ({{ timestamp | date(format="%Y-%m-%d") }})
+{% else %}\
+## Unreleased
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | striptags | trim }}
+{% for commit in commits %}
+- {% if commit.breaking %}**Breaking:** {% endif %}\
+{% if commit.scope %}**{{ commit.scope | upper_first }}:** {% endif %}\
+{{ commit.message | upper_first }}\
+{% endfor %}
+{% endfor %}\n
+"""
+trim = true
+
+[git]
+conventional_commits = true
+# Merge commits, "Release v1.2.3" and other free-form subjects stay out.
+filter_unconventional = true
+# The HTML comments only sort the groups; they're stripped from the headings.
+commit_parsers = [
+  { message = "^feat", group = "<!-- 0 -->New" },
+  { message = "^fix", group = "<!-- 1 -->Fixed" },
+  { message = "^perf", group = "<!-- 2 -->Faster" },
+  # chore, ci, docs, refactor, style, test, build: not something a user notices.
+  { message = ".*", skip = true },
+]
+protect_breaking_commits = true
+tag_pattern = "v[0-9].*"
+sort_commits = "oldest"

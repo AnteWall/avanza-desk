@@ -34,6 +34,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          # git-cliff needs the tags and commits since the previous release.
+          fetch-depth: 0
+
+      # This version's section of the changelog, for the release page and the updater's notes.
+      - name: Release notes
+        id: notes
+        uses: orhun/git-cliff-action@v4
+        with:
+          args: --latest --strip all
 
       - name: Linux deps
         if: runner.os == 'Linux'
@@ -71,7 +81,10 @@ jobs:
         with:
           tagName: v__VERSION__
           releaseName: AvanzaDesk v__VERSION__
-          releaseBody: See the assets below to download and install this version.
+          releaseBody: |
+            ${{ steps.notes.outputs.content }}
+
+            See the assets below to download and install this version.
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}

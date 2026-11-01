@@ -55,6 +55,7 @@
                 rust
                 cargo-tauri
                 just
+                git-cliff
                 nodejs_24
                 pnpm
                 pkg-config

@@ -10,6 +10,52 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Commits on main are the changelog (cliff.toml). PRs are squash-merged with the PR title as
+  # the commit subject, so the title is the line users will read.
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: git-cliff
+
+      # The title goes through env, never into the script text: it's user input.
+      - name: PR title is a Conventional Commit
+        if: github.event_name == 'pull_request'
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          types='feat|fix|perf|refactor|style|test|docs|build|ci|chore'
+          if ! printf '%s' "$TITLE" | grep -Eq "^($types)(\([a-z0-9-]+\))?!?: [a-z0-9].*[^.]$"; then
+            echo "::error::PR title must be 'type(scope): what users get', lowercase start, no final period."
+            echo "Types: ${types//|/, }. Example: feat(analysis): trading profile finds habits in your trades"
+            echo "Got: $TITLE"
+            exit 1
+          fi
+
+      - name: Changelog line for this PR
+        if: github.event_name == 'pull_request'
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          line=$(git cliff HEAD..HEAD --strip all --with-commit "$TITLE")
+          {
+            echo "### Changelog"
+            if [ -n "$(printf '%s' "$line" | grep '^- ')" ]; then
+              printf '%s\n' "$line" | grep '^- '
+            else
+              echo "Not in the changelog (\`${TITLE%%[(:!]*}\` changes are left out)."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Catches a broken cliff.toml before a release tag does.
+      - name: Next release notes render
+        run: |
+          { echo "### Next release"; git cliff --unreleased --strip all; } >> "$GITHUB_STEP_SUMMARY"
+
   check:
     runs-on: ubuntu-22.04
     steps:
