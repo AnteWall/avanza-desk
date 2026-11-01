@@ -2,6 +2,12 @@
 changelog:
     git cliff --unreleased --strip header
 
+# Write a throwaway CHANGELOG.md with the unreleased changes as this version, to try the
+# What's new dialog in `pnpm tauri dev` (settings menu > What's new). Delete it when done.
+whats-new-preview:
+    git cliff --unreleased --tag "v$(node -p 'require("./package.json").version')" -o CHANGELOG.md
+    @echo "Wrote CHANGELOG.md. Restart pnpm tauri dev, then the settings menu (gear, bottom left) > What's new."
+
 # The tag triggers .github/workflows/release.yml.
 # Bump package.json, write CHANGELOG.md, commit, tag and push.
 release version:

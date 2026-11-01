@@ -15,6 +15,7 @@ import { StatusBar } from "@/components/layout/status-bar";
 import { TopBar } from "@/components/layout/top-bar";
 import { TradingFeed } from "@/components/layout/trading-feed";
 import { Updater } from "@/components/layout/updater";
+import { WhatsNew } from "@/components/layout/whats-new";
 import { ResizeEdges } from "@/components/layout/window/resize-edges";
 import { useInAppFrame } from "@/components/layout/window/use-in-app-frame";
 import { Toaster } from "@/components/ui/sonner";
@@ -48,6 +49,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           <RuleDialog />
           <RuleWatcher />
           <TradingFeed />
+          {/* After sign-in, so it never sits on top of the BankID overlay. */}
+          <WhatsNew />
           {inAppFrame && <ResizeEdges />}
         </>
       )}
