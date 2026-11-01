@@ -29,12 +29,15 @@ export function BenchmarkChart({
           crosshair({ x: { label: true }, y: { label: true }, strokeDasharray: "2 2" }),
           ruleY([0], { stroke: "var(--muted-foreground)", strokeWidth: 1, strokeDasharray: "4 3" }),
           ...series.map((s, i) =>
-            lineY(s.points, {
-              x: "timestamp",
-              y: "value",
-              stroke: palette[i % palette.length]!.stroke,
-              strokeWidth: 1.5,
-            }),
+            lineY(
+              s.points.map((p) => ({ ...p, series: s.label })),
+              {
+                x: "timestamp",
+                y: "value",
+                stroke: palette[i % palette.length]!.stroke,
+                strokeWidth: 1.5,
+              },
+            ),
           ),
         ],
         scales: {
@@ -48,7 +51,22 @@ export function BenchmarkChart({
         },
         clip: true,
         focus: "group-x",
-        tooltip,
+        tooltip: {
+          use: tooltip,
+          content: (points) => {
+            const rows = points
+              .map((p) => p.datum as ReturnPoint & { series: string })
+              .sort((a, b) => b.value - a.value)
+              .map((d) => ({
+                label: d.series,
+                value: formatPercent(d.value),
+                color:
+                  palette[series.findIndex((s) => s.label === d.series) % palette.length]!.stroke,
+              }));
+            const at = (points[0]!.datum as ReturnPoint).timestamp;
+            return { title: date.format(at), rows };
+          },
+        },
       }),
     [series],
   );

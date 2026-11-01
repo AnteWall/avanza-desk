@@ -21,8 +21,8 @@ export function PortfolioChart({ period, mode }: { period: PerformancePeriod; mo
       points={series.map((p) => ({ timestamp: p.timestamp, value: p.performance.value }))}
       intraday={false}
       {...(mode === "return"
-        ? { formatValue: formatReturn, previousClose: 0 }
-        : { formatValue: formatInteger })}
+        ? { formatValue: formatReturn, valueLabel: "Return", previousClose: 0 }
+        : { formatValue: formatInteger, valueLabel: "Value" })}
     />
   );
   // The value series is your money; the return series is only a percentage.

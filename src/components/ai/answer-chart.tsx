@@ -90,7 +90,11 @@ function History({
           <PriceChart
             points={points}
             intraday={block.period === "today"}
-            {...(fund && { formatValue: formatDevelopment, previousClose: 0 })}
+            {...(fund && {
+              formatValue: formatDevelopment,
+              valueLabel: "Development",
+              previousClose: 0,
+            })}
           />
         )}
       </div>

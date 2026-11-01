@@ -5,7 +5,7 @@ import { scaleLinear } from "@tanstack/charts/scales/linear";
 import { tooltip } from "@tanstack/charts/tooltip";
 import { useMemo } from "react";
 
-import { formatCompact } from "@/lib/format";
+import { formatCompact, formatInteger } from "@/lib/format";
 import type { IncomeMonth } from "@/lib/income";
 
 const series = [
@@ -14,13 +14,18 @@ const series = [
 ] as const;
 
 const monthName = new Intl.DateTimeFormat("sv-SE", { month: "short", timeZone: "UTC" });
+const monthYear = new Intl.DateTimeFormat("en", {
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+});
 const label = (month: string) => monthName.format(new Date(`${month}-01T00:00:00Z`));
 
 /** Expected dividends per month, announced stacked under estimated. */
 export function IncomeChart({ months }: { months: readonly IncomeMonth[] }) {
   const definition = useMemo(() => {
     const bars = series.flatMap(({ key, label: kind }) =>
-      months.map((m) => ({ month: label(m.month), kind, value: m[key] })),
+      months.map((m) => ({ month: label(m.month), ym: m.month, kind, value: m[key] })),
     );
     return defineChart({
       marks: [
@@ -43,7 +48,27 @@ export function IncomeChart({ months }: { months: readonly IncomeMonth[] }) {
         },
       },
       focus: "group-x",
-      tooltip,
+      tooltip: {
+        use: tooltip,
+        // Your money: blurred in privacy mode like the rest of the income view.
+        className: "sensitive",
+        content: (points) => {
+          const rows = points.map((p) => {
+            const d = p.datum as (typeof bars)[number];
+            const s = series.find((x) => x.label === d.kind)!;
+            return { label: d.kind, value: formatInteger(d.value), color: s.fill };
+          });
+          const total = points.reduce(
+            (sum, p) => sum + (p.datum as (typeof bars)[number]).value,
+            0,
+          );
+          const ym = (points[0]!.datum as (typeof bars)[number]).ym;
+          return {
+            title: `${monthYear.format(new Date(`${ym}-01T00:00:00Z`))} · SEK`,
+            rows: [...rows, { label: "Total", value: formatInteger(total), active: true }],
+          };
+        },
+      },
     });
   }, [months]);
 

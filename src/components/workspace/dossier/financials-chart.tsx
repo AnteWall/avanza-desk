@@ -53,7 +53,28 @@ export function FinancialsChart({ orderbookId }: { orderbookId: string }) {
             },
           },
           focus: "group-x",
-          tooltip,
+          tooltip: {
+            use: tooltip,
+            content: (points) => {
+              const bars = points.map((p) => p.datum as Bar);
+              const value = (label: string) => bars.find((b) => b.metric === label)?.value;
+              const sales = value("Sales");
+              const profit = value("Net profit");
+              return {
+                title: `Financial year ${bars[0]!.year}`,
+                rows: [
+                  ...bars.map((b) => ({
+                    label: b.metric,
+                    value: formatCompact(b.value),
+                    color: series.find((s) => s.label === b.metric)!.fill,
+                  })),
+                  ...(sales && profit != null
+                    ? [{ label: "Net margin", value: formatShare(profit / sales) }]
+                    : []),
+                ],
+              };
+            },
+          },
         });
   }, [byYear]);
 

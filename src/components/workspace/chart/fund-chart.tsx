@@ -18,6 +18,7 @@ export function FundChart({ instrument, period }: { instrument: Instrument; peri
       points={data.dataSerie.map((p) => ({ timestamp: p.x, value: p.y }))}
       intraday={false}
       formatValue={formatDevelopment}
+      valueLabel="Development"
       previousClose={0}
     />
   );

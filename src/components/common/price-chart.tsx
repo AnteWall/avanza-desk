@@ -4,7 +4,7 @@ import { scaleLinear } from "@tanstack/charts/scales/linear";
 import { tooltip } from "@tanstack/charts/tooltip";
 import { useMemo } from "react";
 
-import { formatPrice } from "@/lib/format";
+import { formatCompact, formatPercent, formatPrice } from "@/lib/format";
 
 export type ChartPoint = { timestamp: number; value: number };
 export type TradeMarker = { timestamp: number; price: number; side: "buy" | "sell" };
@@ -27,6 +27,7 @@ export function PriceChart({
   points,
   intraday,
   formatValue = formatPrice,
+  valueLabel = "Price",
   previousClose,
   averagePrice,
   trades = noTrades,
@@ -36,6 +37,8 @@ export function PriceChart({
   points: readonly ChartPoint[];
   intraday: boolean;
   formatValue?: (value: number) => string;
+  /** What the line is, for the tooltip: "Price", "Development", "Value". */
+  valueLabel?: string;
   previousClose?: number | null;
   averagePrice?: number;
   trades?: readonly TradeMarker[];
@@ -117,9 +120,54 @@ export function PriceChart({
       ],
       clip: true,
       focus: "group-x",
-      tooltip,
+      tooltip: {
+        use: tooltip,
+        content: (hovered) => {
+          // The group mixes marks; tell them apart by their datum's shape.
+          const data = hovered.map((p) => p.datum as Record<string, number | string>);
+          const line = data.find((d) => "value" in d) as ChartPoint | undefined;
+          const volume = data.find((d) => "y2" in d) as { y2: number } | undefined;
+          const marks = data.filter((d) => "side" in d) as TradeMarker[];
+          return {
+            title: line ? format(line.timestamp) : "",
+            rows: [
+              ...(line
+                ? [{ label: valueLabel, value: formatValue(line.value), color: "var(--brand)" }]
+                : []),
+              // Zero is a baseline for % series (funds, returns), not a price to compare with.
+              ...(line && previousClose
+                ? [{ label: "Since close", value: formatPercent(line.value / previousClose - 1) }]
+                : []),
+              ...(line && averagePrice
+                ? [
+                    {
+                      label: "Vs your average",
+                      value: formatPercent(line.value / averagePrice - 1),
+                    },
+                  ]
+                : []),
+              ...(volume ? [{ label: "Volume", value: formatCompact(volume.y2) }] : []),
+              ...marks.map((t) => ({
+                label: t.side === "buy" ? "You bought" : "You sold",
+                value: formatPrice(t.price),
+                color: t.side === "buy" ? "var(--up)" : "var(--down)",
+              })),
+            ],
+          };
+        },
+      },
     });
-  }, [points, intraday, formatValue, previousClose, averagePrice, trades, volumes, events]);
+  }, [
+    points,
+    intraday,
+    formatValue,
+    valueLabel,
+    previousClose,
+    averagePrice,
+    trades,
+    volumes,
+    events,
+  ]);
 
   return (
     <Chart
