@@ -19,3 +19,4 @@ release version:
     git commit -m "Release v{{version}}"
     git tag v{{version}}
     git push origin HEAD v{{version}}
+    gh workflow run release.yml --ref main
