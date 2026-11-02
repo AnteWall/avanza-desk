@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeftRight, Layers, Users } from "lucide-react";
+import { ArrowLeftRight, Layers, ListOrdered, Users } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { AsyncBoundary } from "@/components/common/async-boundary";
 import { Empty } from "@/components/common/empty";
 import { TableSkeleton } from "@/components/common/table-skeleton";
 import { BrokersTable } from "@/components/workspace/order-book/brokers-table";
+import { LadderTable } from "@/components/workspace/order-book/ladder-table";
 import { OrderBookTable } from "@/components/workspace/order-book/order-book-table";
 import { TradesTable } from "@/components/workspace/order-book/trades-table";
 import { TabbedPanel } from "@/components/workspace/tabbed-panel";
@@ -13,7 +14,7 @@ import { useFocusedInstrument } from "@/components/workspace/use-focused-instrum
 import { InstrumentType } from "@/lib/avanza/codes";
 import { instrumentQuery } from "@/lib/avanza/queries";
 
-/** Order depth, the trade tape (time & sales) and broker statistics of the focused instrument. */
+/** Order depth (as a table or a price ladder with your orders), the trade tape (time & sales) and broker statistics of the focused instrument. */
 export function OrderBookPanel() {
   const focus = useFocusedInstrument();
   const { data: instrument } = useQuery({
@@ -41,6 +42,12 @@ export function OrderBookPanel() {
           label: "Depth",
           icon: Layers,
           content: focus && view("the order book", <OrderBookTable focus={focus} />),
+        },
+        {
+          value: "ladder",
+          label: "Ladder",
+          icon: ListOrdered,
+          content: focus && view("the order book", <LadderTable focus={focus} />),
         },
         {
           value: "trades",
