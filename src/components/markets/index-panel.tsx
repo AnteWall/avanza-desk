@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { ChartNoAxesColumn } from "lucide-react";
 import { useState } from "react";
 
@@ -7,16 +7,28 @@ import { Segmented } from "@/components/common/segmented";
 import { TableSkeleton } from "@/components/common/table-skeleton";
 import { IndexConstituents } from "@/components/markets/index-constituents";
 import { Panel } from "@/components/workspace/panel";
-import { headerIndicesQuery } from "@/lib/avanza/queries";
+import { headerIndicesQuery, indexConstituentsQuery } from "@/lib/avanza/queries";
 
 /** Members of the indices in the top bar, as a list or a heatmap; pick one in the title bar. */
 export function IndexPanel() {
   // Shares the top bar's ticker cache.
   const { data } = useQuery(headerIndicesQuery);
-  const indexes = data?.indexes ?? [];
+  const all = data?.indexes ?? [];
+  // Avanza lists members for some indices only (not e.g. DJUS): offer those that have them.
+  // One read each, no polling here; the shown index's own query refreshes.
+  const members = useQueries({
+    queries: all.map((i) => ({
+      ...indexConstituentsQuery(i.link.orderbookId),
+      refetchInterval: false as const,
+    })),
+  });
+  const indexes = all.filter((_, i) => members[i]?.data?.length !== 0);
   const [picked, setPicked] = useState<string>();
   const [view, setView] = useState<"list" | "map">("list");
-  const active = picked ?? indexes[0]?.link.orderbookId;
+  // A pick that turns out to have no members falls back to the first that has.
+  const active =
+    indexes.find((i) => i.link.orderbookId === picked)?.link.orderbookId ??
+    indexes[0]?.link.orderbookId;
 
   return (
     <Panel
