@@ -39,7 +39,7 @@ const last = (l: { points: readonly ReturnPoint[] }) => l.points.at(-1)?.value;
  * Funds are left out: they price once a day.
  */
 export function IntradayChart() {
-  const { holdings } = useHoldings();
+  const { holdings } = useHoldings({ grouped: true });
   const listed = useMemo(
     () => holdings.filter((h) => h.orderbookId && h.type !== "FUND"),
     [holdings],

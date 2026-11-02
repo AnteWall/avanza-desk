@@ -5,7 +5,7 @@ import { lookThrough, unclassified } from "@/lib/avanza/portfolio";
 
 /** Where the money is invested: stocks by listing country, funds and ETFs by their holdings. */
 export function CountryAllocation() {
-  const { holdings, byKey, pending } = useLookThroughs();
+  const { holdings, byKey, pending } = useLookThroughs({ grouped: true });
   if (pending) return <TableSkeleton rows={8} columns={4} />;
   return (
     <AllocationTable

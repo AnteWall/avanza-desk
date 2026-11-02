@@ -4,6 +4,8 @@ import { useState } from "react";
 
 import { RebalanceTable, type RebalanceRow } from "@/components/analysis/rebalance/rebalance-table";
 import { Empty } from "@/components/common/empty";
+import { GroupPicker } from "@/components/portfolio/holdings/group-picker";
+import { useGroup } from "@/components/portfolio/holdings/use-groups";
 import { useHoldings } from "@/components/portfolio/use-holdings";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { formatPercent, formatShare } from "@/lib/format";
-import { rebalance, targetsKey as KEY } from "@/lib/rebalance";
+import { rebalance, targetsKey } from "@/lib/rebalance";
 import { openRuleDialog } from "@/lib/rule-dialog";
 import { getSetting, saveSetting } from "@/lib/settings";
 
@@ -23,10 +25,14 @@ type Targets = Record<string, number>;
 
 /**
  * Set a target share per holding (it starts at today's weight), optionally add new money, and
- * read off the trades. Targets are saved; the trades must be placed in Avanza.
+ * read off the trades. Targets are saved; the trades must be placed in Avanza. With a group
+ * picked it rebalances within the group, against targets saved for that group (drift alerts
+ * watch the whole portfolio's). Remount it when the group changes.
  */
 export function RebalancePlanner() {
-  const { holdings } = useHoldings();
+  const { holdings } = useHoldings({ grouped: true });
+  const group = useGroup();
+  const KEY = group ? `${targetsKey}:${group.id}` : targetsKey;
   const [targets, setTargets] = useState(() => getSetting<Targets>(KEY, {}));
   const [newMoney, setNewMoney] = useState(0);
   const [buyOnly, setBuyOnly] = useState(false);
@@ -34,7 +40,16 @@ export function RebalancePlanner() {
   const [resets, setResets] = useState(0);
 
   const held = holdings.filter((h) => h.value > 0);
-  if (held.length === 0) return <Empty>No holdings to rebalance.</Empty>;
+  if (held.length === 0) {
+    return (
+      <div className="flex flex-col">
+        <div className="border-b p-3">
+          <GroupPicker />
+        </div>
+        <Empty>{`No holdings${group ? ` in ${group.name}` : ""} to rebalance.`}</Empty>
+      </div>
+    );
+  }
   const total = held.reduce((s, h) => s + h.value, 0);
   const saveTargets = (next: Targets) => {
     setTargets(next);
@@ -65,6 +80,7 @@ export function RebalancePlanner() {
   return (
     <div className="flex flex-col">
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b p-3 text-xs">
+        <GroupPicker />
         <label className="text-muted-foreground flex items-center gap-2">
           New money
           <Input
@@ -105,10 +121,12 @@ export function RebalancePlanner() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="xs" onClick={() => openRuleDialog({ kind: "drift" })}>
-            <Bell />
-            Alert on drift
-          </Button>
+          {!group && (
+            <Button variant="outline" size="xs" onClick={() => openRuleDialog({ kind: "drift" })}>
+              <Bell />
+              Alert on drift
+            </Button>
+          )}
         </span>
       </div>
       <RebalanceTable key={resets} rows={rows} />

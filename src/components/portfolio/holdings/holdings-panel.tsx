@@ -1,4 +1,13 @@
-import { CalendarRange, Coins, Gauge, HandCoins, Layers, Receipt, Wallet } from "lucide-react";
+import {
+  CalendarRange,
+  Folder,
+  Coins,
+  Gauge,
+  HandCoins,
+  Layers,
+  Receipt,
+  Wallet,
+} from "lucide-react";
 
 import { AsyncBoundary } from "@/components/common/async-boundary";
 import { TableSkeleton } from "@/components/common/table-skeleton";
@@ -8,16 +17,30 @@ import { DividendsTable } from "@/components/portfolio/holdings/dividends-table"
 import { HoldingsTable } from "@/components/portfolio/holdings/holdings-table";
 import { PaidDividendsTable } from "@/components/portfolio/holdings/paid-dividends-table";
 import { TransactionsTable } from "@/components/portfolio/holdings/transactions-table";
+import { useGroup } from "@/components/portfolio/holdings/use-groups";
 import { KeyFigures } from "@/components/portfolio/key-figures";
 import { YearPanel } from "@/components/portfolio/year-panel";
 import { TabbedPanel } from "@/components/workspace/tabbed-panel";
 
 export function HoldingsPanel() {
   const account = useAccount();
+  const group = useGroup();
   return (
     <TabbedPanel
       id="holdings"
-      aside={account.label}
+      aside={
+        group ? (
+          <>
+            <span className="text-brand flex min-w-0 items-center gap-1">
+              <Folder className="size-3 shrink-0" />
+              <span className="truncate">{group.name}</span>
+            </span>
+            {account.label}
+          </>
+        ) : (
+          account.label
+        )
+      }
       tabs={[
         {
           value: "holdings",

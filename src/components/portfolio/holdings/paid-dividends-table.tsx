@@ -3,10 +3,12 @@ import type { Dividend } from "avanza-ts";
 
 import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { Empty } from "@/components/common/empty";
+import { useGroup } from "@/components/portfolio/holdings/use-groups";
 import { StatList } from "@/components/workspace/chart/stat-list";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { paidDividendsQuery } from "@/lib/avanza/queries";
 import { formatDate, formatInteger, formatPrice } from "@/lib/format";
+import { inGroup } from "@/lib/groups";
 
 const dash = "–";
 
@@ -40,11 +42,14 @@ const columns = col.columns([
   }),
 ]);
 
-/** Dividends paid out to you, newest first, with a total per year. Suspends. */
+/** Dividends paid out to you (from the selected group), newest first, with a total per year. */
 export function PaidDividendsTable() {
   const { data } = useSuspenseQuery(paidDividendsQuery);
+  const group = useGroup();
   const focus = useFocusInstrument();
-  const rows = [...data].sort((a, b) => b.date.localeCompare(a.date));
+  const rows = data
+    .filter((d) => !group || inGroup(group, d.orderbook?.id, d.isin))
+    .sort((a, b) => b.date.localeCompare(a.date));
 
   const perYear = new Map<string, number>();
   for (const d of rows)

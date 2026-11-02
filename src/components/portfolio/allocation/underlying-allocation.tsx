@@ -10,7 +10,7 @@ const rest = "Undisclosed";
  * so a stock held directly and through three funds shows up once with its full weight.
  */
 export function UnderlyingAllocation() {
-  const { holdings, byKey, pending } = useLookThroughs();
+  const { holdings, byKey, pending } = useLookThroughs({ grouped: true });
   if (pending) return <TableSkeleton rows={8} columns={4} />;
   const slices = lookThrough(
     holdings,

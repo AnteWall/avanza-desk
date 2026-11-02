@@ -1,10 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 import { Change } from "@/components/common/change";
 import { CountryFlag } from "@/components/common/country-flag";
 import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { InstrumentLogo } from "@/components/common/instrument-logo";
 import { SignedAmount } from "@/components/common/signed-amount";
+import { GroupMenuItems } from "@/components/portfolio/holdings/group-menu-items";
+import { GroupNameDialog } from "@/components/portfolio/holdings/group-name-dialog";
+import { useGroup } from "@/components/portfolio/holdings/use-groups";
 import { useLookThroughs } from "@/components/portfolio/use-holdings";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { instrumentItem } from "@/lib/ai/context";
@@ -12,6 +16,7 @@ import { dividendYields, holdingYield, typeLabel, type Holding } from "@/lib/ava
 import { stockKeyRatiosQuery } from "@/lib/avanza/queries";
 import { sessionLabel } from "@/lib/exchanges";
 import { formatInteger, formatShare } from "@/lib/format";
+import { createGroup, setGroupId } from "@/lib/groups";
 
 type Row = Holding & { sector: string; weight: number; dividendYield?: number };
 
@@ -73,14 +78,28 @@ const columns = col.columns([
   }),
 ]);
 
-/** Every instrument once, summed over accounts. Clicking one opens it in the workspace. */
+/**
+ * Every instrument once, summed over accounts (or the selected group's, weights then relative
+ * to the group). Clicking one opens it in the workspace; select several and right-click to
+ * group them.
+ */
 export function HoldingsTable() {
   // Sectors fill in as each look-through arrives; the table doesn't wait for them.
-  const { holdings, byKey } = useLookThroughs();
+  const { holdings, byKey } = useLookThroughs({ grouped: true });
+  const group = useGroup();
+  const [newGroupKeys, setNewGroupKeys] = useState<string[]>();
   const { data: ratios } = useQuery(stockKeyRatiosQuery);
   const focus = useFocusInstrument();
 
-  if (holdings.length === 0) return <p className="text-muted-foreground p-3">No holdings.</p>;
+  if (holdings.length === 0) {
+    return (
+      <p className="text-muted-foreground p-3">
+        {group
+          ? `${group.name} is empty. Switch to All holdings and right-click holdings to add them.`
+          : "No holdings."}
+      </p>
+    );
+  }
   const total = holdings.reduce((sum, h) => sum + h.value, 0);
   const yields = dividendYields(ratios ?? []);
   const rows: Row[] = holdings.map((h) => ({
@@ -90,12 +109,26 @@ export function HoldingsTable() {
     dividendYield: holdingYield(h, yields),
   }));
   return (
-    <DataTable
-      columns={columns}
-      data={rows}
-      getRowId={(h) => h.key}
-      onRowClick={(h) => h.orderbookId && focus(h.orderbookId, h.type)}
-      askAbout={(h) => instrumentItem(h.orderbookId, h.name, h.type, h.isin)}
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={rows}
+        getRowId={(h) => h.key}
+        onRowClick={(h) => h.orderbookId && focus(h.orderbookId, h.type)}
+        askAbout={(h) => instrumentItem(h.orderbookId, h.name, h.type, h.isin)}
+        rowMenu={(selected) => (
+          <GroupMenuItems
+            keys={selected.map((h) => h.key)}
+            onNewGroup={() => setNewGroupKeys(selected.map((h) => h.key))}
+          />
+        )}
+      />
+      <GroupNameDialog
+        open={Boolean(newGroupKeys)}
+        title="New group"
+        onSubmit={(name) => setGroupId(createGroup(name, newGroupKeys ?? []))}
+        onClose={() => setNewGroupKeys(undefined)}
+      />
+    </>
   );
 }

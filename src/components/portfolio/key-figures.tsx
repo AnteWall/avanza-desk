@@ -22,7 +22,7 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
  * units, hence the `/ 100`s.
  */
 export function KeyFigures() {
-  const { holdings } = useHoldings();
+  const { holdings } = useHoldings({ grouped: true });
   const { data: totals } = useSuspenseQuery(totalValuesQuery);
   // Decorations: each shows a dash until it loads, or if it fails.
   const { data: ratios } = useQuery(keyRatiosQuery);

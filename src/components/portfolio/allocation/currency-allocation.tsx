@@ -8,7 +8,7 @@ import { fundAnalysisQuery } from "@/lib/avanza/queries";
 
 /** Currency exposure including cash: funds looked through, everything else by trading currency. */
 export function CurrencyAllocation() {
-  const { holdings, cash } = useHoldings();
+  const { holdings, cash } = useHoldings({ grouped: true });
   // Decoration: without it funds count as unclassified rather than failing the tab.
   const funds = useQuery(fundAnalysisQuery);
 

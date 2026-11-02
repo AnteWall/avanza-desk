@@ -70,7 +70,7 @@ const columns = col.columns([
 
 /** Dividend-paying stocks, next payout first, with an estimate of yearly income. */
 export function DividendsTable() {
-  const { holdings } = useHoldings();
+  const { holdings } = useHoldings({ grouped: true });
   const { data: ratios } = useSuspenseQuery(stockKeyRatiosQuery);
   const focus = useFocusInstrument();
 

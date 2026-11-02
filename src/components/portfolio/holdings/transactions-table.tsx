@@ -5,9 +5,11 @@ import { useState } from "react";
 import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { Empty } from "@/components/common/empty";
 import { SignedAmount } from "@/components/common/signed-amount";
+import { useGroup } from "@/components/portfolio/holdings/use-groups";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { transactionsQuery } from "@/lib/avanza/queries";
 import { formatDate, formatInteger, formatPrice } from "@/lib/format";
+import { inGroup } from "@/lib/groups";
 
 const dash = "–";
 
@@ -59,7 +61,10 @@ const columns = col.columns([
   }),
 ]);
 
-/** Every transaction on every account over the last 12 months, newest first. Suspends. */
+/**
+ * Every transaction on every account (in the selected group) over the last 12 months, newest
+ * first. Suspends.
+ */
 export function TransactionsTable() {
   // Fixed at mount so the query key doesn't change at midnight.
   const [from] = useState(() => {
@@ -68,8 +73,12 @@ export function TransactionsTable() {
     return d.toISOString().slice(0, 10);
   });
   const { data } = useSuspenseQuery(transactionsQuery(from));
+  const group = useGroup();
   const focus = useFocusInstrument();
-  const rows = [...data.transactions].sort((a, b) => b.date.localeCompare(a.date));
+  // A group holds instruments: its view drops cash moves like deposits.
+  const rows = data.transactions
+    .filter((t) => !group || inGroup(group, t.orderbook?.id, t.isin))
+    .sort((a, b) => b.date.localeCompare(a.date));
 
   if (rows.length === 0) return <Empty>No transactions in the last 12 months.</Empty>;
   return (

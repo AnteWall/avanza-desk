@@ -5,7 +5,7 @@ import { lookThrough, unclassified } from "@/lib/avanza/portfolio";
 
 /** Industry exposure: stocks by Avanza sector, funds and ETFs by their reported sectors. */
 export function SectorAllocation() {
-  const { holdings, byKey, pending } = useLookThroughs();
+  const { holdings, byKey, pending } = useLookThroughs({ grouped: true });
   if (pending) return <TableSkeleton rows={8} columns={4} />;
   // shortcut: names are shown as each source sends them (Avanza stock sectors vs fund
   // reports), so one industry can appear twice; add a mapping table if that gets noisy.

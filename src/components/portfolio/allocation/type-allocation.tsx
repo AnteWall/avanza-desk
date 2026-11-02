@@ -4,7 +4,7 @@ import { slices, typeLabel } from "@/lib/avanza/portfolio";
 
 /** Asset classes including cash. */
 export function TypeAllocation() {
-  const { holdings, cash } = useHoldings();
+  const { holdings, cash } = useHoldings({ grouped: true });
   return (
     <AllocationTable
       slices={slices([
