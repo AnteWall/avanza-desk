@@ -9,7 +9,9 @@ import { Skeleton } from "@/components/common/skeleton";
 import { LegendRow as Row } from "@/components/portfolio/intraday/legend-row";
 import { LinePresets } from "@/components/portfolio/intraday/line-presets";
 import { useHoldings } from "@/components/portfolio/use-holdings";
-import { headerIndicesQuery, priceChartQuery } from "@/lib/avanza/queries";
+import { getAccount } from "@/lib/account";
+import { toDealRow } from "@/lib/avanza/loose-records";
+import { dealsQuery, headerIndicesQuery, priceChartQuery } from "@/lib/avanza/queries";
 import type { ReturnPoint } from "@/lib/benchmark";
 import { formatPercent } from "@/lib/format";
 import { sinceClose, stockholmTime, weightedLine } from "@/lib/intraday";
@@ -33,7 +35,8 @@ const last = (l: { points: readonly ReturnPoint[] }) => l.points.at(-1)?.value;
  * The latest session since the previous close: the portfolio weighted by yesterday's value,
  * OMXS30, and the holdings picked in the legend (the five largest by default). Avanza's "today"
  * chart is each instrument's last session, so holdings that haven't traded in the latest one
- * (US stocks before 15:30) count as unchanged. Funds are left out: they price once a day.
+ * (US stocks before 15:30) count as unchanged. Today's deals count from their time and price.
+ * Funds are left out: they price once a day.
  */
 export function IntradayChart() {
   const { holdings } = useHoldings();
@@ -42,6 +45,18 @@ export function IntradayChart() {
     [holdings],
   );
   const { data: indices } = useQuery(headerIndicesQuery);
+  const { data: deals, isPending: dealsPending } = useQuery(dealsQuery);
+  const fills = useMemo(() => {
+    const account = getAccount();
+    const rows = (deals?.deals.map(toDealRow) ?? []).flatMap((d) => {
+      const timestamp = Date.parse(d.time ?? "");
+      if (!d.orderbookId || !d.volume || d.price == null || Number.isNaN(timestamp)) return [];
+      if (account && d.accountId && d.accountId !== account) return [];
+      const volume = d.side === "BUY" ? d.volume : -d.volume;
+      return [{ id: d.orderbookId, timestamp, volume, price: d.price }];
+    });
+    return Map.groupBy(rows, (f) => f.id);
+  }, [deals]);
   const omx = indices?.indexes.find((i) =>
     isOmxs30(`${i.link.shortLinkDisplay} ${i.link.linkDisplay}`),
   );
@@ -70,7 +85,9 @@ export function IntradayChart() {
     );
     const ret = (i: number) => {
       const c = charts[i];
-      return c && c.to === session ? sinceClose(c.ohlc, c.previousClosingPrice) : [];
+      const h = listed[i];
+      const held = h && { volume: h.volume, fills: fills.get(h.orderbookId!) ?? [] };
+      return c && c.to === session ? sinceClose(c.ohlc, c.previousClosingPrice, held) : [];
     };
     const lines: Line[] = listed.map((h, i) => ({
       key: h.key,
@@ -84,7 +101,7 @@ export function IntradayChart() {
       portfolio: weightedLine(lines),
       session,
     };
-  }, [charts, listed, omx]);
+  }, [charts, listed, omx, fills]);
 
   // `null` = the largest holdings that traded; otherwise the keys picked in the legend.
   const { shown, series } = useMemo(() => {
@@ -175,7 +192,7 @@ export function IntradayChart() {
     });
   }, [series, index, portfolio, session, hovered, omxLabel]);
 
-  if (pending) return <Skeleton className="m-3 h-48 rounded-md opacity-60" />;
+  if (pending || dealsPending) return <Skeleton className="m-3 h-48 rounded-md opacity-60" />;
   if (!portfolio.length) return <p className="text-muted-foreground p-3">No trades today yet.</p>;
 
   const strokeOf = new Map(series.map((s) => [s.key, s.stroke]));

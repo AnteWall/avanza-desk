@@ -1,12 +1,41 @@
 import type { ReturnPoint } from "@/lib/benchmark";
 
-/** Each close as a return since the previous close. Empty without a previous close. */
+/** A deal executed today at `timestamp` (epoch ms): `volume` shares, negative when sold. */
+export type Fill = { timestamp: number; volume: number; price: number };
+
+/**
+ * Each close as a return since the previous close. With `held` (the volume held now and today's
+ * fills) it is the result of what was actually held at each point, over yesterday's value plus
+ * what was bought: a holding bought at 14:00 starts at 14:00 from its buy price. Empty without
+ * a previous close for shares held since yesterday.
+ */
 export function sinceClose(
   ohlc: readonly { timestamp: number; close: number }[],
   previousClose: number | null,
+  held?: { volume: number; fills: readonly Fill[] },
 ): ReturnPoint[] {
-  if (!previousClose) return [];
-  return ohlc.map((p) => ({ timestamp: p.timestamp, value: p.close / previousClose - 1 }));
+  const fills = [...(held?.fills ?? [])].sort((a, b) => a.timestamp - b.timestamp);
+  const start = held ? held.volume - fills.reduce((n, f) => n + f.volume, 0) : 1;
+  const yesterday = start > 0 ? start * (previousClose ?? NaN) : 0;
+  const base = yesterday + fills.reduce((n, f) => n + Math.max(f.volume, 0) * f.price, 0);
+  if (!base) return [];
+  let volume = start;
+  let invested = 0;
+  let next = 0;
+  const points: ReturnPoint[] = [];
+  for (const p of ohlc) {
+    for (let f = fills[next]; f && f.timestamp <= p.timestamp; f = fills[++next]) {
+      volume += f.volume;
+      invested += f.volume * f.price;
+    }
+    // Nothing held yet: a new holding starts at its first buy.
+    if (start <= 0 && next === 0) continue;
+    points.push({
+      timestamp: p.timestamp,
+      value: (volume * p.close - yesterday - invested) / base,
+    });
+  }
+  return points;
 }
 
 /**
