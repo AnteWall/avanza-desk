@@ -1,3 +1,5 @@
+import { InstrumentType } from "@/lib/avanza/codes";
+
 /** Setting holding the saved target weights (0…1) by holding key. */
 export const targetsKey = "rebalance:targets";
 
@@ -28,7 +30,7 @@ export function rebalance(
     const gap = gaps[i]!;
     const raw = buyOnly ? Math.max(gap, 0) * scale : gap;
     const price = p.volume > 0 ? p.value / p.volume : 0;
-    if (p.type === "FUND" || price <= 0)
+    if (p.type === InstrumentType.Fund || price <= 0)
       return { key: p.key, desired: p.value + gap, amount: raw, shares: null };
     const shares = Math.trunc(raw / price);
     return { key: p.key, desired: p.value + gap, amount: shares * price, shares };

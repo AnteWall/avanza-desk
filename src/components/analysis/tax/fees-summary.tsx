@@ -2,6 +2,7 @@ import { useSuspenseQueries } from "@tanstack/react-query";
 
 import { StatList } from "@/components/analysis/stat-list";
 import { accountIds } from "@/lib/account";
+import { TransactionSide } from "@/lib/avanza/codes";
 import { fundAnalysisQuery, totalValuesQuery, transactionFilterQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatShare } from "@/lib/format";
 import { stockholmDay } from "@/lib/snapshots";
@@ -19,7 +20,7 @@ export function FeesSummary() {
       transactionFilterQuery({
         from: yearAgo,
         accountIds: accountIds(),
-        transactionTypes: ["BUY", "SELL"],
+        transactionTypes: [TransactionSide.Buy, TransactionSide.Sell],
       }),
       fundAnalysisQuery,
       totalValuesQuery,

@@ -6,6 +6,7 @@ import {
 } from "avanza-ts";
 
 import { avanza } from "./client";
+import { InstrumentType } from "./codes";
 
 /** What every panel needs to know about the focused instrument, whatever its type. */
 export type Instrument = {
@@ -36,7 +37,7 @@ const listedTypes: Record<string, ListedInstrumentType> = {
 };
 
 async function load(orderbookId: string, type: string, signal?: AbortSignal): Promise<Instrument> {
-  if (type === "FUND") {
+  if (type === InstrumentType.Fund) {
     const fund = await avanza.funds.guide(orderbookId, signal);
     return {
       kind: "fund",
@@ -49,12 +50,12 @@ async function load(orderbookId: string, type: string, signal?: AbortSignal): Pr
     };
   }
   const stock =
-    type === "EXCHANGE_TRADED_FUND" || listedTypes[type]
+    type === InstrumentType.Etf || listedTypes[type]
       ? undefined
       : await avanza.market.stock(orderbookId, signal);
   const info =
     stock ??
-    (type === "EXCHANGE_TRADED_FUND"
+    (type === InstrumentType.Etf
       ? await avanza.market.etf(orderbookId, signal)
       : await avanza.market.instrument(listedTypes[type], orderbookId, signal));
   return {
@@ -73,9 +74,19 @@ async function load(orderbookId: string, type: string, signal?: AbortSignal): Pr
 }
 
 // When the type is unknown (default focus, or a code we don't map), try common types in turn.
-const probeOrder = ["STOCK", "EXCHANGE_TRADED_FUND", "FUND", "CERTIFICATE"];
+const probeOrder = [
+  InstrumentType.Stock,
+  InstrumentType.Etf,
+  InstrumentType.Fund,
+  InstrumentType.Certificate,
+];
 
-const knownTypes = new Set(["STOCK", "FUND", "EXCHANGE_TRADED_FUND", ...Object.keys(listedTypes)]);
+const knownTypes = new Set([
+  InstrumentType.Stock,
+  InstrumentType.Fund,
+  InstrumentType.Etf,
+  ...Object.keys(listedTypes),
+]);
 
 export async function loadInstrument(orderbookId: string, type?: string, signal?: AbortSignal) {
   const code = type?.toUpperCase();

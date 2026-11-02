@@ -12,6 +12,7 @@ import { useGroup } from "@/components/portfolio/holdings/use-groups";
 import { useLookThroughs } from "@/components/portfolio/use-holdings";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { instrumentItem } from "@/lib/ai/context";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { dividendYields, holdingYield, typeLabel, type Holding } from "@/lib/avanza/portfolio";
 import { stockKeyRatiosQuery } from "@/lib/avanza/queries";
 import { sessionLabel } from "@/lib/exchanges";
@@ -104,7 +105,8 @@ export function HoldingsTable() {
   const yields = dividendYields(ratios ?? []);
   const rows: Row[] = holdings.map((h) => ({
     ...h,
-    sector: (h.type === "STOCK" && byKey.get(h.key)?.sectors[0]?.name) || typeLabel(h.type),
+    sector:
+      (h.type === InstrumentType.Stock && byKey.get(h.key)?.sectors[0]?.name) || typeLabel(h.type),
     weight: total ? h.value / total : 0,
     dividendYield: holdingYield(h, yields),
   }));

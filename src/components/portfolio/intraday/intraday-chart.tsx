@@ -10,6 +10,7 @@ import { LegendRow as Row } from "@/components/portfolio/intraday/legend-row";
 import { LinePresets } from "@/components/portfolio/intraday/line-presets";
 import { useHoldings } from "@/components/portfolio/use-holdings";
 import { getAccount } from "@/lib/account";
+import { InstrumentType, TransactionSide } from "@/lib/avanza/codes";
 import { toDealRow } from "@/lib/avanza/loose-records";
 import { dealsQuery, headerIndicesQuery, priceChartQuery } from "@/lib/avanza/queries";
 import type { ReturnPoint } from "@/lib/benchmark";
@@ -41,7 +42,7 @@ const last = (l: { points: readonly ReturnPoint[] }) => l.points.at(-1)?.value;
 export function IntradayChart() {
   const { holdings } = useHoldings({ grouped: true });
   const listed = useMemo(
-    () => holdings.filter((h) => h.orderbookId && h.type !== "FUND"),
+    () => holdings.filter((h) => h.orderbookId && h.type !== InstrumentType.Fund),
     [holdings],
   );
   const { data: indices } = useQuery(headerIndicesQuery);
@@ -52,7 +53,7 @@ export function IntradayChart() {
       const timestamp = Date.parse(d.time ?? "");
       if (!d.orderbookId || !d.volume || d.price == null || Number.isNaN(timestamp)) return [];
       if (account && d.accountId && d.accountId !== account) return [];
-      const volume = d.side === "BUY" ? d.volume : -d.volume;
+      const volume = d.side === TransactionSide.Buy ? d.volume : -d.volume;
       return [{ id: d.orderbookId, timestamp, volume, price: d.price }];
     });
     return Map.groupBy(rows, (f) => f.id);

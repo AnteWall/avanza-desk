@@ -22,6 +22,7 @@ import { FundDetails } from "@/components/workspace/fundamentals/fund-details";
 import { InstrumentNews } from "@/components/workspace/news/instrument-news";
 import { InstrumentNotes } from "@/components/workspace/notes/instrument-notes";
 import type { Focus } from "@/components/workspace/use-focused-instrument";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { instrumentQuery } from "@/lib/avanza/queries";
 
 const skeleton = (
@@ -83,7 +84,7 @@ export function Dossier({ focus, period }: { focus: Focus; period: ChartPeriod }
           </Section>
         </div>
       ) : (
-        focus.type === "EXCHANGE_TRADED_FUND" && (
+        focus.type === InstrumentType.Etf && (
           <div className="border-t">{part("ETF details", <EtfAbout orderbookId={id} />)}</div>
         )
       )}

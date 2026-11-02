@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { TableSkeleton } from "@/components/common/table-skeleton";
 import { AllocationTable } from "@/components/portfolio/allocation/allocation-table";
 import { useHoldings } from "@/components/portfolio/use-holdings";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { fractions, lookThrough, unclassified, type Holding } from "@/lib/avanza/portfolio";
 import { fundAnalysisQuery } from "@/lib/avanza/queries";
 
@@ -23,7 +24,7 @@ export function CurrencyAllocation() {
   return (
     <AllocationTable
       slices={lookThrough(withCash, (h) =>
-        h.type === "FUND" ? fundCurrencies : [{ name: h.currency, weight: 1 }],
+        h.type === InstrumentType.Fund ? fundCurrencies : [{ name: h.currency, weight: 1 }],
       )}
       rest={unclassified}
     />

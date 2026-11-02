@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { Change } from "@/components/common/change";
 import { Button } from "@/components/ui/button";
 import { Section } from "@/components/workspace/dossier/section";
+import { InstrumentType } from "@/lib/avanza/codes";
 import type { Instrument } from "@/lib/avanza/instrument";
 import {
   fundamentalsQuery,
@@ -48,7 +49,7 @@ export function Snapshot({ instrument }: { instrument: Instrument }) {
   const ki = instrument.stock!.keyIndicators;
   const last = quote?.last;
   const facts: Fact[] = [];
-  const target = { id, name: instrument.name, type: "STOCK" };
+  const target = { id, name: instrument.name, type: InstrumentType.Stock };
 
   // P/E means nothing with a loss; EV/EBIT is the fallback.
   const pe = analysis?.keyRatiosByYear.priceEarningsRatio;

@@ -4,10 +4,11 @@ import { scaleLinear } from "@tanstack/charts/scales/linear";
 import { tooltip } from "@tanstack/charts/tooltip";
 import { useMemo } from "react";
 
+import { OrderSide } from "@/lib/avanza/codes";
 import { formatCompact, formatPercent, formatPrice } from "@/lib/format";
 
 export type ChartPoint = { timestamp: number; value: number };
-export type TradeMarker = { timestamp: number; price: number; side: "buy" | "sell" };
+export type TradeMarker = { timestamp: number; price: number; side: OrderSide };
 export type VolumeBar = { timestamp: number; volume: number };
 
 const noTrades: readonly TradeMarker[] = [];
@@ -91,11 +92,11 @@ export function PriceChart({
         }),
         lineY(points, { x: "timestamp", y: "value", stroke: "var(--brand)", strokeWidth: 1.5 }),
         dot(
-          inRange.filter((t) => t.side === "buy"),
+          inRange.filter((t) => t.side === OrderSide.Buy),
           { x: "timestamp", y: "price", r: 4, fill: "var(--up)", stroke: "var(--card)" },
         ),
         dot(
-          inRange.filter((t) => t.side === "sell"),
+          inRange.filter((t) => t.side === OrderSide.Sell),
           { x: "timestamp", y: "price", r: 4, fill: "var(--down)", stroke: "var(--card)" },
         ),
       ],
@@ -148,9 +149,9 @@ export function PriceChart({
                 : []),
               ...(volume ? [{ label: "Volume", value: formatCompact(volume.y2) }] : []),
               ...marks.map((t) => ({
-                label: t.side === "buy" ? "You bought" : "You sold",
+                label: t.side === OrderSide.Buy ? "You bought" : "You sold",
                 value: formatPrice(t.price),
-                color: t.side === "buy" ? "var(--up)" : "var(--down)",
+                color: t.side === OrderSide.Buy ? "var(--up)" : "var(--down)",
               })),
             ],
           };

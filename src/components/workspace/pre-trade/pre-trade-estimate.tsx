@@ -2,6 +2,7 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { cn } from "cn";
 
 import { type Focus } from "@/components/workspace/use-focused-instrument";
+import { OrderSide } from "@/lib/avanza/codes";
 import { estimateFill } from "@/lib/avanza/fill-estimate";
 import { tickAt } from "@/lib/avanza/links";
 import { holding } from "@/lib/avanza/portfolio";
@@ -24,7 +25,7 @@ export function PreTradeEstimate({
   quantity,
 }: {
   focus: Focus;
-  side: "buy" | "sell";
+  side: OrderSide;
   quantity: number;
 }) {
   const { data: instrument } = useSuspenseQuery(instrumentQuery(focus.id, focus.type));
@@ -38,11 +39,11 @@ export function PreTradeEstimate({
   const fill = estimateFill(depth, side, quantity);
   // Avanza omits `levels` for some instruments, despite the SDK type.
   const best =
-    side === "buy" ? depth.levels?.[0]?.sellSide?.price : depth.levels?.[0]?.buySide?.price;
+    side === OrderSide.Buy ? depth.levels?.[0]?.sellSide?.price : depth.levels?.[0]?.buySide?.price;
   const slippage = fill.averagePrice != null && best ? fill.averagePrice / best - 1 : null;
   const held = holding(positions, focus.id);
   const pnl =
-    side === "sell" && held && fill.averagePrice != null
+    side === OrderSide.Sell && held && fill.averagePrice != null
       ? (fill.averagePrice - held.averagePrice) * Math.min(fill.filled, held.volume)
       : null;
 
@@ -63,7 +64,8 @@ export function PreTradeEstimate({
   ];
   // Avanza sends rates as Swedish decimal strings: you buy currency at `buyPrice`.
   const rate = rates?.find((r) => r.currency === instrument.currency);
-  const sek = rate && Number((side === "buy" ? rate.buyPrice : rate.sellPrice).replace(",", "."));
+  const sek =
+    rate && Number((side === OrderSide.Buy ? rate.buyPrice : rate.sellPrice).replace(",", "."));
   if (foreign && sek) rows.push({ label: "Total (SEK)", value: formatPrice(fill.cost * sek) });
   const tick = best != null && rules ? tickAt(rules.tickSizeList.tickSizeEntries, best) : undefined;
   if (tick != null) rows.push({ label: "Tick size", value: formatPrice(tick) });

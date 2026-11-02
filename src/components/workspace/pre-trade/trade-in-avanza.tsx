@@ -3,6 +3,7 @@ import { cn } from "cn";
 import { ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { OrderSide } from "@/lib/avanza/codes";
 import type { Instrument } from "@/lib/avanza/instrument";
 import { avanzaOrderUrl } from "@/lib/avanza/links";
 
@@ -13,7 +14,7 @@ export function TradeInAvanza({
   quantity,
 }: {
   instrument: Instrument;
-  side: "buy" | "sell";
+  side: OrderSide;
   quantity?: number;
 }) {
   const url = avanzaOrderUrl(
@@ -28,10 +29,10 @@ export function TradeInAvanza({
       onClick={() => void openUrl(url)}
       className={cn(
         "w-full text-white",
-        side === "buy" ? "bg-buy hover:bg-buy/90" : "bg-sell hover:bg-sell/90",
+        side === OrderSide.Buy ? "bg-buy hover:bg-buy/90" : "bg-sell hover:bg-sell/90",
       )}
     >
-      {`${side === "buy" ? "Buy" : "Sell"} ${instrument.shortName} in Avanza`}
+      {`${side === OrderSide.Buy ? "Buy" : "Sell"} ${instrument.shortName} in Avanza`}
       <ExternalLink />
     </Button>
   );

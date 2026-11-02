@@ -15,6 +15,7 @@ import { accountIds, getAccount } from "@/lib/account";
 import { refreshEvery } from "@/lib/refresh-intervals";
 
 import { avanza } from "./client";
+import { InstrumentType, TransactionSide } from "./codes";
 import { loadInstrument } from "./instrument";
 import { loadLookThrough } from "./look-through";
 import { captureRaw } from "./loose-records";
@@ -23,11 +24,11 @@ import { buildUniverse } from "./universe";
 
 // Instrument types the workspace can show (see `loadInstrument`).
 const searchTypes: SearchInstrumentType[] = [
-  "STOCK",
-  "EXCHANGE_TRADED_FUND",
-  "FUND",
-  "CERTIFICATE",
-  "WARRANT",
+  InstrumentType.Stock,
+  InstrumentType.Etf,
+  InstrumentType.Fund,
+  InstrumentType.Certificate,
+  InstrumentType.Warrant,
 ];
 
 // Every Avanza read goes through these factories. Queries under `accountScopedKeys` follow the
@@ -167,7 +168,10 @@ export const tradesByIsinQuery = (isin: string | undefined) =>
     queryKey: ["transactions", "trades", isin],
     // Avanza's transaction type codes for executed trades.
     queryFn: ({ signal }) =>
-      avanza.transactions.list({ isin, transactionTypes: ["BUY", "SELL"] }, signal),
+      avanza.transactions.list(
+        { isin, transactionTypes: [TransactionSide.Buy, TransactionSide.Sell] },
+        signal,
+      ),
     enabled: !!isin,
     staleTime: 5 * 60_000,
   });

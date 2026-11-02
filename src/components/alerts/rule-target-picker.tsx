@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { RuleScope, RuleTarget } from "@/lib/alert-rules";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { aggregateHoldings } from "@/lib/avanza/portfolio";
 import { allPositionsQuery, universeQuery } from "@/lib/avanza/queries";
 
@@ -58,7 +59,12 @@ export function RuleTargetPicker({
           label,
           options: universe
             .filter((s) => (label === "Held" ? s.held : !s.held))
-            .map((s) => ({ id: s.orderbookId, name: s.name, type: "STOCK", isin: s.isin })),
+            .map((s) => ({
+              id: s.orderbookId,
+              name: s.name,
+              type: InstrumentType.Stock,
+              isin: s.isin,
+            })),
         }));
   const options = groups.flatMap((g) => g.options);
   // Opened on something not in the lists (a stock found by search): offer it on its own.

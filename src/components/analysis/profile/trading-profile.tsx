@@ -8,6 +8,7 @@ import { Empty } from "@/components/common/empty";
 import { SignedAmount } from "@/components/common/signed-amount";
 import { Section } from "@/components/workspace/dossier/section";
 import { accountIds } from "@/lib/account";
+import { TransactionSide } from "@/lib/avanza/codes";
 import { transactionFilterQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatShare } from "@/lib/format";
 import { stockholmDay } from "@/lib/snapshots";
@@ -23,7 +24,11 @@ export function TradingProfile() {
     return d.toISOString().slice(0, 10);
   });
   const { data } = useSuspenseQuery(
-    transactionFilterQuery({ from, accountIds: accountIds(), transactionTypes: ["BUY", "SELL"] }),
+    transactionFilterQuery({
+      from,
+      accountIds: accountIds(),
+      transactionTypes: [TransactionSide.Buy, TransactionSide.Sell],
+    }),
   );
   const profile = useMemo(() => profileTrades(data.transactions, stockholmDay()), [data]);
   const [picked, setPicked] = useState<string>();

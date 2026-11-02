@@ -6,6 +6,7 @@ import { InstrumentLogo } from "@/components/common/instrument-logo";
 import { SignedAmount } from "@/components/common/signed-amount";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InstrumentType, OrderSide } from "@/lib/avanza/codes";
 import { avanzaOrderUrl } from "@/lib/avanza/links";
 import type { Holding } from "@/lib/avanza/portfolio";
 import { formatInteger, formatShare } from "@/lib/format";
@@ -84,7 +85,7 @@ const columns = col.columns([
       const amount = Math.round(trade.amount);
       const size = shares ?? amount;
       if (!size) return "–";
-      const side = size > 0 ? "buy" : "sell";
+      const side = size > 0 ? OrderSide.Buy : OrderSide.Sell;
       const label =
         shares == null
           ? `${size > 0 ? "Buy" : "Sell"} for ${formatInteger(Math.abs(amount))} SEK`
@@ -95,7 +96,7 @@ const columns = col.columns([
         holding.orderbookId,
         holding.name,
         side,
-        holding.type === "FUND",
+        holding.type === InstrumentType.Fund,
         shares == null ? undefined : Math.abs(shares),
       );
       return (

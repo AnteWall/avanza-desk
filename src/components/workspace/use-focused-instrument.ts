@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 
+import { InstrumentType } from "@/lib/avanza/codes";
 import { marketplaceQuery, watchlistsQuery } from "@/lib/avanza/queries";
 
 export type Focus = { id: string; type?: string };
@@ -20,7 +21,7 @@ export function useFocusInstrument() {
 
 /** True while the instrument's market is open: gates every live poll. Funds never are. */
 export function useMarketOpen(focus: Focus | undefined) {
-  const enabled = !!focus && focus.type !== "FUND";
+  const enabled = !!focus && focus.type !== InstrumentType.Fund;
   const { data } = useQuery({ ...marketplaceQuery(focus?.id ?? ""), enabled, retry: false });
   return data?.marketOpen ?? false;
 }

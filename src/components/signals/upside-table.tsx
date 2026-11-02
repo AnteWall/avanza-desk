@@ -8,6 +8,7 @@ import { Empty } from "@/components/common/empty";
 import { InstrumentLogo } from "@/components/common/instrument-logo";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { instrumentItem } from "@/lib/ai/context";
+import { InstrumentType } from "@/lib/avanza/codes";
 import {
   fundamentalsQuery,
   morningstarQuery,
@@ -144,8 +145,10 @@ export function UpsideTable() {
       columns={columns}
       data={rows}
       getRowId={(r) => r.stock.orderbookId}
-      onRowClick={(r) => focus(r.stock.orderbookId, "STOCK")}
-      askAbout={(r) => instrumentItem(r.stock.orderbookId, r.stock.name, "STOCK", r.stock.isin)}
+      onRowClick={(r) => focus(r.stock.orderbookId, InstrumentType.Stock)}
+      askAbout={(r) =>
+        instrumentItem(r.stock.orderbookId, r.stock.name, InstrumentType.Stock, r.stock.isin)
+      }
     />
   );
 }

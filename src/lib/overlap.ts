@@ -1,3 +1,4 @@
+import { InstrumentType } from "@/lib/avanza/codes";
 import type { Exposure } from "@/lib/avanza/portfolio";
 
 /** A holding with its underlying holdings as fractions of its value (from look-through). */
@@ -22,7 +23,7 @@ export type Shared = {
 
 const partKey = (e: Exposure) => e.key ?? e.name;
 
-const isFund = (s: Source) => s.type === "FUND" || s.type === "EXCHANGE_TRADED_FUND";
+const isFund = (s: Source) => s.type === InstrumentType.Fund || s.type === InstrumentType.Etf;
 
 /**
  * Overlap of every pair of funds/ETFs: Σ min(weight in A, weight in B) over shared holdings.

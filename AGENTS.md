@@ -53,6 +53,13 @@ and each GitHub release's notes, which the in-app updater shows too.
   module components. No `useEffect`, state, event handlers or other component logic; move that
   into a component under `src/components/<module>/`.
 
+## String codes
+
+- Avanza's codes live as named constants in `src/lib/avanza/codes.ts` (`InstrumentType`,
+  `TransactionSide`, `OrderSide`). Compare against those, not raw strings:
+  `h.type === InstrumentType.Fund`, not `h.type === "FUND"`. Add new codes there.
+- Use `as const` objects with a same-named union type, not TS `enum`s.
+
 ## Running the app (agents)
 
 `pnpm tauri dev` never exits on its own and spawns children (vite on :1420, the app binary).

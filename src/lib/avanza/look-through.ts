@@ -2,6 +2,7 @@ import type { EtfDetailsResponse } from "avanza-ts";
 
 import { formatCountry } from "@/lib/format";
 
+import { InstrumentType } from "./codes";
 import type { Instrument } from "./instrument";
 import type { Exposure } from "./portfolio";
 
@@ -29,7 +30,11 @@ type Raw = {
 };
 
 /** Instrument types whose holdings we can look into. */
-export const lookThroughTypes = new Set(["STOCK", "FUND", "EXCHANGE_TRADED_FUND"]);
+export const lookThroughTypes = new Set<string>([
+  InstrumentType.Stock,
+  InstrumentType.Fund,
+  InstrumentType.Etf,
+]);
 
 // Fund-of-funds rarely nest deeper than two levels; the cap also guards against cycles.
 const maxDepth = 2;
@@ -48,7 +53,7 @@ async function raw(
   type: string,
   get: LookThroughSources,
 ): Promise<Raw | null> {
-  if (type === "FUND") {
+  if (type === InstrumentType.Fund) {
     const fund = (await get.instrument(orderbookId, type)).fund;
     if (!fund) return null;
     return {
@@ -64,7 +69,7 @@ async function raw(
       })),
     };
   }
-  if (type === "EXCHANGE_TRADED_FUND") {
+  if (type === InstrumentType.Etf) {
     const etf = await get.etf(orderbookId);
     return {
       countries: etf.countryExposures.exposures.map((e) =>
@@ -95,7 +100,7 @@ export async function loadLookThrough(
   get: LookThroughSources,
   depth = 0,
 ): Promise<LookThrough | null> {
-  if (type === "STOCK") {
+  if (type === InstrumentType.Stock) {
     const stock = await get.instrument(orderbookId, type);
     return {
       countries: stock.countryCode ? [country(stock.countryCode, 1)] : [],
@@ -121,7 +126,7 @@ export async function loadLookThrough(
   const nested = await Promise.all(
     scaled(data.holdings).map(async (h, i) => {
       const t = data.holdings[i]?.type?.toUpperCase();
-      const fund = t === "FUND" || t === "EXCHANGE_TRADED_FUND";
+      const fund = t === InstrumentType.Fund || t === InstrumentType.Etf;
       if (!fund || !h.orderbookId || depth >= maxDepth) return { h, inner: null };
       // A nested fund we can't load stays a single holding rather than failing the whole fund.
       const inner = await loadLookThrough(h.orderbookId, t, get, depth + 1).catch(() => null);

@@ -1,5 +1,6 @@
 import type { CreditInfo } from "avanza-ts";
 
+import { InstrumentType } from "@/lib/avanza/codes";
 import type { Holding } from "@/lib/avanza/portfolio";
 import { formatPercent, formatPrice, formatShare } from "@/lib/format";
 import { getSetting, saveSetting } from "@/lib/settings";
@@ -337,7 +338,7 @@ export function suggestRules(
       out.push({
         kind: "short",
         threshold: roundUp(f.short * 100 + 2, 1),
-        target: { id, name: f.name, type: "STOCK" },
+        target: { id, name: f.name, type: InstrumentType.Stock },
       });
 
   if (Object.keys(state.targets).length && !has("drift")) out.push({ kind: "drift", threshold: 5 });

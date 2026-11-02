@@ -5,6 +5,7 @@ import { ruleKindIcon } from "@/components/alerts/rule-kind-icon";
 import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel } from "@/components/ui/context-menu";
 import type { ContextItem } from "@/lib/ai/context";
 import { ruleKinds, type RuleKind } from "@/lib/alert-rules";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { aggregateHoldings } from "@/lib/avanza/portfolio";
 import { allPositionsQuery } from "@/lib/avanza/queries";
 import { openRuleDialog } from "@/lib/rule-dialog";
@@ -20,7 +21,7 @@ export function RuleMenuItems({ item }: { item: Extract<ContextItem, { kind: "in
     ? aggregateHoldings(positions).some((h) => h.orderbookId === item.id)
     : false;
   // Rows that don't know their type are listed instruments; the dialog shows missing values.
-  const stock = !item.type || item.type === "STOCK";
+  const stock = !item.type || item.type === InstrumentType.Stock;
   const kinds: RuleKind[] = [
     ...(stock || held ? (["day-move"] as const) : []),
     ...(stock ? (["signal", "short", "upside"] as const) : []),

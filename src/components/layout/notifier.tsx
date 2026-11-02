@@ -6,6 +6,7 @@ import {
 } from "@tauri-apps/plugin-notification";
 import { useEffect, useRef } from "react";
 
+import { TransactionSide } from "@/lib/avanza/codes";
 import { toAlertRow, toDealRow, toStopLossRow } from "@/lib/avanza/loose-records";
 import { alertsQuery, dealsQuery, stopLossesQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatPrice } from "@/lib/format";
@@ -22,7 +23,7 @@ export async function notify(title: string, body: string) {
   if (await permission) sendNotification({ title, body });
 }
 
-const side = (s?: string) => (s === "SELL" ? "Sold" : "Bought");
+const side = (s?: string) => (s === TransactionSide.Sell ? "Sold" : "Bought");
 
 /**
  * Desktop notifications for fills, triggered alerts and stop-loss status changes. Keeps those

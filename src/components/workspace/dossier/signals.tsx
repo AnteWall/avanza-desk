@@ -6,6 +6,7 @@ import { SignalTone } from "@/components/signals/signal-tone";
 import { useSignals } from "@/components/signals/use-signals";
 import { Button } from "@/components/ui/button";
 import { Section } from "@/components/workspace/dossier/section";
+import { InstrumentType } from "@/lib/avanza/codes";
 import type { Instrument } from "@/lib/avanza/instrument";
 import { universeQuery } from "@/lib/avanza/queries";
 import { formatDate } from "@/lib/format";
@@ -42,7 +43,10 @@ export function Signals({ instrument }: { instrument: Instrument }) {
           variant="outline"
           size="xs"
           onClick={() =>
-            openRuleDialog({ kind: "signal", target: { id, name: instrument.name, type: "STOCK" } })
+            openRuleDialog({
+              kind: "signal",
+              target: { id, name: instrument.name, type: InstrumentType.Stock },
+            })
           }
         >
           <Bell />

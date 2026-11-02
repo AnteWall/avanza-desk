@@ -6,6 +6,7 @@ import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { Empty } from "@/components/common/empty";
 import { StatList } from "@/components/workspace/chart/stat-list";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { instrumentQuery } from "@/lib/avanza/queries";
 import { formatCompact, formatDate, formatPrice, formatShare } from "@/lib/format";
 
@@ -31,7 +32,7 @@ const columns = col.columns([
 /** A fund's fees, risk, sustainability, description and top holdings. Suspends. */
 export function FundDetails({ orderbookId }: { orderbookId: string }) {
   // The fund guide is already cached by the chart header.
-  const { data: instrument } = useSuspenseQuery(instrumentQuery(orderbookId, "FUND"));
+  const { data: instrument } = useSuspenseQuery(instrumentQuery(orderbookId, InstrumentType.Fund));
   const focus = useFocusInstrument();
   const fund = instrument.fund;
   if (!fund) return <Empty>Avanza has no details for this fund.</Empty>;

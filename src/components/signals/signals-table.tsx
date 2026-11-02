@@ -8,6 +8,7 @@ import { SignalTone } from "@/components/signals/signal-tone";
 import { useSignals, type StockSignal } from "@/components/signals/use-signals";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { instrumentItem } from "@/lib/ai/context";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { universeQuery } from "@/lib/avanza/queries";
 import { formatDate } from "@/lib/format";
 
@@ -58,8 +59,10 @@ export function SignalsTable({ heldOnly }: { heldOnly: boolean }) {
       columns={columns}
       data={rows}
       getRowId={(r) => `${r.orderbookId}:${r.kind}:${r.date}`}
-      onRowClick={(r) => focus(r.orderbookId, "STOCK")}
-      askAbout={(r) => instrumentItem(r.orderbookId, r.stock.name, "STOCK", r.stock.isin)}
+      onRowClick={(r) => focus(r.orderbookId, InstrumentType.Stock)}
+      askAbout={(r) =>
+        instrumentItem(r.orderbookId, r.stock.name, InstrumentType.Stock, r.stock.isin)
+      }
     />
   );
 }

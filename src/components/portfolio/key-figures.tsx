@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { Change } from "@/components/common/change";
 import { useHoldings } from "@/components/portfolio/use-holdings";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { fundAnalysisQuery, keyRatiosQuery, totalValuesQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatPrice, formatShare } from "@/lib/format";
 
@@ -32,7 +33,9 @@ export function KeyFigures() {
   const share = (v: number) => (invested ? formatShare(v / invested) : dash);
   const top5 = holdings.slice(0, 5).reduce((s, h) => s + h.value, 0);
   const largest = holdings[0];
-  const fundValue = holdings.filter((h) => h.type === "FUND").reduce((s, h) => s + h.value, 0);
+  const fundValue = holdings
+    .filter((h) => h.type === InstrumentType.Fund)
+    .reduce((s, h) => s + h.value, 0);
   const fundFee = funds && fundValue ? funds.averageProductFee / 100 : undefined;
 
   return (

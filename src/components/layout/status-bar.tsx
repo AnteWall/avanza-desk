@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ExchangeStrip } from "@/components/layout/exchange-strip";
 import { useLastFetches } from "@/components/layout/use-connection";
 import { useFocusedInstrument } from "@/components/workspace/use-focused-instrument";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { instrumentQuery, marketplaceQuery, quoteQuery } from "@/lib/avanza/queries";
 import { connection } from "@/lib/connection";
 import { formatDuration } from "@/lib/format";
@@ -18,7 +19,7 @@ const clock = new Intl.DateTimeFormat("sv-SE", {
 export function StatusBar() {
   // Status chrome, not a data panel: if these fail the indicators just stay hidden.
   const focus = useFocusedInstrument();
-  const listed = !!focus && focus.type !== "FUND";
+  const listed = !!focus && focus.type !== InstrumentType.Fund;
   const ob = focus?.id ?? "";
   // Each instrument's own exchange: Stockholm, Nasdaq US, Oslo… all keep their own hours.
   const { data: market, dataUpdatedAt } = useQuery({

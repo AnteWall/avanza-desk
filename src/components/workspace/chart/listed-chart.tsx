@@ -4,6 +4,7 @@ import { useMemo } from "react";
 
 import { PriceChart, type TradeMarker } from "@/components/common/price-chart";
 import { useMarketOpen } from "@/components/workspace/use-focused-instrument";
+import { OrderSide, TransactionSide } from "@/lib/avanza/codes";
 import type { Instrument } from "@/lib/avanza/instrument";
 import { holding } from "@/lib/avanza/portfolio";
 import {
@@ -34,7 +35,7 @@ export function ListedChart({
           {
             timestamp: Date.parse(t.tradeDate ?? t.date),
             price: t.priceInTradedCurrency.value,
-            side: t.type === "SELL" ? ("sell" as const) : ("buy" as const),
+            side: t.type === TransactionSide.Sell ? OrderSide.Sell : OrderSide.Buy,
           },
         ]
       : [],

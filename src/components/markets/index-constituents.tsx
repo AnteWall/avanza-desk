@@ -7,6 +7,7 @@ import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { Empty } from "@/components/common/empty";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { instrumentItem } from "@/lib/ai/context";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { indexConstituentsQuery } from "@/lib/avanza/queries";
 
 const col = dataTableColumns<IndexConstituent>();
@@ -40,8 +41,8 @@ export function IndexConstituents({ orderbookId }: { orderbookId: string }) {
       columns={columns}
       data={rows}
       getRowId={(c) => c.orderbookId}
-      onRowClick={(c) => focus(c.orderbookId, "STOCK")}
-      askAbout={(c) => instrumentItem(c.orderbookId, c.name, "STOCK")}
+      onRowClick={(c) => focus(c.orderbookId, InstrumentType.Stock)}
+      askAbout={(c) => instrumentItem(c.orderbookId, c.name, InstrumentType.Stock)}
     />
   );
 }

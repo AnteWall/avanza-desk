@@ -1,3 +1,4 @@
+import { OrderSide } from "./codes";
 /** Avanza's URL slug for a name: "Atlas Copco A" → "atlas-copco-a", "Hennes & Mauritz B" → "hennes-mauritz-b". */
 export function slug(name: string) {
   return name
@@ -17,11 +18,11 @@ export function slug(name: string) {
 export function avanzaOrderUrl(
   orderbookId: string,
   name: string,
-  side: "buy" | "sell",
+  side: OrderSide,
   fund: boolean,
   volume?: number,
 ) {
-  const url = `https://www.avanza.se/handla/${fund ? "fonder" : "order"}.html/${side === "buy" ? "kop" : "salj"}/${orderbookId}/${slug(name)}`;
+  const url = `https://www.avanza.se/handla/${fund ? "fonder" : "order"}.html/${side === OrderSide.Buy ? "kop" : "salj"}/${orderbookId}/${slug(name)}`;
   return volume && !fund ? `${url}?volume=${volume}` : url;
 }
 

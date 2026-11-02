@@ -10,6 +10,7 @@ import { OrderBookTable } from "@/components/workspace/order-book/order-book-tab
 import { TradesTable } from "@/components/workspace/order-book/trades-table";
 import { TabbedPanel } from "@/components/workspace/tabbed-panel";
 import { useFocusedInstrument } from "@/components/workspace/use-focused-instrument";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { instrumentQuery } from "@/lib/avanza/queries";
 
 /** Order depth, the trade tape (time & sales) and broker statistics of the focused instrument. */
@@ -19,7 +20,7 @@ export function OrderBookPanel() {
     ...instrumentQuery(focus?.id ?? "", focus?.type),
     enabled: !!focus,
   });
-  const fund = instrument?.kind === "fund" || focus?.type === "FUND";
+  const fund = instrument?.kind === "fund" || focus?.type === InstrumentType.Fund;
 
   const view = (what: string, table: ReactNode) =>
     !focus ? null : fund ? (

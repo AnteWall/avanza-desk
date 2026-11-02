@@ -11,9 +11,8 @@ import { Panel } from "@/components/workspace/panel";
 import { PreTradeEstimate } from "@/components/workspace/pre-trade/pre-trade-estimate";
 import { TradeInAvanza } from "@/components/workspace/pre-trade/trade-in-avanza";
 import { useFocusedInstrument } from "@/components/workspace/use-focused-instrument";
+import { InstrumentType, OrderSide } from "@/lib/avanza/codes";
 import { instrumentQuery } from "@/lib/avanza/queries";
-
-type Side = "buy" | "sell";
 
 const estimateSkeleton = (
   <div className="flex flex-col gap-2 py-0.5">
@@ -33,13 +32,13 @@ const estimateSkeleton = (
  */
 export function PreTradePanel() {
   const focus = useFocusedInstrument();
-  const [side, setSide] = useState<Side>("buy");
+  const [side, setSide] = useState<OrderSide>(OrderSide.Buy);
   const [quantity, setQuantity] = useState(10);
   const { data: instrument } = useQuery({
     ...instrumentQuery(focus?.id ?? "", focus?.type),
     enabled: !!focus,
   });
-  const fund = instrument?.kind === "fund" || focus?.type === "FUND";
+  const fund = instrument?.kind === "fund" || focus?.type === InstrumentType.Fund;
 
   return (
     <Panel
@@ -56,7 +55,7 @@ export function PreTradePanel() {
     >
       <div className="flex flex-col gap-3 p-3">
         <div className="bg-muted grid grid-cols-2 gap-1 rounded-md p-0.5">
-          {(["buy", "sell"] as const).map((s) => (
+          {[OrderSide.Buy, OrderSide.Sell].map((s) => (
             <button
               key={s}
               type="button"
@@ -64,8 +63,8 @@ export function PreTradePanel() {
               onClick={() => setSide(s)}
               className={cn(
                 "h-7 rounded-sm font-medium text-muted-foreground capitalize",
-                side === s && s === "buy" && "bg-buy text-white",
-                side === s && s === "sell" && "bg-sell text-white",
+                side === s && s === OrderSide.Buy && "bg-buy text-white",
+                side === s && s === OrderSide.Sell && "bg-sell text-white",
               )}
             >
               {s}

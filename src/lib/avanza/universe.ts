@@ -1,5 +1,7 @@
 import type { PositionListResponse, WatchlistRow } from "avanza-ts";
 
+import { InstrumentType } from "./codes";
+
 /** A stock you hold on any account or keep on a watchlist. `value` is SEK held (0 if watched). */
 export type UniverseStock = {
   orderbookId: string;
@@ -20,7 +22,7 @@ export function buildUniverse(
   const byId = new Map<string, UniverseStock>();
   for (const p of positions.withOrderbook) {
     const ob = p.instrument.orderbook;
-    if (!ob?.id || p.instrument.type !== "STOCK") continue;
+    if (!ob?.id || p.instrument.type !== InstrumentType.Stock) continue;
     const s = byId.get(ob.id) ?? {
       orderbookId: ob.id,
       name: p.instrument.name,
@@ -35,7 +37,7 @@ export function buildUniverse(
     byId.set(ob.id, s);
   }
   for (const r of rows) {
-    if (r.instrumentType !== "STOCK") continue;
+    if (r.instrumentType !== InstrumentType.Stock) continue;
     const s = byId.get(r.id);
     if (s) s.watched = true;
     else

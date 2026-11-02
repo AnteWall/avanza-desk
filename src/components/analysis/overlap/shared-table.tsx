@@ -1,5 +1,6 @@
 import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { formatInteger } from "@/lib/format";
 import type { Shared } from "@/lib/overlap";
 
@@ -29,7 +30,7 @@ export function SharedTable({ rows }: { rows: Shared[] }) {
       columns={columns}
       data={rows}
       getRowId={(r) => r.key}
-      onRowClick={(r) => r.orderbookId && focus(r.orderbookId, "STOCK")}
+      onRowClick={(r) => r.orderbookId && focus(r.orderbookId, InstrumentType.Stock)}
     />
   );
 }

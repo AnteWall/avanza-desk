@@ -4,6 +4,7 @@ import { PairsTable } from "@/components/analysis/overlap/pairs-table";
 import { SharedTable } from "@/components/analysis/overlap/shared-table";
 import { Empty } from "@/components/common/empty";
 import { useLookThroughs } from "@/components/portfolio/use-holdings";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { fundPairs, sharedHoldings, type Source } from "@/lib/overlap";
 
 function Heading({ title, aside }: { title: string; aside: ReactNode }) {
@@ -24,7 +25,7 @@ export function OverlapTables() {
   });
   const pairs = fundPairs(sources);
   const shared = sharedHoldings(sources);
-  const funds = sources.filter((s) => s.type !== "STOCK").length;
+  const funds = sources.filter((s) => s.type !== InstrumentType.Stock).length;
 
   if (funds < 2)
     return (

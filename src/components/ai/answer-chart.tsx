@@ -6,6 +6,7 @@ import { type ChartPoint, PriceChart } from "@/components/common/price-chart";
 import { PortfolioChart } from "@/components/portfolio/portfolio-chart";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import type { AnswerBlock } from "@/lib/ai/blocks";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { fundChartQuery, instrumentQuery, priceChartQuery } from "@/lib/avanza/queries";
 import { formatPercent } from "@/lib/format";
 
@@ -109,7 +110,11 @@ export function AnswerChart({
   block: Extract<AnswerBlock, { kind: "price" | "portfolio" }>;
 }) {
   if (block.kind === "price") {
-    return block.type === "FUND" ? <FundHistory block={block} /> : <ListedHistory block={block} />;
+    return block.type === InstrumentType.Fund ? (
+      <FundHistory block={block} />
+    ) : (
+      <ListedHistory block={block} />
+    );
   }
   return (
     <>

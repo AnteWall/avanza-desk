@@ -1,5 +1,6 @@
 import type { Transaction } from "avanza-ts";
 
+import { TransactionSide } from "@/lib/avanza/codes";
 import { formatCompact, formatDate, formatInteger, formatPercent, formatPrice } from "@/lib/format";
 
 // Fewer samples than this and a "pattern" is mostly luck.
@@ -22,7 +23,7 @@ type Trade = {
   flagCode?: string;
   account: string;
   key: string;
-  side: "BUY" | "SELL";
+  side: TransactionSide;
   day: string;
   volume: number;
   /** SEK per share after fees: what the trade really cost or paid. */
@@ -205,7 +206,13 @@ function toTrades(transactions: readonly Transaction[]): Trade[] {
     const volume = Math.abs(t.volume?.value ?? 0);
     const amount = Math.abs(t.amount?.value ?? 0);
     const key = t.isin ?? t.orderbook?.id;
-    if (t.cancelled || (t.type !== "BUY" && t.type !== "SELL") || !key || !volume || !amount)
+    if (
+      t.cancelled ||
+      (t.type !== TransactionSide.Buy && t.type !== TransactionSide.Sell) ||
+      !key ||
+      !volume ||
+      !amount
+    )
       continue;
     trades.push({
       id: t.id,
@@ -237,7 +244,7 @@ function closedLots(trades: readonly Trade[]): Lot[] {
     const id = `${t.account}|${t.key}`;
     const queue = open.get(id) ?? [];
     open.set(id, queue);
-    if (t.side === "BUY") {
+    if (t.side === TransactionSide.Buy) {
       queue.push({ day: t.day, volume: t.volume, perShare: t.perShare });
       continue;
     }
@@ -413,10 +420,12 @@ function profitTaking({ lots }: Window): Check {
 }
 
 function roundTrips({ trades, years }: Window): Check {
-  const buys = trades.filter((t) => t.side === "BUY").map((t) => ({ ...t, left: t.volume }));
+  const buys = trades
+    .filter((t) => t.side === TransactionSide.Buy)
+    .map((t) => ({ ...t, left: t.volume }));
   const evidence: Evidence[] = [];
   for (const sell of trades) {
-    if (sell.side !== "SELL") continue;
+    if (sell.side !== TransactionSide.Sell) continue;
     // A later day only: a same-day buy is the position being sold, not a buy-back.
     const back = buys.find(
       (b) =>
