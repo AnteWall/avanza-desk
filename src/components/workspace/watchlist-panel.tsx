@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Panel } from "@/components/workspace/panel";
+import { WatchlistColumnsMenu } from "@/components/workspace/watchlist-columns-menu";
 import { WatchlistTable } from "@/components/workspace/watchlist-table";
 import { watchlistsQuery } from "@/lib/avanza/queries";
 import { getSetting, saveSetting } from "@/lib/settings";
@@ -31,31 +32,34 @@ export function WatchlistPanel() {
       icon={Star}
       subtitle={watchlists.length === 1 ? watchlist?.name : undefined}
       actions={
-        watchlists.length > 1 && (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={<Button variant="ghost" size="xs" className="text-muted-foreground" />}
-            >
-              {watchlist?.name}
-              <ChevronDown />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuRadioGroup
-                value={watchlist?.watchListId}
-                onValueChange={(id: string) => {
-                  setSelectedId(id);
-                  void saveSetting(SETTING, id);
-                }}
+        <>
+          {watchlists.length > 1 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={<Button variant="ghost" size="xs" className="text-muted-foreground" />}
               >
-                {watchlists.map((w) => (
-                  <DropdownMenuRadioItem key={w.watchListId} value={w.watchListId}>
-                    {w.name}
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
+                {watchlist?.name}
+                <ChevronDown />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuRadioGroup
+                  value={watchlist?.watchListId}
+                  onValueChange={(id: string) => {
+                    setSelectedId(id);
+                    void saveSetting(SETTING, id);
+                  }}
+                >
+                  {watchlists.map((w) => (
+                    <DropdownMenuRadioItem key={w.watchListId} value={w.watchListId}>
+                      {w.name}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          <WatchlistColumnsMenu />
+        </>
       }
     >
       <AsyncBoundary what="the watchlist" fallback={<TableSkeleton />} resetKey={selectedId ?? ""}>
