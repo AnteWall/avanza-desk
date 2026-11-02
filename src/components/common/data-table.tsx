@@ -7,9 +7,10 @@ import {
   type RowData,
 } from "@tanstack/react-table";
 import { cn } from "cn";
-import { Copy } from "lucide-react";
+import { Copy, FileDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type * as React from "react";
+import { toast } from "sonner";
 
 import { AskMenu } from "@/components/ai/ask-menu";
 import { ContextMenuItem, ContextMenuShortcut } from "@/components/ui/context-menu";
@@ -22,6 +23,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { ContextItem } from "@/lib/ai/context";
+import { pickCsvPath, toCsv, writeCsv } from "@/lib/csv";
+import { stockholmDay } from "@/lib/snapshots";
 
 type DataTableColumnMeta = {
   /** `end` right-aligns header and cells: use it for every numeric column. */
@@ -50,10 +53,25 @@ function copyRows(table: HTMLTableElement | null) {
   if (text) void navigator.clipboard.writeText(text);
 }
 
+/** The whole table as it reads on screen, header first, saved as a CSV file. */
+async function exportTable(table: HTMLTableElement | null) {
+  if (!table) return;
+  const cells = (tr: HTMLTableRowElement) => [...tr.cells].map((c) => c.innerText.trim());
+  const rows = [...table.querySelectorAll<HTMLTableRowElement>("thead tr, tbody tr")].map(cells);
+  const path = await pickCsvPath("Export table", `avanzadesk-${stockholmDay()}.csv`);
+  if (!path) return;
+  try {
+    await writeCsv(path, toCsv(rows));
+    toast("Table exported", { description: path });
+  } catch (error) {
+    toast.error("Couldn't export the table", { description: String(error) });
+  }
+}
+
 /**
  * Every table in the app: dense rows, sticky header, numeric alignment via `meta.align`.
  * Rows select like a file list: click, ⌘/Ctrl-click, Shift-click, drag, Shift+↑↓, ⌘A, Esc;
- * ⌘C or the right-click menu copies the selection.
+ * ⌘C or the right-click menu copies the selection; the menu also exports the table as CSV.
  */
 export function DataTable<TData extends RowData>({
   columns,
@@ -218,6 +236,10 @@ export function DataTable<TData extends RowData>({
                 <Copy />
                 {selectedRows.length === 1 ? "Copy row" : `Copy ${selectedRows.length} rows`}
                 <ContextMenuShortcut>⌘C</ContextMenuShortcut>
+              </ContextMenuItem>
+              <ContextMenuItem onClick={() => void exportTable(tableRef.current)}>
+                <FileDown />
+                Export table as CSV…
               </ContextMenuItem>
             </>
           )

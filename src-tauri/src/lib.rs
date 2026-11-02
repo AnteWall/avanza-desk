@@ -8,6 +8,7 @@ use tauri::ipc::{Channel, InvokeResponseBody};
 
 mod ai;
 mod article;
+mod csv;
 mod db;
 #[cfg(target_os = "macos")]
 mod mouse_nav;
@@ -224,6 +225,7 @@ pub fn run() {
             ai::history::chat_rename,
             ai::history::chat_pin,
             ai::history::chat_export,
+            csv::csv_write,
             ai::mcp::mcp_register,
             ai::mcp::mcp_result
         ])

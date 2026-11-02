@@ -7,6 +7,8 @@ export const refreshIntervalDefaults = {
   news: 60_000,
   market: 60_000,
   indices: 30_000,
+  /** How often the live quotes file is rewritten (Settings › Data › Spreadsheets). */
+  quotesFile: 30_000,
 };
 
 export type RefreshIntervals = typeof refreshIntervalDefaults;
