@@ -18,7 +18,6 @@ import type { SignalKind } from "@/lib/signals";
 
 const unitHint: Record<string, string> = {
   "%": "percent",
-  pp: "percentage points",
   score: "1 = just notable, 5 = very strong",
 };
 

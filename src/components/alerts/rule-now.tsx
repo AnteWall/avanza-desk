@@ -19,7 +19,7 @@ export function RuleNow({ rule }: { rule: AlertRule }) {
         {rule.kind === "signal"
           ? "No recent signals here. New ones will notify as they appear."
           : rule.kind === "drift"
-            ? "No rebalance targets saved yet: set them on Analysis → Rebalance."
+            ? "No rebalance targets saved yet: set them on the Rebalance page."
             : "Avanza has no current value for this yet."}
       </p>
     );

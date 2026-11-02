@@ -6,6 +6,7 @@ import {
   ListOrdered,
   Newspaper,
   Radar,
+  Scale,
   Sigma,
 } from "lucide-react";
 
@@ -21,4 +22,5 @@ export const pages: { icon: typeof Bell; label: string; to: keyof FileRoutesByTo
   { icon: Bell, label: "Alerts", to: "/alerts" },
   { icon: Radar, label: "Signals", to: "/signals" },
   { icon: Sigma, label: "Analysis", to: "/analysis" },
+  { icon: Scale, label: "Rebalance", to: "/rebalance" },
 ];

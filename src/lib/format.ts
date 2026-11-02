@@ -16,6 +16,13 @@ const share = new Intl.NumberFormat("sv-SE", {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
 });
+const signedShare = new Intl.NumberFormat("sv-SE", {
+  style: "percent",
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+  signDisplay: "exceptZero",
+});
+const decimal = new Intl.NumberFormat("sv-SE", { maximumFractionDigits: 2, useGrouping: false });
 const regions = new Intl.DisplayNames(["en"], { type: "region" });
 
 export const formatPrice = (value: number) => price.format(value);
@@ -26,6 +33,13 @@ export const formatPercent = (ratio: number) => percent.format(ratio);
 export const formatCompact = (value: number) => compact.format(value);
 /** An unsigned share of a whole: 0.123 → "12,3 %". */
 export const formatShare = (ratio: number) => share.format(ratio);
+/** A signed share with one decimal, e.g. drift from a target: 0.0753 → "+7,5 %". */
+export const formatSignedShare = (ratio: number) => signedShare.format(ratio);
+/** A plain number for an editable field: 4.5 → "4,5". Read it back with `parseDecimal`. */
+export const formatDecimal = (value: number) => decimal.format(value);
+/** "4,5" or "4.5" → 4.5; NaN when it isn't a number. */
+export const parseDecimal = (text: string) =>
+  text.trim() === "" ? Number.NaN : Number(text.replace(/\s/g, "").replace(",", "."));
 /** "SE" → "Sweden"; codes Intl doesn't know come back as given. */
 export const formatCountry = (code: string) => {
   try {

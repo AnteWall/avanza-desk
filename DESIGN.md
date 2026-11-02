@@ -27,7 +27,7 @@ Avanza's own design system ("Mint"), so the app feels like Avanza.
 4. **Aligned digits.** Every number is mono with tabular figures and right-aligned in tables,
    so columns line up and ticking values don't jitter.
 5. **Keyboard reachable.** Every action has a focusable control, and global actions get a
-   shortcut: `Ctrl K` search (instruments and pages), `Alt 1…8` pages, `1…6` chart ranges,
+   shortcut: `Ctrl K` search (instruments and pages), `Alt 1…9` pages, `1…6` chart ranges, `A` add instrument (Rebalance),
    `↑↓`/`j k` + `Enter` in clickable tables. Single-key shortcuts skip text fields (`isTyping`).
 
 ## Stack
@@ -177,6 +177,11 @@ inside them. No shadows on panels; separation comes from the gutter and `border`
   alert) is a `Button variant="outline" size="xs"` with an icon; related actions go in one
   dropdown ("Reset targets ▾"). Never style either as bare ghost text: a bright label reads
   as "selected", not "clickable".
+- **Explaining a field:** a muted ⓘ, `<InfoTip label>` (`components/common/info-tip.tsx`),
+  right after the label or control, never inside a `<label>`. Hover, click or Enter opens a
+  short popover: what it is, what to type, an example. In a table header use
+  `header: infoHeader(title, tip)`. Use it where a value needs a sentence to be understood,
+  not on every label.
 - **Active state** (nav rail): `data-active` → `bg-accent text-brand`.
 - **Buy/sell:** segmented toggle on `bg-muted`; the selected side is filled `bg-buy`/`bg-sell`.
   The submit button takes the side's color and names the action ("Buy VOLV B").

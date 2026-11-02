@@ -16,6 +16,7 @@ import { Route as MarketsRouteImport } from './routes/markets'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as RebalanceRouteImport } from './routes/rebalance'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignalsRouteImport } from './routes/signals'
 import { Route as SettingsIndexRouteImport } from './routes/settings.index'
@@ -58,6 +59,11 @@ const OrdersRoute = OrdersRouteImport.update({
 const PortfolioRoute = PortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RebalanceRoute = RebalanceRouteImport.update({
+  id: '/rebalance',
+  path: '/rebalance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/news': typeof NewsRoute
   '/orders': typeof OrdersRoute
   '/portfolio': typeof PortfolioRoute
+  '/rebalance': typeof RebalanceRoute
   '/settings': typeof SettingsRouteWithChildren
   '/signals': typeof SignalsRoute
   '/settings/assistant': typeof SettingsAssistantRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/news': typeof NewsRoute
   '/orders': typeof OrdersRoute
   '/portfolio': typeof PortfolioRoute
+  '/rebalance': typeof RebalanceRoute
   '/signals': typeof SignalsRoute
   '/settings/assistant': typeof SettingsAssistantRoute
   '/settings/data': typeof SettingsDataRoute
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/news': typeof NewsRoute
   '/orders': typeof OrdersRoute
   '/portfolio': typeof PortfolioRoute
+  '/rebalance': typeof RebalanceRoute
   '/settings': typeof SettingsRouteWithChildren
   '/signals': typeof SignalsRoute
   '/settings/assistant': typeof SettingsAssistantRoute
@@ -162,6 +171,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/orders'
     | '/portfolio'
+    | '/rebalance'
     | '/settings'
     | '/signals'
     | '/settings/assistant'
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/orders'
     | '/portfolio'
+    | '/rebalance'
     | '/signals'
     | '/settings/assistant'
     | '/settings/data'
@@ -195,6 +206,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/orders'
     | '/portfolio'
+    | '/rebalance'
     | '/settings'
     | '/signals'
     | '/settings/assistant'
@@ -213,6 +225,7 @@ export interface RootRouteChildren {
   NewsRoute: typeof NewsRoute
   OrdersRoute: typeof OrdersRoute
   PortfolioRoute: typeof PortfolioRoute
+  RebalanceRoute: typeof RebalanceRoute
   SettingsRoute: typeof SettingsRouteWithChildren
   SignalsRoute: typeof SignalsRoute
 }
@@ -266,6 +279,13 @@ declare module '@tanstack/react-router' {
       path: '/portfolio'
       fullPath: '/portfolio'
       preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rebalance': {
+      id: '/rebalance'
+      path: '/rebalance'
+      fullPath: '/rebalance'
+      preLoaderRoute: typeof RebalanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -357,6 +377,7 @@ const rootRouteChildren: RootRouteChildren = {
   NewsRoute: NewsRoute,
   OrdersRoute: OrdersRoute,
   PortfolioRoute: PortfolioRoute,
+  RebalanceRoute: RebalanceRoute,
   SettingsRoute: SettingsRouteWithChildren,
   SignalsRoute: SignalsRoute,
 }

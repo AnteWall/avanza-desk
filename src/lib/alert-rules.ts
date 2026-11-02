@@ -2,13 +2,13 @@ import type { CreditInfo } from "avanza-ts";
 
 import { InstrumentType } from "@/lib/avanza/codes";
 import type { Holding } from "@/lib/avanza/portfolio";
-import { formatPercent, formatPrice, formatShare } from "@/lib/format";
+import { formatPercent, formatShare, formatSignedShare } from "@/lib/format";
 import { getSetting, saveSetting } from "@/lib/settings";
 import type { Signal, SignalKind } from "@/lib/signals";
 
 // AvanzaDesk's own alert rules, checked locally (RuleWatcher) because Avanza's alerts only
 // watch prices. A rule watches one instrument (`target`) or everything it applies to.
-// Thresholds are entered in percent (pp for drift), except `signal`, which is a signal score.
+// Thresholds are entered in percent (drift: its weight minus its target), except `signal`, which is a signal score.
 
 export type RuleKind =
   | "day-move"
@@ -42,7 +42,7 @@ type KindInfo = {
   /** One line for the kind picker: what it watches and why you'd want it. */
   explain: string;
   scope: RuleScope;
-  unit: "%" | "pp" | "score";
+  unit: "%" | "score";
   presets: number[];
 };
 
@@ -91,9 +91,9 @@ export const ruleKinds: Record<RuleKind, KindInfo> = {
   },
   drift: {
     label: "Rebalance drift",
-    explain: "A holding drifts from its target weight on the Rebalance tab.",
+    explain: "A holding drifts from its target weight on the Rebalance page.",
     scope: "holdings",
-    unit: "pp",
+    unit: "%",
     presets: [2, 5, 10],
   },
   ltv: {
@@ -129,7 +129,7 @@ export function describeRule(r: Pick<AlertRule, "kind" | "threshold" | "target" 
     case "weight":
       return `${name ?? "Any holding"} grows past ${t} % of your portfolio`;
     case "drift":
-      return `${name ?? "Any holding"} drifts ${t} pp or more from its rebalance target`;
+      return `${name ?? "Any holding"} drifts ${t} % or more from its rebalance target`;
     case "ltv":
       return `Loan-to-value on a credit account goes over ${t} %`;
     case "short":
@@ -239,7 +239,7 @@ export function measure(r: AlertRule, s: RuleState): Measure[] {
         const target = s.targets[h.key];
         if (target == null || total <= 0) continue;
         const v = h.value / total - target;
-        push(h.key, h.name, v, Math.abs(v) >= t, `${formatPrice(v * 100)} pp from target`);
+        push(h.key, h.name, v, Math.abs(v) >= t, `${formatSignedShare(v)} from target`);
       }
       break;
     case "ltv":
