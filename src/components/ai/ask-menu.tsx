@@ -1,5 +1,5 @@
 import { MessageSquareText, Sparkles } from "lucide-react";
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 
 import { useAssistantEnabled } from "@/components/ai/use-assistant-enabled";
 import { RuleMenuItems } from "@/components/alerts/rule-menu-items";
@@ -41,17 +41,23 @@ const label = (item: ContextItem) =>
 export function AskMenu({
   item,
   trigger,
+  extra,
 }: {
   item: ContextItem | undefined;
   trigger: ReactElement<Record<string, unknown>>;
+  /** More items for the menu (a table's actions on its selected rows), shown first. */
+  extra?: ReactNode;
 }) {
   const ask = useAssistantEnabled();
+  const forItem = item && (ask || item.kind === "instrument");
   return (
     <ContextMenu>
       <ContextMenuTrigger render={trigger} className="select-auto" />
-      {item && (ask || item.kind === "instrument") && (
+      {(forItem || extra) && (
         <ContextMenuContent className="w-64">
-          {ask && (
+          {extra}
+          {extra && forItem && <ContextMenuSeparator />}
+          {forItem && ask && (
             <>
               <ContextMenuGroup>
                 <ContextMenuLabel className="text-muted-foreground flex items-center gap-1.5 text-xs">
@@ -74,7 +80,7 @@ export function AskMenu({
               ))}
             </>
           )}
-          {item.kind === "instrument" && (
+          {forItem && item.kind === "instrument" && (
             <>
               {ask && <ContextMenuSeparator />}
               <RuleMenuItems item={item} />

@@ -7,10 +7,12 @@ import {
   type RowData,
 } from "@tanstack/react-table";
 import { cn } from "cn";
-import { useState } from "react";
+import { Copy } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import type * as React from "react";
 
 import { AskMenu } from "@/components/ai/ask-menu";
+import { ContextMenuItem, ContextMenuShortcut } from "@/components/ui/context-menu";
 import {
   Table,
   TableBody,
@@ -36,7 +38,23 @@ type Features = typeof features;
 /** Column helper bound to DataTable's features. Call it once at module scope per row type. */
 export const dataTableColumns = <TData extends RowData>() => createColumnHelper<Features, TData>();
 
-/** Every table in the app: dense rows, sticky header, numeric alignment via `meta.align`. */
+// Clicks and keys inside these belong to the control, not to row selection.
+const control = "input, textarea, select, button, a, [role=switch]";
+
+/** The selected rows as they read on screen, tab-separated: pastes into a spreadsheet. */
+function copyRows(table: HTMLTableElement | null) {
+  const rows = table?.querySelectorAll<HTMLTableRowElement>('tbody tr[data-selected="true"]');
+  const text = [...(rows ?? [])]
+    .map((tr) => [...tr.cells].map((td) => td.innerText.trim()).join("\t"))
+    .join("\n");
+  if (text) void navigator.clipboard.writeText(text);
+}
+
+/**
+ * Every table in the app: dense rows, sticky header, numeric alignment via `meta.align`.
+ * Rows select like a file list: click, ⌘/Ctrl-click, Shift-click, drag, Shift+↑↓, ⌘A, Esc;
+ * ⌘C or the right-click menu copies the selection.
+ */
 export function DataTable<TData extends RowData>({
   columns,
   data,
@@ -44,46 +62,114 @@ export function DataTable<TData extends RowData>({
   selectedRowId,
   onRowClick,
   askAbout,
+  rowMenu,
 }: {
   // oxlint-disable-next-line no-explicit-any -- columns mix value types per accessor.
   columns: ColumnDef<Features, TData, any>[];
   data: TData[];
   getRowId?: (row: TData, index: number) => string;
   selectedRowId?: string;
-  /** Makes rows clickable and keyboard-focusable (↑↓ or j/k move, Enter activates). */
+  /** Makes rows clickable (↑↓ or j/k move, Enter activates). */
   onRowClick?: (row: TData) => void;
-  /** What a row is, for its right-click "Ask the assistant" menu; omit for no menu. */
+  /** What a row is, for its right-click "Ask the assistant" menu. */
   askAbout?: (row: TData) => ContextItem | undefined;
+  /** More right-click items, acting on the selected rows. */
+  rowMenu?: (rows: TData[]) => React.ReactNode;
 }) {
   const table = useTable({ features, columns, data, getRowId });
+  const tableRef = useRef<HTMLTableElement>(null);
   // The row under the last right-click, read by the menu as it opens.
   const [asked, setAsked] = useState<ContextItem>();
+  const [selection, setSelection] = useState<string[]>([]);
+  // Where Shift-click and drag ranges start, and whether the mouse is down for a drag.
+  const anchor = useRef<string>(undefined);
+  const dragging = useRef(false);
+  useEffect(() => {
+    const up = () => (dragging.current = false);
+    window.addEventListener("mouseup", up);
+    return () => window.removeEventListener("mouseup", up);
+  }, []);
+
+  const rows = table.getRowModel().rows;
+  const ids = rows.map((r) => r.id);
+  const range = (from: string, to: string) => {
+    const [a, b] = [ids.indexOf(from), ids.indexOf(to)].sort((x, y) => x - y);
+    return a < 0 ? [to] : ids.slice(a, b + 1);
+  };
+  const selectedRows = rows.filter((r) => selection.includes(r.id)).map((r) => r.original);
+  const select = (id: string) => {
+    anchor.current = id;
+    setSelection([id]);
+  };
 
   const tbody = (
     <TableBody>
-      {table.getRowModel().rows.map((row) => (
+      {rows.map((row, i) => (
         <TableRow
           key={row.id}
-          data-selected={row.id === selectedRowId}
-          onContextMenu={askAbout && (() => setAsked(askAbout(row.original)))}
-          {...(onRowClick && {
-            tabIndex: 0,
-            className: "cursor-pointer outline-none focus-visible:bg-muted",
-            onClick: () => onRowClick(row.original),
-            onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
-              if (e.key === "Enter") onRowClick(row.original);
-              // ↑↓ or j/k move between rows; Enter then opens the focused one.
-              const next = ["ArrowDown", "j"].includes(e.key)
+          data-selected={row.id === selectedRowId || selection.includes(row.id)}
+          tabIndex={0}
+          // select-none keeps drags from selecting text; inputs stay editable.
+          className={cn(
+            "outline-none select-none focus-visible:bg-muted [&_input]:select-text",
+            onRowClick && "cursor-pointer",
+          )}
+          onContextMenu={() => {
+            if (askAbout) setAsked(askAbout(row.original));
+            if (!selection.includes(row.id)) select(row.id);
+          }}
+          onMouseDown={(e) => {
+            if (e.button !== 0 || (e.target as Element).closest(control)) return;
+            if (e.metaKey || e.ctrlKey) {
+              anchor.current = row.id;
+              setSelection((s) =>
+                s.includes(row.id) ? s.filter((id) => id !== row.id) : [...s, row.id],
+              );
+            } else if (e.shiftKey) {
+              setSelection(range(anchor.current ?? row.id, row.id));
+            } else {
+              select(row.id);
+              dragging.current = true;
+            }
+          }}
+          onMouseEnter={(e) => {
+            if (dragging.current && e.buttons === 1) {
+              setSelection(range(anchor.current ?? row.id, row.id));
+            }
+          }}
+          onClick={(e) => {
+            // Modifier clicks only change the selection.
+            if (!(e.metaKey || e.ctrlKey || e.shiftKey)) onRowClick?.(row.original);
+          }}
+          onKeyDown={(e) => {
+            // Keys typed into a control in the row are the control's.
+            if (e.target !== e.currentTarget) return;
+            const mod = e.metaKey || e.ctrlKey;
+            if (e.key === "Enter") onRowClick?.(row.original);
+            if (e.key === "Escape") setSelection([]);
+            if (mod && e.key === "a") {
+              e.preventDefault();
+              setSelection(ids);
+            }
+            if (mod && e.key === "c") copyRows(tableRef.current);
+            // ↑↓ or j/k move between rows; Enter then opens the focused one. Shift extends.
+            const step = ["ArrowDown", "j"].includes(e.key)
+              ? 1
+              : ["ArrowUp", "k"].includes(e.key)
+                ? -1
+                : 0;
+            const next = ids[i + step];
+            const el =
+              step > 0
                 ? e.currentTarget.nextElementSibling
-                : ["ArrowUp", "k"].includes(e.key)
-                  ? e.currentTarget.previousElementSibling
-                  : null;
-              if (next instanceof HTMLElement) {
-                e.preventDefault();
-                next.focus();
-              }
-            },
-          })}
+                : e.currentTarget.previousElementSibling;
+            if (step && next && el instanceof HTMLElement) {
+              e.preventDefault();
+              el.focus();
+              if (e.shiftKey) setSelection(range(anchor.current ?? row.id, next));
+              else select(next);
+            }
+          }}
         >
           {row.getAllCells().map((cell) => {
             const meta = cell.column.columnDef.meta;
@@ -101,8 +187,9 @@ export function DataTable<TData extends RowData>({
     </TableBody>
   );
 
+  const extra = rowMenu && selectedRows.length > 0 && rowMenu(selectedRows);
   return (
-    <Table>
+    <Table ref={tableRef}>
       <TableHeader>
         {table.getHeaderGroups().map((group) => (
           <TableRow key={group.id}>
@@ -120,7 +207,22 @@ export function DataTable<TData extends RowData>({
           </TableRow>
         ))}
       </TableHeader>
-      {askAbout ? <AskMenu item={asked} trigger={tbody} /> : tbody}
+      <AskMenu
+        item={asked}
+        trigger={tbody}
+        extra={
+          selectedRows.length > 0 && (
+            <>
+              {extra}
+              <ContextMenuItem onClick={() => copyRows(tableRef.current)}>
+                <Copy />
+                {selectedRows.length === 1 ? "Copy row" : `Copy ${selectedRows.length} rows`}
+                <ContextMenuShortcut>⌘C</ContextMenuShortcut>
+              </ContextMenuItem>
+            </>
+          )
+        }
+      />
     </Table>
   );
 }
