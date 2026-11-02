@@ -14,12 +14,20 @@ type Level = {
   askCum: number;
 };
 
-// Bars show cumulative volume, so you see how deep the book is before a price level, not
-// just the size at it.
+// Bars and the Σ columns show cumulative volume, so you see how deep the book is before a
+// price level, not just the size at it.
 const bar = (cum: number, max: number) => `${max ? (cum / max) * 100 : 0}%`;
+
+// The Σ columns only fit when the panel is wide.
+const wide = "@max-[24rem]:hidden";
 
 const col = dataTableColumns<Level & { max: number }>();
 const columns = col.columns([
+  col.accessor("bidCum", {
+    header: "Σ",
+    cell: (c) => c.row.original.bid != null && formatInteger(c.getValue()),
+    meta: { className: `num text-muted-foreground/70 ${wide}`, headerClassName: wide },
+  }),
   col.accessor("bidQty", {
     header: "Qty",
     cell: (c) => c.getValue() != null && formatInteger(c.getValue()!),
@@ -57,6 +65,15 @@ const columns = col.columns([
     header: "Qty",
     cell: (c) => c.getValue() != null && formatInteger(c.getValue()!),
     meta: { align: "end", className: "num text-muted-foreground" },
+  }),
+  col.accessor("askCum", {
+    header: "Σ",
+    cell: (c) => c.row.original.ask != null && formatInteger(c.getValue()),
+    meta: {
+      align: "end",
+      className: `num text-muted-foreground/70 ${wide}`,
+      headerClassName: wide,
+    },
   }),
 ]);
 
@@ -97,16 +114,23 @@ export function OrderBookTable({ focus }: { focus: Focus }) {
           </span>
         )}
         {bidShare != null && (
-          <span className="flex flex-1 items-center gap-2">
+          <span
+            className="flex flex-1 items-center gap-2"
+            title={`Visible volume: ${formatInteger(bidCum)} bid, ${formatInteger(askCum)} ask`}
+          >
+            <span className="text-up">{formatInteger(bidCum)}</span>
             <span className="text-up">{Math.round(bidShare * 100)} %</span>
             <span className="bg-down/30 h-1 flex-1 overflow-hidden rounded-full">
               <span className="bg-up block h-full" style={{ width: `${bidShare * 100}%` }} />
             </span>
             <span className="text-down">{Math.round((1 - bidShare) * 100)} %</span>
+            <span className="text-down">{formatInteger(askCum)}</span>
           </span>
         )}
       </div>
-      <DataTable columns={columns} data={levels.map((l) => ({ ...l, max }))} />
+      <div className="@container">
+        <DataTable columns={columns} data={levels.map((l) => ({ ...l, max }))} />
+      </div>
     </>
   );
 }
