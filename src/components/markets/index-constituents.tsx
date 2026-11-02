@@ -5,6 +5,7 @@ import { Change } from "@/components/common/change";
 import { CountryFlag } from "@/components/common/country-flag";
 import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { Empty } from "@/components/common/empty";
+import { Heatmap } from "@/components/markets/heatmap";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { instrumentItem } from "@/lib/ai/context";
 import { InstrumentType } from "@/lib/avanza/codes";
@@ -29,13 +30,31 @@ const columns = col.columns([
   }),
 ]);
 
-/** An index's members, best performer first. Suspends while loading. */
-export function IndexConstituents({ orderbookId }: { orderbookId: string }) {
+/** An index's members, best performer first, as a table or a heatmap. Suspends while loading. */
+export function IndexConstituents({
+  orderbookId,
+  view,
+}: {
+  orderbookId: string;
+  view: "list" | "map";
+}) {
   const { data } = useSuspenseQuery(indexConstituentsQuery(orderbookId));
   const focus = useFocusInstrument();
   const rows = [...data].sort((a, b) => (b.changePercent ?? 0) - (a.changePercent ?? 0));
+  const tiles = rows.map((c) => ({
+    id: c.orderbookId,
+    name: c.name,
+    // Avanza sends percent units; tiles take a ratio.
+    change: c.changePercent == null ? null : c.changePercent / 100,
+  }));
 
   if (rows.length === 0) return <Empty>Avanza lists no constituents for this index.</Empty>;
+  if (view === "map")
+    return (
+      <div className="p-1">
+        <Heatmap tiles={tiles} onPick={(t) => focus(t.id, InstrumentType.Stock)} />
+      </div>
+    );
   return (
     <DataTable
       columns={columns}

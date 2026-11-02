@@ -9,12 +9,13 @@ import { IndexConstituents } from "@/components/markets/index-constituents";
 import { Panel } from "@/components/workspace/panel";
 import { headerIndicesQuery } from "@/lib/avanza/queries";
 
-/** Members of the indices in the top bar; pick one in the title bar. */
+/** Members of the indices in the top bar, as a list or a heatmap; pick one in the title bar. */
 export function IndexPanel() {
   // Shares the top bar's ticker cache.
   const { data } = useQuery(headerIndicesQuery);
   const indexes = data?.indexes ?? [];
   const [picked, setPicked] = useState<string>();
+  const [view, setView] = useState<"list" | "map">("list");
   const active = picked ?? indexes[0]?.link.orderbookId;
 
   return (
@@ -23,15 +24,26 @@ export function IndexPanel() {
       icon={ChartNoAxesColumn}
       actions={
         indexes.length > 0 && (
-          <Segmented
-            label="Index"
-            options={indexes.map((i) => ({
-              label: i.link.shortLinkDisplay,
-              value: i.link.orderbookId,
-            }))}
-            value={active}
-            onChange={setPicked}
-          />
+          <>
+            <Segmented
+              label="View"
+              options={[
+                { label: "List", value: "list" },
+                { label: "Heatmap", value: "map" },
+              ]}
+              value={view}
+              onChange={setView}
+            />
+            <Segmented
+              label="Index"
+              options={indexes.map((i) => ({
+                label: i.link.shortLinkDisplay,
+                value: i.link.orderbookId,
+              }))}
+              value={active}
+              onChange={setPicked}
+            />
+          </>
         )
       }
     >
@@ -41,7 +53,7 @@ export function IndexPanel() {
           fallback={<TableSkeleton rows={10} columns={2} />}
           resetKey={active}
         >
-          <IndexConstituents orderbookId={active} />
+          <IndexConstituents orderbookId={active} view={view} />
         </AsyncBoundary>
       )}
     </Panel>
