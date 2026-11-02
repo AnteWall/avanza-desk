@@ -217,7 +217,7 @@ function toTrades(transactions: readonly Transaction[]): Trade[] {
       account: t.account.id,
       key,
       side: t.type,
-      day: t.tradeDate ?? t.date,
+      day: formatDate(t.tradeDate ?? t.date),
       volume,
       perShare: amount / volume,
       fee: Math.abs(t.commission?.value ?? 0),

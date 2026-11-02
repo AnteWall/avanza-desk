@@ -124,3 +124,14 @@ test("compares the last 12 months with before, and lists each year", () => {
     ["2024", "found", expect.any(String)],
   ]);
 });
+
+test("reads trade dates sent with a time part", () => {
+  const p = profileTrades(
+    [
+      tx("BUY", "A", "2026-01-02T00:00:00", 10, 100),
+      tx("SELL", "A", "2026-03-02T00:00:00", 10, 110),
+    ],
+    TODAY,
+  );
+  expect(p.closed).toBe(1);
+});
