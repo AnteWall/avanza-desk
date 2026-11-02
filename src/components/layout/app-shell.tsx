@@ -9,6 +9,7 @@ import { RuleDialog } from "@/components/alerts/rule-dialog";
 import { AuthGate } from "@/components/auth/auth-gate";
 import { NavRail } from "@/components/layout/nav-rail";
 import { Notifier } from "@/components/layout/notifier";
+import { QuoteFeed } from "@/components/layout/quote-feed";
 import { RuleWatcher } from "@/components/layout/rule-watcher";
 import { Snapshotter } from "@/components/layout/snapshotter";
 import { StatusBar } from "@/components/layout/status-bar";
@@ -49,6 +50,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <RuleDialog />
           <RuleWatcher />
           <TradingFeed />
+          <QuoteFeed />
           {/* After sign-in, so it never sits on top of the BankID overlay. */}
           <WhatsNew />
           {inAppFrame && <ResizeEdges />}

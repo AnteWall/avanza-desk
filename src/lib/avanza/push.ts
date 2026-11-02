@@ -1,12 +1,14 @@
 import type { QueryClient, QueryKey } from "@tanstack/react-query";
-import type {
-  MarketTrade,
-  OrderDepth,
-  PushOrderDepth,
-  PushQuote,
-  PushTrade,
-  StockQuote,
-  WatchlistRow,
+import {
+  type MarketTrade,
+  type OrderDepth,
+  type PositionListResponse,
+  type PriceChartResponse,
+  type PushOrderDepth,
+  type PushQuote,
+  type PushTrade,
+  type StockQuote,
+  type WatchlistRow,
 } from "avanza-ts";
 import { toast } from "sonner";
 
@@ -76,6 +78,56 @@ export function applyQuote(old: StockQuote | undefined, q: PushQuote): StockQuot
     updated: q.updated ?? old.updated,
     volumeWeightedAveragePrice: or(q.volumeWeightedAveragePrice, old.volumeWeightedAveragePrice),
   };
+}
+
+/**
+ * Rescales a held position to a pushed last price: value and today's change move by the price
+ * ratio. Ignores FX moves; the next positions poll corrects them.
+ */
+export function applyPositionQuote(data: PositionListResponse | undefined, q: PushQuote) {
+  const last = q.lastPrice;
+  if (!data || typeof last !== "number") return data;
+  let hit = false;
+  const withOrderbook = data.withOrderbook.map((p) => {
+    const ob = p.instrument.orderbook;
+    const quote = ob?.quote;
+    const latest = quote?.latest;
+    if (!ob || ob.id !== q.orderbookId || !quote || !latest?.value || latest.value === last) {
+      return p;
+    }
+    hit = true;
+    const value = (p.value.value * last) / latest.value;
+    const perf = p.lastTradingDayPerformance;
+    return {
+      ...p,
+      value: { ...p.value, value },
+      instrument: {
+        ...p.instrument,
+        orderbook: { ...ob, quote: { ...quote, latest: { ...latest, value: last } } },
+      },
+      lastTradingDayPerformance: perf?.absolute
+        ? {
+            ...perf,
+            absolute: { ...perf.absolute, value: perf.absolute.value + value - p.value.value },
+          }
+        : perf,
+    };
+  });
+  return hit ? { ...data, withOrderbook } : data;
+}
+
+/** Moves the last candle of a chart to a pushed last price; the chart poll adds new candles. */
+export function applyChartQuote(chart: PriceChartResponse | undefined, q: PushQuote) {
+  const last = q.lastPrice;
+  const candle = chart?.ohlc.at(-1);
+  if (!chart || !candle || typeof last !== "number" || last === candle.close) return chart;
+  const next = {
+    ...candle,
+    close: last,
+    high: Math.max(candle.high, last),
+    low: Math.min(candle.low, last),
+  };
+  return { ...chart, ohlc: [...chart.ohlc.slice(0, -1), next] };
 }
 
 /** Watchlist rows already use the push field names for their numbers. */

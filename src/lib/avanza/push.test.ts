@@ -1,7 +1,22 @@
-import { AvanzaHttpError, type MarketTrade, type StockQuote, type WatchlistRow } from "avanza-ts";
+import {
+  AvanzaHttpError,
+  type MarketTrade,
+  type PositionListResponse,
+  type PriceChartResponse,
+  type StockQuote,
+  type WatchlistRow,
+} from "avanza-ts";
 import { toast } from "sonner";
 
-import { applyDepth, applyQuote, applyRowQuote, applyTrade, follow } from "./push";
+import {
+  applyChartQuote,
+  applyDepth,
+  applyPositionQuote,
+  applyQuote,
+  applyRowQuote,
+  applyTrade,
+  follow,
+} from "./push";
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn<() => void>() } }));
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn<() => Promise<void>>() }));
@@ -84,4 +99,30 @@ test("a stream that fails for good shows an error that stays", async () => {
       expect.objectContaining({ duration: Infinity }),
     ),
   );
+});
+
+test("a push quote rescales the held position and today's change", () => {
+  const position = {
+    instrument: { orderbook: { id: "1", quote: { latest: { value: 10 } } } },
+    value: { value: 1000 },
+    lastTradingDayPerformance: { absolute: { value: 50 } },
+  };
+  const data = {
+    withOrderbook: [position],
+    withoutOrderbook: [],
+  } as unknown as PositionListResponse;
+  const next = applyPositionQuote(data, { orderbookId: "1", lastPrice: 11 });
+  const p = next?.withOrderbook[0];
+  expect(p?.value.value).toBe(1100);
+  expect(p?.lastTradingDayPerformance?.absolute?.value).toBe(150);
+  expect(p?.instrument.orderbook?.quote?.latest?.value).toBe(11);
+  expect(applyPositionQuote(data, { orderbookId: "2", lastPrice: 11 })).toBe(data);
+});
+
+test("a push quote moves the last candle of the chart", () => {
+  const candle = { timestamp: 1, open: 10, close: 10, high: 10.5, low: 9.5, totalVolumeTraded: 1 };
+  const chart = { ohlc: [candle, candle] } as unknown as PriceChartResponse;
+  const next = applyChartQuote(chart, { orderbookId: "1", lastPrice: 11 });
+  expect(next?.ohlc[0]).toBe(candle);
+  expect(next?.ohlc[1]).toEqual({ ...candle, close: 11, high: 11 });
 });
