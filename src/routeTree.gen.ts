@@ -16,6 +16,7 @@ import { Route as BriefingRouteImport } from './routes/briefing'
 import { Route as MarketsRouteImport } from './routes/markets'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as OrdersRouteImport } from './routes/orders'
+import { Route as PopoutRouteImport } from './routes/popout'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as RebalanceRouteImport } from './routes/rebalance'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -60,6 +61,11 @@ const NewsRoute = NewsRouteImport.update({
 const OrdersRoute = OrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PopoutRoute = PopoutRouteImport.update({
+  id: '/popout',
+  path: '/popout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortfolioRoute = PortfolioRouteImport.update({
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/markets': typeof MarketsRoute
   '/news': typeof NewsRoute
   '/orders': typeof OrdersRoute
+  '/popout': typeof PopoutRoute
   '/portfolio': typeof PortfolioRoute
   '/rebalance': typeof RebalanceRoute
   '/settings': typeof SettingsRouteWithChildren
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/markets': typeof MarketsRoute
   '/news': typeof NewsRoute
   '/orders': typeof OrdersRoute
+  '/popout': typeof PopoutRoute
   '/portfolio': typeof PortfolioRoute
   '/rebalance': typeof RebalanceRoute
   '/signals': typeof SignalsRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/markets': typeof MarketsRoute
   '/news': typeof NewsRoute
   '/orders': typeof OrdersRoute
+  '/popout': typeof PopoutRoute
   '/portfolio': typeof PortfolioRoute
   '/rebalance': typeof RebalanceRoute
   '/settings': typeof SettingsRouteWithChildren
@@ -180,6 +189,7 @@ export interface FileRouteTypes {
     | '/markets'
     | '/news'
     | '/orders'
+    | '/popout'
     | '/portfolio'
     | '/rebalance'
     | '/settings'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/markets'
     | '/news'
     | '/orders'
+    | '/popout'
     | '/portfolio'
     | '/rebalance'
     | '/signals'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/markets'
     | '/news'
     | '/orders'
+    | '/popout'
     | '/portfolio'
     | '/rebalance'
     | '/settings'
@@ -237,6 +249,7 @@ export interface RootRouteChildren {
   MarketsRoute: typeof MarketsRoute
   NewsRoute: typeof NewsRoute
   OrdersRoute: typeof OrdersRoute
+  PopoutRoute: typeof PopoutRoute
   PortfolioRoute: typeof PortfolioRoute
   RebalanceRoute: typeof RebalanceRoute
   SettingsRoute: typeof SettingsRouteWithChildren
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/orders'
       preLoaderRoute: typeof OrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/popout': {
+      id: '/popout'
+      path: '/popout'
+      fullPath: '/popout'
+      preLoaderRoute: typeof PopoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portfolio': {
@@ -397,6 +417,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketsRoute: MarketsRoute,
   NewsRoute: NewsRoute,
   OrdersRoute: OrdersRoute,
+  PopoutRoute: PopoutRoute,
   PortfolioRoute: PortfolioRoute,
   RebalanceRoute: RebalanceRoute,
   SettingsRoute: SettingsRouteWithChildren,

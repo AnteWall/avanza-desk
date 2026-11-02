@@ -3,7 +3,7 @@ import type { CreditInfo } from "avanza-ts";
 import { InstrumentType } from "@/lib/avanza/codes";
 import type { Holding } from "@/lib/avanza/portfolio";
 import { formatPercent, formatPrice, formatShare, formatSignedShare } from "@/lib/format";
-import { getSetting, saveSetting } from "@/lib/settings";
+import { getSetting, onRemoteSetting, saveSetting } from "@/lib/settings";
 import type { Signal, SignalKind } from "@/lib/signals";
 
 // AvanzaDesk's own alert rules, checked locally (RuleWatcher) because Avanza's alerts only
@@ -412,7 +412,12 @@ export const removeRule = (id: string) => setRules(getRules().filter((r) => r.id
 
 export function subscribeRules(listener: () => void) {
   listeners.add(listener);
-  return () => void listeners.delete(listener);
+  // Rules made in a pop-out window reach the watcher in the main one.
+  const off = onRemoteSetting(KEY, listener);
+  return () => {
+    listeners.delete(listener);
+    off();
+  };
 }
 
 export const getFired = () => getSetting<Fired>(`${KEY}:fired`, {});

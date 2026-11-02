@@ -1,16 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
+import { useRouterState } from "@tanstack/react-router";
 import type { ChartPeriod } from "avanza-ts";
-import { FileText } from "lucide-react";
+import { FileText, PictureInPicture2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { AsyncBoundary } from "@/components/common/async-boundary";
 import { Segmented } from "@/components/common/segmented";
+import { Button } from "@/components/ui/button";
 import { headerSkeleton } from "@/components/workspace/chart/chart-body";
 import { Dossier } from "@/components/workspace/dossier/dossier";
 import { Panel } from "@/components/workspace/panel";
 import { useFocusedInstrument } from "@/components/workspace/use-focused-instrument";
 import { instrumentQuery } from "@/lib/avanza/queries";
 import { isTyping } from "@/lib/keys";
+import { openPopout } from "@/lib/popout";
 
 const ranges: { label: string; period: ChartPeriod }[] = [
   { label: "1D", period: "today" },
@@ -36,6 +39,7 @@ export function DossierPanel() {
   const fund = instrument?.kind === "fund";
   const active = fund && period === "today" ? "one_month" : period;
   const shown = visibleRanges(fund);
+  const inPopout = useRouterState({ select: (s) => s.location.pathname === "/popout" });
 
   // 1… picks a range, counting the buttons shown.
   useEffect(() => {
@@ -53,17 +57,33 @@ export function DossierPanel() {
       title="Overview"
       icon={FileText}
       actions={
-        <Segmented
-          label="Chart range"
-          numeric
-          options={shown.map((r, i) => ({
-            label: r.label,
-            value: r.period,
-            title: `${r.label} (${i + 1})`,
-          }))}
-          value={active}
-          onChange={setPeriod}
-        />
+        <>
+          <Segmented
+            label="Chart range"
+            numeric
+            options={shown.map((r, i) => ({
+              label: r.label,
+              value: r.period,
+              title: `${r.label} (${i + 1})`,
+            }))}
+            value={active}
+            onChange={setPeriod}
+          />
+          {focus && !inPopout && (
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="text-muted-foreground"
+              aria-label="Open in a new window"
+              title="Open in a new window"
+              onClick={() =>
+                void openPopout(focus.id, instrument?.shortName ?? "Instrument", focus.type)
+              }
+            >
+              <PictureInPicture2 />
+            </Button>
+          )}
+        </>
       }
     >
       {focus ? (

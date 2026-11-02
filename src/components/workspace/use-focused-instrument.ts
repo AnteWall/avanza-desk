@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useNavigate, useRouterState, useSearch } from "@tanstack/react-router";
 
 import { InstrumentType } from "@/lib/avanza/codes";
 import { marketplaceQuery, watchlistsQuery } from "@/lib/avanza/queries";
@@ -14,9 +14,12 @@ export function useFocusedInstrument(): Focus | undefined {
   return id ? { id, type: ob ? type : undefined } : undefined;
 }
 
+/** Focuses an instrument in the workspace; a pop-out window switches its own instrument. */
 export function useFocusInstrument() {
   const navigate = useNavigate();
-  return (ob: string, type?: string) => void navigate({ to: "/", search: { ob, type } });
+  const popout = useRouterState({ select: (s) => s.location.pathname === "/popout" });
+  return (ob: string, type?: string) =>
+    void navigate({ to: popout ? "/popout" : "/", search: { ob, type } });
 }
 
 /** True while the instrument's market is open: gates every live poll. Funds never are. */

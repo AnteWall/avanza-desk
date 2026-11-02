@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import { AssistantPanel } from "@/components/ai/assistant-panel";
@@ -11,6 +12,7 @@ import { VisitTracker } from "@/components/briefing/visit-tracker";
 import { LiveQuotesFile } from "@/components/layout/live-quotes-file";
 import { NavRail } from "@/components/layout/nav-rail";
 import { Notifier } from "@/components/layout/notifier";
+import { PopoutShell } from "@/components/layout/popout-shell";
 import { QuoteFeed } from "@/components/layout/quote-feed";
 import { RuleWatcher } from "@/components/layout/rule-watcher";
 import { Snapshotter } from "@/components/layout/snapshotter";
@@ -25,6 +27,11 @@ import { Toaster } from "@/components/ui/sonner";
 import { meQuery } from "@/lib/avanza/client";
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const popout = useRouterState({ select: (s) => s.location.pathname === "/popout" });
+  return popout ? <PopoutShell>{children}</PopoutShell> : <MainShell>{children}</MainShell>;
+}
+
+function MainShell({ children }: { children: ReactNode }) {
   const { data: me } = useQuery(meQuery);
   const inAppFrame = useInAppFrame();
   const [chatOpen, toggleChat] = useChatOpen();
