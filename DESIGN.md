@@ -29,6 +29,9 @@ Avanza's own design system ("Mint"), so the app feels like Avanza.
 5. **Keyboard reachable.** Every action has a focusable control, and global actions get a
    shortcut: `Ctrl K` search (instruments and pages), `Alt 1…9`, `Alt 0` pages, `1…6` chart ranges, `A` add instrument (Rebalance),
    `↑↓`/`j k` + `Enter` in clickable tables. Single-key shortcuts skip text fields (`isTyping`).
+   App-wide combos (search, assistant, pages) are rebindable in Settings › Shortcuts: register
+   them in `src/lib/shortcuts.ts` and listen with `useShortcut`, and show hints with
+   `bindingKeys(getBinding(action))`, never a hardcoded "Ctrl K".
 
 ## Stack
 
@@ -219,6 +222,8 @@ inside them. No shadows on panels; separation comes from the gutter and `border`
   carries the contrast. Fill a panel with `style={{ height: "100%" }}`.
 - Price charts: brand line (1.5px) over a brand gradient area (0 → 35%), y-axis `grid`, dashed
   previous-close `ruleY`, `crosshair` with labels, `focus: "group-x"` and the built-in `tooltip`.
+  Candles are `up`/`down` bodies and wicks; indicator overlays take `chart-2…5`. A pane stacked
+  under a chart (RSI, MACD) shares `STACKED_MARGIN` so the time axes line up.
 - Format ticks with `src/lib/format.ts`. Compact scales only (`linear`, `band`, `point`); add
   `d3-scale` only when a chart needs a real time scale.
 

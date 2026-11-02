@@ -26,6 +26,7 @@ import { Route as SettingsAssistantRouteImport } from './routes/settings.assista
 import { Route as SettingsDataRouteImport } from './routes/settings.data'
 import { Route as SettingsGeneralRouteImport } from './routes/settings.general'
 import { Route as SettingsNotificationsRouteImport } from './routes/settings.notifications'
+import { Route as SettingsShortcutsRouteImport } from './routes/settings.shortcuts'
 import { Route as SettingsStatusBarRouteImport } from './routes/settings.status-bar'
 
 const IndexRoute = IndexRouteImport.update({
@@ -113,6 +114,11 @@ const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
   path: '/notifications',
   getParentRoute: () => SettingsRoute,
 } as any)
+const SettingsShortcutsRoute = SettingsShortcutsRouteImport.update({
+  id: '/shortcuts',
+  path: '/shortcuts',
+  getParentRoute: () => SettingsRoute,
+} as any)
 const SettingsStatusBarRoute = SettingsStatusBarRouteImport.update({
   id: '/status-bar',
   path: '/status-bar',
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/settings/data': typeof SettingsDataRoute
   '/settings/general': typeof SettingsGeneralRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/shortcuts': typeof SettingsShortcutsRoute
   '/settings/status-bar': typeof SettingsStatusBarRoute
   '/settings/': typeof SettingsIndexRoute
 }
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/settings/data': typeof SettingsDataRoute
   '/settings/general': typeof SettingsGeneralRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/shortcuts': typeof SettingsShortcutsRoute
   '/settings/status-bar': typeof SettingsStatusBarRoute
   '/settings': typeof SettingsIndexRoute
 }
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/settings/data': typeof SettingsDataRoute
   '/settings/general': typeof SettingsGeneralRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/shortcuts': typeof SettingsShortcutsRoute
   '/settings/status-bar': typeof SettingsStatusBarRoute
   '/settings/': typeof SettingsIndexRoute
 }
@@ -198,6 +207,7 @@ export interface FileRouteTypes {
     | '/settings/data'
     | '/settings/general'
     | '/settings/notifications'
+    | '/settings/shortcuts'
     | '/settings/status-bar'
     | '/settings/'
   fileRoutesByTo: FileRoutesByTo
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/settings/data'
     | '/settings/general'
     | '/settings/notifications'
+    | '/settings/shortcuts'
     | '/settings/status-bar'
     | '/settings'
   id:
@@ -237,6 +248,7 @@ export interface FileRouteTypes {
     | '/settings/data'
     | '/settings/general'
     | '/settings/notifications'
+    | '/settings/shortcuts'
     | '/settings/status-bar'
     | '/settings/'
   fileRoutesById: FileRoutesById
@@ -377,6 +389,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsNotificationsRouteImport
       parentRoute: typeof SettingsRoute
     }
+    '/settings/shortcuts': {
+      id: '/settings/shortcuts'
+      path: '/shortcuts'
+      fullPath: '/settings/shortcuts'
+      preLoaderRoute: typeof SettingsShortcutsRouteImport
+      parentRoute: typeof SettingsRoute
+    }
     '/settings/status-bar': {
       id: '/settings/status-bar'
       path: '/status-bar'
@@ -392,6 +411,7 @@ interface SettingsRouteChildren {
   SettingsDataRoute: typeof SettingsDataRoute
   SettingsGeneralRoute: typeof SettingsGeneralRoute
   SettingsNotificationsRoute: typeof SettingsNotificationsRoute
+  SettingsShortcutsRoute: typeof SettingsShortcutsRoute
   SettingsStatusBarRoute: typeof SettingsStatusBarRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
 }
@@ -401,6 +421,7 @@ const SettingsRouteChildren: SettingsRouteChildren = {
   SettingsDataRoute: SettingsDataRoute,
   SettingsGeneralRoute: SettingsGeneralRoute,
   SettingsNotificationsRoute: SettingsNotificationsRoute,
+  SettingsShortcutsRoute: SettingsShortcutsRoute,
   SettingsStatusBarRoute: SettingsStatusBarRoute,
   SettingsIndexRoute: SettingsIndexRoute,
 }

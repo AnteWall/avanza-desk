@@ -3,17 +3,19 @@ import { useNavigate } from "@tanstack/react-router";
 import type { SearchHit } from "avanza-ts";
 import { cn } from "cn";
 import { Bell, Search, SearchX } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { LoadError } from "@/components/common/load-error";
 import { pages } from "@/components/layout/pages";
 import { SearchResult } from "@/components/layout/search-result";
+import { useShortcut, useShortcutBindings } from "@/components/layout/use-shortcuts";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { searchQuery } from "@/lib/avanza/queries";
 import { openRuleDialog } from "@/lib/rule-dialog";
+import { bindingKeys, getBinding } from "@/lib/shortcuts";
 import { useDebounced } from "@/lib/use-debounced";
 
 // Things to do, matched like page names: any word of the label starting with what is typed.
@@ -41,16 +43,8 @@ export function InstrumentSearch() {
     placeholderData: (previous) => previous,
   });
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setOpen(true);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  useShortcut("search", () => setOpen(true));
+  useShortcutBindings();
 
   const typed = query.trim().toLowerCase();
   const commands = typed
@@ -61,7 +55,7 @@ export function InstrumentSearch() {
             key: p.to,
             icon: p.icon,
             label: `Go to ${p.label}`,
-            hint: `Alt ${pages.indexOf(p) + 1}`,
+            hint: bindingKeys(getBinding(`page:${p.to}`)).join(" ") || undefined,
             run: () => void navigate({ to: p.to }),
           })),
         ...actions
@@ -102,7 +96,7 @@ export function InstrumentSearch() {
       >
         <Search />
         Search instruments…
-        <kbd className="num ml-auto text-xs">Ctrl K</kbd>
+        <kbd className="num ml-auto text-xs">{bindingKeys(getBinding("search")).join(" ")}</kbd>
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent

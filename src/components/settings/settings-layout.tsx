@@ -1,5 +1,5 @@
 import { Link, Outlet } from "@tanstack/react-router";
-import { Bell, Monitor, PanelBottom, RefreshCw, Sparkles } from "lucide-react";
+import { Bell, Keyboard, Monitor, PanelBottom, RefreshCw, Sparkles } from "lucide-react";
 
 import { Panel } from "@/components/workspace/panel";
 
@@ -8,6 +8,7 @@ const categories = [
   { to: "/settings/data", label: "Data", icon: RefreshCw },
   { to: "/settings/notifications", label: "Notifications", icon: Bell },
   { to: "/settings/status-bar", label: "Status bar", icon: PanelBottom },
+  { to: "/settings/shortcuts", label: "Shortcuts", icon: Keyboard },
   { to: "/settings/assistant", label: "Assistant", icon: Sparkles },
 ] as const;
 

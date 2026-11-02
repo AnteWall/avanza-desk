@@ -1,17 +1,15 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
-import { pageDigit, pages } from "@/components/layout/pages";
+import { pages } from "@/components/layout/pages";
+import { getBinding, matches } from "@/lib/shortcuts";
 
-/** Alt+1…9, then Alt+0, open the pages in nav-rail order. */
+/** Each page's shortcut (Alt+1…9, then Alt+0, unless rebound) opens it. */
 export function usePageShortcuts() {
   const navigate = useNavigate();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      // `code`, not `key`: Alt+digit types other characters on some layouts.
-      if (!e.altKey || e.ctrlKey || e.metaKey || !e.code.startsWith("Digit")) return;
-      const digit = e.code.slice("Digit".length);
-      const page = pages.find((_, i) => pageDigit(i) === digit);
+      const page = pages.find((p) => matches(e, getBinding(`page:${p.to}`)));
       if (!page) return;
       e.preventDefault();
       void navigate({ to: page.to });
