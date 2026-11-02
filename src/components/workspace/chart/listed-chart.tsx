@@ -2,7 +2,10 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import type { ChartPeriod } from "avanza-ts";
 import { useMemo } from "react";
 
-import { PriceChart, type TradeMarker } from "@/components/common/price-chart";
+import { PriceChart, type OverlayLine, type TradeMarker } from "@/components/common/price-chart";
+import { ChartControls } from "@/components/workspace/chart/chart-controls";
+import { IndicatorPane } from "@/components/workspace/chart/indicator-pane";
+import { useChartView } from "@/components/workspace/chart/use-chart-view";
 import { useMarketOpen } from "@/components/workspace/use-focused-instrument";
 import { OrderSide, TransactionSide } from "@/lib/avanza/codes";
 import type { Instrument } from "@/lib/avanza/instrument";
@@ -13,8 +16,20 @@ import {
   priceChartQuery,
   tradesByIsinQuery,
 } from "@/lib/avanza/queries";
+import { overlayLabels, type Overlay } from "@/lib/chart-view";
+import { ema, sma, vwap } from "@/lib/indicators";
 
-/** Price chart with volume, company events, the user's average price and own buys/sells. */
+const overlayColor: Record<Overlay, string> = {
+  sma20: "var(--chart-2)",
+  sma50: "var(--chart-3)",
+  ema20: "var(--chart-5)",
+  vwap: "var(--muted-foreground)",
+};
+
+/**
+ * Price chart with volume, company events, the user's average price and own buys/sells, as a
+ * line or candles, with optional indicators over it and an RSI/MACD pane under it.
+ */
 export function ListedChart({
   instrument,
   period,
@@ -47,18 +62,63 @@ export function ListedChart({
     [chart],
   );
   const eventTimes = useMemo(() => events?.map((e) => e.timestamp), [events]);
+  const view = useChartView();
+  const intraday = period === "today";
+  const overlays = useMemo((): OverlayLine[] => {
+    const closes = chart.ohlc.map((p) => p.close);
+    const series: Record<Overlay, () => (number | null)[]> = {
+      sma20: () => sma(closes, 20),
+      sma50: () => sma(closes, 50),
+      ema20: () => ema(closes, 20),
+      vwap: () => vwap(chart.ohlc),
+    };
+    return view.overlays
+      .filter((o) => o !== "vwap" || intraday)
+      .map((o) => ({
+        key: o,
+        label: overlayLabels[o],
+        color: overlayColor[o],
+        points: series[o]().flatMap((v, i) =>
+          v == null ? [] : [{ timestamp: chart.ohlc[i]!.timestamp, value: v }],
+        ),
+      }));
+  }, [chart, view.overlays, intraday]);
+  const points = useMemo(
+    () => chart.ohlc.map((p) => ({ timestamp: p.timestamp, value: p.close })),
+    [chart],
+  );
 
-  if (chart.ohlc.length === 0)
-    return <p className="text-muted-foreground">No trades in this period.</p>;
+  const lower = view.lower === "none" ? undefined : view.lower;
   return (
-    <PriceChart
-      points={chart.ohlc.map((p) => ({ timestamp: p.timestamp, value: p.close }))}
-      intraday={period === "today"}
-      previousClose={period === "today" ? chart.previousClosingPrice : null}
-      averagePrice={holding(positions, instrument.orderbookId)?.averagePrice}
-      trades={trades}
-      volumes={volumes}
-      events={eventTimes}
-    />
+    <div className="flex h-full flex-col gap-1">
+      <div className="flex justify-end">
+        <ChartControls intraday={intraday} />
+      </div>
+      {chart.ohlc.length === 0 ? (
+        <p className="text-muted-foreground">No trades in this period.</p>
+      ) : (
+        <>
+          <div className="min-h-0 flex-[3]">
+            <PriceChart
+              points={points}
+              intraday={intraday}
+              previousClose={intraday ? chart.previousClosingPrice : null}
+              averagePrice={holding(positions, instrument.orderbookId)?.averagePrice}
+              trades={trades}
+              volumes={volumes}
+              events={eventTimes}
+              candles={view.style === "candles" ? chart.ohlc : undefined}
+              overlays={overlays}
+              stacked={!!lower}
+            />
+          </div>
+          {lower && (
+            <div className="min-h-16 flex-1">
+              <IndicatorPane bars={chart.ohlc} kind={lower} intraday={intraday} />
+            </div>
+          )}
+        </>
+      )}
+    </div>
   );
 }
