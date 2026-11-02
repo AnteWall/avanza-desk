@@ -1,7 +1,12 @@
+import { openUrl } from "@tauri-apps/plugin-opener";
+import { ExternalLink } from "lucide-react";
+
 import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { InstrumentLogo } from "@/components/common/instrument-logo";
 import { SignedAmount } from "@/components/common/signed-amount";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { avanzaOrderUrl } from "@/lib/avanza/links";
 import type { Holding } from "@/lib/avanza/portfolio";
 import { formatInteger, formatShare } from "@/lib/format";
 import type { Trade } from "@/lib/rebalance";
@@ -74,13 +79,36 @@ const columns = col.columns([
     id: "shares",
     header: "Order",
     cell: (c) => {
+      const { holding, trade } = c.row.original;
       const shares = c.getValue();
-      const amount = Math.round(c.row.original.trade.amount);
-      if (shares == null)
-        return amount
-          ? `${amount > 0 ? "Buy" : "Sell"} for ${formatInteger(Math.abs(amount))} SEK`
-          : "–";
-      return shares ? `${shares > 0 ? "Buy" : "Sell"} ${formatInteger(Math.abs(shares))}` : "–";
+      const amount = Math.round(trade.amount);
+      const size = shares ?? amount;
+      if (!size) return "–";
+      const side = size > 0 ? "buy" : "sell";
+      const label =
+        shares == null
+          ? `${size > 0 ? "Buy" : "Sell"} for ${formatInteger(Math.abs(amount))} SEK`
+          : `${size > 0 ? "Buy" : "Sell"} ${formatInteger(Math.abs(shares))}`;
+      if (!holding.orderbookId) return label;
+      // Funds open the fund page; stocks prefill the share count.
+      const url = avanzaOrderUrl(
+        holding.orderbookId,
+        holding.name,
+        side,
+        holding.type === "FUND",
+        shares == null ? undefined : Math.abs(shares),
+      );
+      return (
+        <Button
+          variant="outline"
+          size="xs"
+          title="Open in Avanza"
+          onClick={() => void openUrl(url)}
+        >
+          {label}
+          <ExternalLink data-icon="inline-end" />
+        </Button>
+      );
     },
     meta: { align: "end", className: "sensitive num" },
   }),
