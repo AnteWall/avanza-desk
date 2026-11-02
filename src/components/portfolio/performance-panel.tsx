@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { PerformancePeriod } from "avanza-ts";
-import { ChartLine } from "lucide-react";
+import { Activity, ChartLine } from "lucide-react";
 import { useState } from "react";
 
 import { AsyncBoundary } from "@/components/common/async-boundary";
@@ -8,8 +8,10 @@ import { Change } from "@/components/common/change";
 import { Segmented } from "@/components/common/segmented";
 import { SignedAmount } from "@/components/common/signed-amount";
 import { Skeleton } from "@/components/common/skeleton";
+import { useTab } from "@/components/common/use-tab";
+import { IntradayChart } from "@/components/portfolio/intraday/intraday-chart";
 import { PortfolioChart, type ChartMode } from "@/components/portfolio/portfolio-chart";
-import { Panel } from "@/components/workspace/panel";
+import { TabbedPanel } from "@/components/workspace/tabbed-panel";
 import { totalValuesQuery } from "@/lib/avanza/queries";
 
 const ranges: { label: string; period: PerformancePeriod }[] = [
@@ -27,6 +29,9 @@ const modes: { label: string; mode: ChartMode }[] = [
   { label: "Value", mode: "value" },
 ];
 
+const tabsId = "portfolio-performance";
+const skeleton = <Skeleton className="h-full min-h-32 w-full rounded-md opacity-60" />;
+
 export function PerformancePanel() {
   const [period, setPeriod] = useState<PerformancePeriod>("THIS_YEAR");
   const [mode, setMode] = useState<ChartMode>("return");
@@ -35,45 +40,65 @@ export function PerformancePanel() {
   const { data: totals } = useQuery(totalValuesQuery);
   const dev = totals?.totalDevelopment[period];
 
+  const today = totals?.totalDevelopment.TODAY;
+  const intraday = useTab(tabsId) === "today";
+  const result = (d: typeof dev) =>
+    d && (
+      <span className="flex items-center gap-2">
+        <SignedAmount value={d.absolute.value} className="sensitive text-foreground font-medium" />
+        <Change ratio={d.relative.value / 100} />
+      </span>
+    );
+
   return (
-    <Panel
-      title="Performance"
-      icon={ChartLine}
-      subtitle={
-        dev && (
-          <span className="flex items-center gap-2">
-            <SignedAmount value={dev.absolute.value} className="sensitive font-medium" />
-            <Change ratio={dev.relative.value / 100} />
-          </span>
+    <TabbedPanel
+      id={tabsId}
+      aside={
+        intraday ? (
+          result(today)
+        ) : (
+          <>
+            {result(dev)}
+            <Segmented
+              label="Chart"
+              options={modes.map((m) => ({ label: m.label, value: m.mode }))}
+              value={mode}
+              onChange={setMode}
+            />
+            <Segmented
+              label="Range"
+              numeric
+              options={ranges.map((r) => ({ label: r.label, value: r.period }))}
+              value={period}
+              onChange={setPeriod}
+            />
+          </>
         )
       }
-      actions={
-        <>
-          <Segmented
-            label="Chart"
-            options={modes.map((m) => ({ label: m.label, value: m.mode }))}
-            value={mode}
-            onChange={setMode}
-          />
-          <Segmented
-            label="Range"
-            numeric
-            options={ranges.map((r) => ({ label: r.label, value: r.period }))}
-            value={period}
-            onChange={setPeriod}
-          />
-        </>
-      }
-    >
-      <div className="h-full p-3">
-        <AsyncBoundary
-          what="your performance"
-          fallback={<Skeleton className="h-full min-h-32 w-full rounded-md opacity-60" />}
-          resetKey={period}
-        >
-          <PortfolioChart period={period} mode={mode} />
-        </AsyncBoundary>
-      </div>
-    </Panel>
+      tabs={[
+        {
+          value: "performance",
+          label: "Performance",
+          icon: ChartLine,
+          content: (
+            <div className="h-full p-3">
+              <AsyncBoundary what="your performance" fallback={skeleton} resetKey={period}>
+                <PortfolioChart period={period} mode={mode} />
+              </AsyncBoundary>
+            </div>
+          ),
+        },
+        {
+          value: "today",
+          label: "Today",
+          icon: Activity,
+          content: (
+            <AsyncBoundary what="today's development" fallback={skeleton}>
+              <IntradayChart />
+            </AsyncBoundary>
+          ),
+        },
+      ]}
+    />
   );
 }
