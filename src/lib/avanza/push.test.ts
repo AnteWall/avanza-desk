@@ -89,7 +89,7 @@ test("a stream that fails for good shows an error that stays", async () => {
     "quotes",
     // oxlint-disable-next-line require-yield -- fails before its first event
     async function* () {
-      throw new AvanzaHttpError({ status: 403, statusText: "", headers: {}, body: undefined });
+      throw new AvanzaHttpError({ status: 400, statusText: "", headers: {}, body: undefined });
     },
     () => {},
   );
@@ -99,6 +99,21 @@ test("a stream that fails for good shows an error that stays", async () => {
       expect.objectContaining({ duration: Infinity }),
     ),
   );
+});
+
+test("a market without live access (403) stops quietly", async () => {
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  vi.mocked(toast.error).mockClear();
+  follow(
+    "order book",
+    // oxlint-disable-next-line require-yield -- fails before its first event
+    async function* () {
+      throw new AvanzaHttpError({ status: 403, statusText: "", headers: {}, body: undefined });
+    },
+    () => {},
+  );
+  await vi.waitFor(() => expect(warn).toHaveBeenCalled());
+  expect(toast.error).not.toHaveBeenCalled();
 });
 
 test("a push quote rescales the held position and today's change", () => {

@@ -1,5 +1,6 @@
 import type { QueryClient, QueryKey } from "@tanstack/react-query";
 import {
+  AvanzaHttpError,
   type MarketTrade,
   type OrderDepth,
   type PositionListResponse,
@@ -37,6 +38,10 @@ export function follow<T>(
       console.warn(`push stream for ${name} stopped`, error);
       // A 401 opens the sign-in overlay through the polled queries; no toast for that.
       if (isUnauthorized(error)) return;
+      // 403: no live data for this market on the account (e.g. Oslo without real-time access).
+      // A multi-instrument stream skips such instruments and only 403s when all are refused.
+      // The REST read still shows the data, so no toast.
+      if (error instanceof AvanzaHttpError && error.status === 403) return;
       // One toast per kind of stream, however many instruments it covered.
       toast.error(`Live ${name} stopped`, {
         id: `push-${name}`,
