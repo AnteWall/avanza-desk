@@ -10,6 +10,7 @@ import { Segmented } from "@/components/common/segmented";
 import { GroupPicker } from "@/components/portfolio/holdings/group-picker";
 import { AddInstrument } from "@/components/rebalance/add-instrument";
 import { OrdersTable } from "@/components/rebalance/orders-table";
+import { PlanCheck } from "@/components/rebalance/plan-check";
 import { PlanField } from "@/components/rebalance/plan-field";
 import { PlanStep } from "@/components/rebalance/plan-step";
 import { TargetsTable } from "@/components/rebalance/targets-table";
@@ -314,6 +315,7 @@ export function RebalancePlanner() {
         }
       >
         <OrdersTable rows={plan.rows} />
+        <PlanCheck rows={plan.rows} cashLeft={cashLeft} />
       </PlanStep>
     </>
   );
