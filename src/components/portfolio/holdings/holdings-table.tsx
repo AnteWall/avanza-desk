@@ -1,13 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 
 import { Change } from "@/components/common/change";
 import { CountryFlag } from "@/components/common/country-flag";
 import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { InstrumentLogo } from "@/components/common/instrument-logo";
 import { SignedAmount } from "@/components/common/signed-amount";
-import { GroupMenuItems } from "@/components/portfolio/holdings/group-menu-items";
-import { GroupNameDialog } from "@/components/portfolio/holdings/group-name-dialog";
+import { useGroupMenu } from "@/components/portfolio/holdings/use-group-menu";
 import { useGroup } from "@/components/portfolio/holdings/use-groups";
 import { useLookThroughs } from "@/components/portfolio/use-holdings";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
@@ -17,7 +15,6 @@ import { dividendYields, holdingYield, typeLabel, type Holding } from "@/lib/ava
 import { stockKeyRatiosQuery } from "@/lib/avanza/queries";
 import { sessionLabel } from "@/lib/exchanges";
 import { formatInteger, formatShare } from "@/lib/format";
-import { createGroup, setGroupId } from "@/lib/groups";
 
 type Row = Holding & { sector: string; weight: number; dividendYield?: number };
 
@@ -88,7 +85,7 @@ export function HoldingsTable() {
   // Sectors fill in as each look-through arrives; the table doesn't wait for them.
   const { holdings, byKey } = useLookThroughs({ grouped: true });
   const group = useGroup();
-  const [newGroupKeys, setNewGroupKeys] = useState<string[]>();
+  const groupMenu = useGroupMenu();
   const { data: ratios } = useQuery(stockKeyRatiosQuery);
   const focus = useFocusInstrument();
 
@@ -118,19 +115,9 @@ export function HoldingsTable() {
         getRowId={(h) => h.key}
         onRowClick={(h) => h.orderbookId && focus(h.orderbookId, h.type)}
         askAbout={(h) => instrumentItem(h.orderbookId, h.name, h.type, h.isin)}
-        rowMenu={(selected) => (
-          <GroupMenuItems
-            keys={selected.map((h) => h.key)}
-            onNewGroup={() => setNewGroupKeys(selected.map((h) => h.key))}
-          />
-        )}
+        rowMenu={(selected) => groupMenu.menu(selected.map((h) => h.key))}
       />
-      <GroupNameDialog
-        open={Boolean(newGroupKeys)}
-        title="New group"
-        onSubmit={(name) => setGroupId(createGroup(name, newGroupKeys ?? []))}
-        onClose={() => setNewGroupKeys(undefined)}
-      />
+      {groupMenu.dialog}
     </>
   );
 }

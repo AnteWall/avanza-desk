@@ -1,20 +1,17 @@
 import { Filter } from "lucide-react";
-import { useDeferredValue, useEffect, useState } from "react";
+import { useDeferredValue, useState } from "react";
 
 import { AsyncBoundary } from "@/components/common/async-boundary";
 import { TableSkeleton } from "@/components/common/table-skeleton";
 import { ScreenerTable } from "@/components/markets/screener-table";
 import { Input } from "@/components/ui/input";
 import { Panel } from "@/components/workspace/panel";
+import { useDebounced } from "@/lib/use-debounced";
 
 /** Stock screener: filter by name, sorted by how many Avanza customers own each stock. */
 export function ScreenerPanel() {
   const [query, setQuery] = useState("");
-  const [debounced, setDebounced] = useState("");
-  useEffect(() => {
-    const id = setTimeout(() => setDebounced(query.trim()), 300);
-    return () => clearTimeout(id);
-  }, [query]);
+  const debounced = useDebounced(query.trim(), 300);
   // Keeps the current rows on screen while the next filter loads, instead of a skeleton.
   const shown = useDeferredValue(debounced);
 

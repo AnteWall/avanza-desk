@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { searchQuery } from "@/lib/avanza/queries";
 import { openRuleDialog } from "@/lib/rule-dialog";
+import { useDebounced } from "@/lib/use-debounced";
 
 // Things to do, matched like page names: any word of the label starting with what is typed.
 const actions = [{ icon: Bell, label: "New alert rule", run: () => openRuleDialog() }];
@@ -25,15 +26,11 @@ const actions = [{ icon: Bell, label: "New alert rule", run: () => openRuleDialo
 export function InstrumentSearch() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [debounced, setDebounced] = useState("");
   const [active, setActive] = useState(0);
   const focus = useFocusInstrument();
   const navigate = useNavigate();
   // Debounced: each hit also fetches its stock (for the logo), so don't search per keystroke.
-  useEffect(() => {
-    const id = setTimeout(() => setDebounced(query), 200);
-    return () => clearTimeout(id);
-  }, [query]);
+  const debounced = useDebounced(query, 200);
   const {
     data: hits = [],
     isFetching,
