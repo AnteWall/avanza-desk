@@ -1,5 +1,5 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { RELEASES_URL, releaseUrl, type Release } from "@/lib/changelog";
+import { RELEASES_URL, REPO_URL, releaseUrl, type Release } from "@/lib/changelog";
 import { formatDate } from "@/lib/format";
 
 /** Release notes grouped New / Fixed / Faster; with several releases each gets its version. */
@@ -76,10 +76,16 @@ export function ReleaseNotesDialog({
           ))}
         </div>
         <DialogFooter className="m-0 rounded-b-xl sm:justify-between">
-          <Button variant="ghost" onClick={() => void openUrl(RELEASES_URL)}>
-            All releases
-            <ArrowUpRight aria-hidden />
-          </Button>
+          <div className="flex gap-1">
+            <Button variant="ghost" onClick={() => void openUrl(RELEASES_URL)}>
+              All releases
+              <ArrowUpRight aria-hidden />
+            </Button>
+            <Button variant="ghost" onClick={() => void openUrl(`${REPO_URL}/stargazers`)}>
+              <Star aria-hidden />
+              Star on GitHub
+            </Button>
+          </div>
           <Button onClick={onClose}>Got it</Button>
         </DialogFooter>
       </DialogContent>

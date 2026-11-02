@@ -1,13 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { getVersion } from "@tauri-apps/api/app";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { cn } from "cn";
+import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import githubLogoDark from "@/assets/github-dark.svg";
+import githubLogo from "@/assets/github.svg";
 import { ExchangeStrip } from "@/components/layout/exchange-strip";
 import { useLastFetches } from "@/components/layout/use-connection";
 import { useFocusedInstrument } from "@/components/workspace/use-focused-instrument";
 import { InstrumentType } from "@/lib/avanza/codes";
 import { instrumentQuery, marketplaceQuery, quoteQuery } from "@/lib/avanza/queries";
+import { REPO_URL } from "@/lib/changelog";
 import { connection } from "@/lib/connection";
 import { formatDuration } from "@/lib/format";
 
@@ -95,6 +100,37 @@ export function StatusBar() {
         <span className={cn(conn.state === "error" && "text-destructive")}>{conn.label}</span>
       </span>
       {version && <span className="num">v{version}</span>}
+      <span className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={() => void openUrl(REPO_URL)}
+          title="AvanzaDesk on GitHub"
+          aria-label="AvanzaDesk on GitHub"
+          className="group cursor-pointer"
+        >
+          <img
+            src={githubLogo}
+            alt=""
+            aria-hidden
+            className="size-3 opacity-60 group-hover:opacity-100 dark:hidden"
+          />
+          <img
+            src={githubLogoDark}
+            alt=""
+            aria-hidden
+            className="hidden size-3 opacity-60 group-hover:opacity-100 dark:block"
+          />
+        </button>
+        <button
+          type="button"
+          onClick={() => void openUrl(`${REPO_URL}/stargazers`)}
+          title="Star AvanzaDesk on GitHub"
+          aria-label="Star AvanzaDesk on GitHub"
+          className="hover:text-foreground cursor-pointer transition-colors"
+        >
+          <Star className="size-3" aria-hidden />
+        </button>
+      </span>
     </footer>
   );
 }

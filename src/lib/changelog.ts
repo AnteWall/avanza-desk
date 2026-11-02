@@ -47,7 +47,8 @@ const files = import.meta.glob<string>("/CHANGELOG.md", {
   import: "default",
   eager: true,
 });
-export const RELEASES_URL = "https://github.com/AnteWall/avanza-desk/releases";
+export const REPO_URL = "https://github.com/AnteWall/avanza-desk";
+export const RELEASES_URL = `${REPO_URL}/releases`;
 export const releaseUrl = (version: string) => `${RELEASES_URL}/tag/v${version}`;
 
 /** The notes bundled into this build. */
