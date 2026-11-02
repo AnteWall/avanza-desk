@@ -9,6 +9,8 @@ use tauri::ipc::{Channel, InvokeResponseBody};
 mod ai;
 mod article;
 mod db;
+#[cfg(target_os = "macos")]
+mod mouse_nav;
 mod snapshots;
 
 const AVANZA_ORIGIN: &str = "https://www.avanza.se/";
@@ -186,6 +188,8 @@ pub fn run() {
         .manage(ai::codex::Chat::default())
         .manage(ai::codex::Login::default())
         .setup(|app| {
+            #[cfg(target_os = "macos")]
+            mouse_nav::init(app.handle());
             db::init(app)?;
             ai::mcp::init(app)
         })

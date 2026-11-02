@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/common/skeleton";
 import { AccountPicker } from "@/components/layout/account-picker";
 import { AppLogo } from "@/components/layout/app-logo";
 import { DailyPerformance } from "@/components/layout/daily-performance";
+import { HistoryButtons } from "@/components/layout/history-buttons";
 import { IndexTicker } from "@/components/layout/index-ticker";
 import { InstrumentSearch } from "@/components/layout/instrument-search";
 import { PrivacyToggle } from "@/components/layout/privacy-toggle";
@@ -39,6 +40,7 @@ export function TopBar({
           Avanza<span className="text-muted-foreground font-normal">Desk</span>
         </span>
       </div>
+      <HistoryButtons />
       {divider}
       <div className="flex shrink-0 items-center gap-2">
         <AccountPicker />

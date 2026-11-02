@@ -241,7 +241,9 @@ name = "avanza-desk"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "block2",
  "keyring",
+ "objc2-app-kit",
  "reqwest",
  "rmcp",
  "rusqlite",
