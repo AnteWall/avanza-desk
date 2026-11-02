@@ -49,6 +49,12 @@ const files = import.meta.glob<string>("/CHANGELOG.md", {
 });
 export const REPO_URL = "https://github.com/AnteWall/avanza-desk";
 export const RELEASES_URL = `${REPO_URL}/releases`;
+/** A new "Ideas" discussion on GitHub, prefilled with the app version. */
+export const ideaUrl = (version: string | undefined) =>
+  `${REPO_URL}/discussions/new?${new URLSearchParams({
+    category: "ideas",
+    body: `**What would you like AvanzaDesk to do?**\n\n\n**Why would it help you?**\n\n\n---\nAvanzaDesk v${version ?? "unknown"}`,
+  })}`;
 export const releaseUrl = (version: string) => `${RELEASES_URL}/tag/v${version}`;
 
 /** The notes bundled into this build. */

@@ -1,7 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { getVersion } from "@tauri-apps/api/app";
-import { Gift, LogOut, Settings, SlidersHorizontal, SunMoon } from "lucide-react";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import { Gift, Lightbulb, LogOut, Settings, SlidersHorizontal, SunMoon } from "lucide-react";
 import { useState } from "react";
 
 import { ReleaseNotesDialog } from "@/components/common/release-notes-dialog";
@@ -21,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { meQuery, signOut } from "@/lib/avanza/client";
-import { notesFor } from "@/lib/changelog";
+import { ideaUrl, notesFor } from "@/lib/changelog";
 import { getTheme, setTheme, type Theme } from "@/lib/theme";
 
 const themes: { value: Theme; label: string }[] = [
@@ -30,7 +31,7 @@ const themes: { value: Theme; label: string }[] = [
   { value: "system", label: "System" },
 ];
 
-/** Settings button at the bottom of the nav rail: user, theme, settings, what's new, sign out. */
+/** Settings button at the bottom of the nav rail: user, theme, settings, what's new, suggest a feature, sign out. */
 export function SettingsMenu({ className }: { className?: string }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -100,6 +101,10 @@ export function SettingsMenu({ className }: { className?: string }) {
           <DropdownMenuItem disabled={!notes} onClick={() => setNotesOpen(true)}>
             <Gift />
             What's new
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => void openUrl(ideaUrl(version))}>
+            <Lightbulb />
+            Suggest a feature
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
