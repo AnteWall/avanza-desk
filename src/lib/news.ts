@@ -1,6 +1,6 @@
-import type { NewsFeedItem, NewsFeedOrderbook } from "avanza-ts";
+import type { CalendarResponse, NewsFeedItem, NewsFeedOrderbook } from "avanza-ts";
 
-import { formatDate, formatTime } from "@/lib/format";
+import { formatDate, formatPrice, formatTime } from "@/lib/format";
 
 export type NewsGroup = { orderbook: NewsFeedOrderbook; items: NewsFeedItem[] };
 
@@ -83,3 +83,34 @@ export function eventGroup(date: string, today: string) {
 
 /** Today in Stockholm as `yyyy-MM-dd`. */
 export const stockholmToday = () => formatDate(Date.now());
+
+export type CalendarEvent = {
+  key: string;
+  date: string;
+  orderbookId: string;
+  type: string;
+  name: string;
+  /** "Interim report", "Ex-dividend 1,52 EUR". */
+  what: string;
+};
+
+/** Reports and ex-dividend dates from Avanza's calendar, unsorted. */
+export const calendarEvents = (data: CalendarResponse): CalendarEvent[] =>
+  data.flatMap((month) => [
+    ...(month.reports ?? []).map((r) => ({
+      key: `r-${r.orderbook.id}-${r.date}`,
+      date: r.date,
+      orderbookId: r.orderbook.id,
+      type: r.orderbook.instrumentType,
+      name: r.companyName || r.orderbook.name,
+      what: `${r.reportType.charAt(0)}${r.reportType.slice(1).toLowerCase().replaceAll("_", " ")} report`,
+    })),
+    ...(month.upcomingDividends?.upcomingDividends ?? []).map((d) => ({
+      key: `d-${d.orderbook.id}-${d.exclusiveDividendDate}`,
+      date: d.exclusiveDividendDate,
+      orderbookId: d.orderbook.id,
+      type: d.orderbook.instrumentType,
+      name: d.orderbook.name,
+      what: `Ex-dividend ${formatPrice(d.amount)} ${d.currency}${d.established ? "" : " (est.)"}`,
+    })),
+  ]);

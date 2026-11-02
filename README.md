@@ -43,7 +43,7 @@ It is built for people who keep Avanza open all day and want more data on screen
 - **ISK tax and fees.** This year's ISK tax and the fees you paid.
 - **AI assistant (optional).** Ask about your portfolio in plain language with Claude or Codex,
   using your own subscription. Read-only.
-- **Keyboard first.** `Ctrl K` search, `Alt 1…8` pages, `1…6` chart ranges, `j`/`k` in tables.
+- **Keyboard first.** `Ctrl K` search, `Alt 1…9` and `Alt 0` pages, `1…6` chart ranges, `j`/`k` in tables.
 - **Privacy mode.** Hide every amount with one click.
 
 Also: portfolio and allocation, markets with index constituents, movers and a screener, orders,

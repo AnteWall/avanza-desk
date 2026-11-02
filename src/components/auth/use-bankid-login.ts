@@ -3,6 +3,7 @@ import type { BankIdAuthAttempt, BankIdChallenge } from "avanza-ts";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { avanza, meQuery, saveSession, type User } from "@/lib/avanza/client";
+import { markSignedIn } from "@/lib/briefing";
 
 export type BankIdLoginState =
   | { step: "start" }
@@ -72,6 +73,7 @@ export function useBankIdLogin() {
       queryClient.removeQueries({
         predicate: (query) => query.queryKey[0] !== "auth" && query.state.status === "error",
       });
+      markSignedIn();
       queryClient.setQueryData(meQuery.queryKey, user);
     },
     [queryClient],

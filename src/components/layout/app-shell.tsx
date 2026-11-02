@@ -7,6 +7,7 @@ import { useAssistantEnabled } from "@/components/ai/use-assistant-enabled";
 import { useChatOpen } from "@/components/ai/use-chat-open";
 import { RuleDialog } from "@/components/alerts/rule-dialog";
 import { AuthGate } from "@/components/auth/auth-gate";
+import { VisitTracker } from "@/components/briefing/visit-tracker";
 import { NavRail } from "@/components/layout/nav-rail";
 import { Notifier } from "@/components/layout/notifier";
 import { QuoteFeed } from "@/components/layout/quote-feed";
@@ -47,6 +48,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {assistantEnabled && <McpBridge />}
           <Notifier />
           <Snapshotter />
+          <VisitTracker />
           <RuleDialog />
           <RuleWatcher />
           <TradingFeed />

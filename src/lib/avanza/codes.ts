@@ -19,3 +19,11 @@ export type TransactionSide = (typeof TransactionSide)[keyof typeof TransactionS
 /** Side of an order the user is about to place. */
 export const OrderSide = { Buy: "buy", Sell: "sell" } as const;
 export type OrderSide = (typeof OrderSide)[keyof typeof OrderSide];
+
+/** Transaction type codes for money in and out. */
+export const TransactionType = {
+  Dividend: "DIVIDEND",
+  Deposit: "DEPOSIT",
+  Withdraw: "WITHDRAW",
+} as const;
+export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];

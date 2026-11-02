@@ -27,7 +27,7 @@ Avanza's own design system ("Mint"), so the app feels like Avanza.
 4. **Aligned digits.** Every number is mono with tabular figures and right-aligned in tables,
    so columns line up and ticking values don't jitter.
 5. **Keyboard reachable.** Every action has a focusable control, and global actions get a
-   shortcut: `Ctrl K` search (instruments and pages), `Alt 1…9` pages, `1…6` chart ranges, `A` add instrument (Rebalance),
+   shortcut: `Ctrl K` search (instruments and pages), `Alt 1…9`, `Alt 0` pages, `1…6` chart ranges, `A` add instrument (Rebalance),
    `↑↓`/`j k` + `Enter` in clickable tables. Single-key shortcuts skip text fields (`isTyping`).
 
 ## Stack
@@ -182,14 +182,18 @@ inside them. No shadows on panels; separation comes from the gutter and `border`
   short popover: what it is, what to type, an example. In a table header use
   `header: infoHeader(title, tip)`. Use it where a value needs a sentence to be understood,
   not on every label.
-- **Active state** (nav rail): `data-active` → `bg-accent text-brand`.
+- **Active state** (nav rail): `data-active` → `bg-accent text-brand`. Hovering a nav button shows
+  a `Tooltip`: the page name, its shortcut in `Kbd` (`Alt 1`), and one line on what it's for
+  (`description` in `pages.ts`).
 - **Buy/sell:** segmented toggle on `bg-muted`; the selected side is filled `bg-buy`/`bg-sell`.
   The submit button takes the side's color and names the action ("Buy VOLV B").
 - **Focus:** keep the shadcn focus ring (`ring` = brand). Never remove outlines.
 - **Empty state:** one muted sentence in `p-3` ("No open orders."). No illustrations.
   The one exception is a feature that is off until set up (the assistant panel,
   `AssistantOff`): a small illustration drawn from tokens, a line on what it does and one button
-  to its Settings page. The setup itself lives only in Settings.
+  to its Settings page. The setup itself lives only in Settings. The same goes for a page that
+  has nothing to show until something happens (Since last visit before a second visit,
+  `BriefingEmpty`): an illustration, a title, and a line on why it's empty and when it fills.
 - **Status dots:** `size-1.5 rounded-full`, `bg-brand` = ok/live, `bg-warning` = delayed,
   `bg-destructive` = disconnected.
 - **Create from where you are.** Anything the user can make (alert rules today) has one
@@ -273,6 +277,24 @@ rather than a terminal, so it bends a few rules on purpose. Keep these exception
   and only inside the SVG asset files in `src/assets/providers/`, never in components. A
   mark that vanishes on dark (OpenAI's black knot) ships a `-dark` file as `logoDark`.
 - **Privacy mode** blurs answers and tool results (`sensitive`): they quote your amounts.
+
+## Since last visit
+
+The briefing page (`components/briefing/`) is read, not scanned: a catch-up letter for someone
+who checks in now and then. Like the assistant, it bends a few rules on purpose; keep these
+exceptions inside it.
+
+- **One reading column**, `max-w-3xl`, centered in a single scrolling card. No panel grid.
+- **Editorial type:** an uppercase brand kicker (how long you were away), a `text-3xl` headline
+  sentence ("You're up 3 450 SEK since Thu 23 Oct."), a muted `text-base` paragraph on what
+  stood out, then key figures as stats and the return chart.
+- **Chapters** (`BriefingSection`): `text-lg font-semibold` heading over a border, a muted dek,
+  and an outline "View all" to the full page. A chapter with nothing in it is left out, never
+  shown empty.
+- **What moved:** gainers and fallers side by side, logos, a bar scaled to the biggest move.
+  **While you were away:** a day-by-day timeline on a vertical rule. **Next two weeks:** date
+  tiles (bordered, `rounded-md`), the one place tiles are used.
+- **An end:** "You're all caught up" with a brand check, so the reader knows they're done.
 
 ## Don'ts
 

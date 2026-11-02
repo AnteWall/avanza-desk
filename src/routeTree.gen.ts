@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AnalysisRouteImport } from './routes/analysis'
+import { Route as BriefingRouteImport } from './routes/briefing'
 import { Route as MarketsRouteImport } from './routes/markets'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as OrdersRouteImport } from './routes/orders'
@@ -39,6 +40,11 @@ const AlertsRoute = AlertsRouteImport.update({
 const AnalysisRoute = AnalysisRouteImport.update({
   id: '/analysis',
   path: '/analysis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BriefingRoute = BriefingRouteImport.update({
+  id: '/briefing',
+  path: '/briefing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketsRoute = MarketsRouteImport.update({
@@ -111,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
+  '/briefing': typeof BriefingRoute
   '/markets': typeof MarketsRoute
   '/news': typeof NewsRoute
   '/orders': typeof OrdersRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
+  '/briefing': typeof BriefingRoute
   '/markets': typeof MarketsRoute
   '/news': typeof NewsRoute
   '/orders': typeof OrdersRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
+  '/briefing': typeof BriefingRoute
   '/markets': typeof MarketsRoute
   '/news': typeof NewsRoute
   '/orders': typeof OrdersRoute
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/analysis'
+    | '/briefing'
     | '/markets'
     | '/news'
     | '/orders'
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/analysis'
+    | '/briefing'
     | '/markets'
     | '/news'
     | '/orders'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/analysis'
+    | '/briefing'
     | '/markets'
     | '/news'
     | '/orders'
@@ -221,6 +233,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlertsRoute: typeof AlertsRoute
   AnalysisRoute: typeof AnalysisRoute
+  BriefingRoute: typeof BriefingRoute
   MarketsRoute: typeof MarketsRoute
   NewsRoute: typeof NewsRoute
   OrdersRoute: typeof OrdersRoute
@@ -251,6 +264,13 @@ declare module '@tanstack/react-router' {
       path: '/analysis'
       fullPath: '/analysis'
       preLoaderRoute: typeof AnalysisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/briefing': {
+      id: '/briefing'
+      path: '/briefing'
+      fullPath: '/briefing'
+      preLoaderRoute: typeof BriefingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/markets': {
@@ -373,6 +393,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
   AnalysisRoute: AnalysisRoute,
+  BriefingRoute: BriefingRoute,
   MarketsRoute: MarketsRoute,
   NewsRoute: NewsRoute,
   OrdersRoute: OrdersRoute,
