@@ -1,6 +1,8 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "cn";
 import { Bell, ChevronDown, RotateCcw } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { InfoTip } from "@/components/common/info-tip";
 import { Segmented } from "@/components/common/segmented";
@@ -16,7 +18,10 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -26,6 +31,7 @@ import {
   formatShare,
   parseDecimal,
 } from "@/lib/format";
+import { loadParetoPortfolio } from "@/lib/pareto";
 import { openRuleDialog } from "@/lib/rule-dialog";
 
 const modes = [
@@ -40,6 +46,7 @@ const modes = [
  */
 export function RebalancePlanner() {
   const plan = useRebalancePlan();
+  const queryClient = useQueryClient();
   // Target inputs are uncontrolled; changing every target at once remounts the table.
   const [version, setVersion] = useState(0);
   const replaceTargets = (apply: () => void) => {
@@ -173,16 +180,41 @@ export function RebalancePlanner() {
             <DropdownMenu>
               <DropdownMenuTrigger render={<Button variant="outline" size="xs" />}>
                 <RotateCcw />
-                Reset
+                Set targets
                 <ChevronDown />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => replaceTargets(() => plan.setTargets({}))}>
-                  To current weights
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => replaceTargets(plan.equalTargets)}>
-                  To equal weights
-                </DropdownMenuItem>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Reset</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => replaceTargets(() => plan.setTargets({}))}>
+                    To current weights
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => replaceTargets(plan.equalTargets)}>
+                    To equal weights
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="flex items-center gap-1">
+                    Model portfolios
+                    <InfoTip label="model portfolios">
+                      Copy a portfolio picked by analysts: its stocks get equal targets, everything
+                      else goes to 0 %. Pick a group first so the rest of your holdings stay put.
+                    </InfoTip>
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem
+                    className="flex-col items-start gap-0"
+                    onClick={() =>
+                      void loadParetoPortfolio(queryClient).then(
+                        (preset) => replaceTargets(() => plan.applyPreset(preset)),
+                        (e: unknown) => toast.error(`Pareto månadsportfölj: ${String(e)}`),
+                      )
+                    }
+                  >
+                    Pareto månadsportfölj
+                    <span className="text-muted-foreground text-xs">10 stocks · monthly</span>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
           </>

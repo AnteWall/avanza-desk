@@ -7,9 +7,9 @@ import { SearchResult } from "@/components/layout/search-result";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { instrumentQuery, searchQuery } from "@/lib/avanza/queries";
+import { searchQuery } from "@/lib/avanza/queries";
 import { isTyping } from "@/lib/keys";
-import type { AddedInstrument } from "@/lib/rebalance";
+import { toAdded, type AddedInstrument } from "@/lib/rebalance";
 import { useDebounced } from "@/lib/use-debounced";
 
 /**
@@ -46,17 +46,7 @@ export function AddInstrument({
 
   const add = async (hit: SearchHit | undefined) => {
     if (!hit?.orderBookId) return;
-    // ISIN (for the logo) and currency (for the SEK price); SearchResult has usually cached it.
-    const info = await queryClient
-      .fetchQuery(instrumentQuery(hit.orderBookId, hit.type))
-      .catch(() => undefined);
-    onAdd({
-      orderbookId: hit.orderBookId,
-      name: hit.title,
-      type: hit.type,
-      isin: info?.isin ?? undefined,
-      currency: info?.currency ?? hit.price?.currency ?? "SEK",
-    });
+    onAdd(await toAdded(queryClient, hit));
     setOpen(false);
     setQuery("");
   };

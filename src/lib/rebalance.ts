@@ -1,4 +1,8 @@
+import type { QueryClient } from "@tanstack/react-query";
+import type { SearchHit } from "avanza-ts";
+
 import { OrderSide } from "@/lib/avanza/codes";
+import { instrumentQuery } from "@/lib/avanza/queries";
 
 /** Setting holding the saved target weights (0…1) by holding key; suffixed `:<group id>` per group. */
 export const targetsKey = "rebalance:targets";
@@ -14,6 +18,20 @@ export type AddedInstrument = {
   isin?: string;
   currency: string;
 };
+
+/** A search hit as an instrument to add, with the ISIN (for the logo) and currency (for the SEK price). */
+export async function toAdded(qc: QueryClient, hit: SearchHit): Promise<AddedInstrument> {
+  const info = await qc
+    .fetchQuery(instrumentQuery(hit.orderBookId!, hit.type))
+    .catch(() => undefined);
+  return {
+    orderbookId: hit.orderBookId!,
+    name: hit.title,
+    type: hit.type,
+    isin: info?.isin ?? undefined,
+    currency: info?.currency ?? hit.price?.currency ?? "SEK",
+  };
+}
 
 /**
  * Something to rebalance: its SEK value, its target share (0…1) of the total, and its SEK price
