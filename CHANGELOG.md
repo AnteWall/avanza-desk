@@ -2,6 +2,19 @@
 
 What changed in each AvanzaDesk release. Generated from commit messages by git-cliff.
 
+## 0.4.0 (2026-11-02)
+
+### New
+
+- **App:** Star AvanzaDesk on GitHub from the status bar or the what's new dialog
+- **App:** Suggest a feature from the settings menu, posted as an idea on GitHub Discussions
+- **Briefing:** See what changed since your last visit when you sign in again or come back after a while
+- **App:** Hover a page in the nav rail to see what it's for and its Alt shortcut
+
+### Fixed
+
+- **Portfolio:** Top bar portfolio value includes cash and matches the portfolio page's total
+
 ## 0.3.0 (2026-11-02)
 
 ### New
