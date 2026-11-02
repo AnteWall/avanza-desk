@@ -15,12 +15,12 @@ export function holding(positions: PositionListResponse | undefined, orderbookId
 
 /**
  * Today's development across all positions: value now, change since yesterday's close in SEK,
- * and that change as a ratio of yesterday's value. Cash is reported separately and excluded.
+ * and that change as a ratio of yesterday's value. Cash is reported separately, not in `value`.
  */
 export function dailyPerformance(positions: PositionListResponse) {
   let value = 0;
   let change = 0;
-  for (const p of positions.withOrderbook) {
+  for (const p of [...positions.withOrderbook, ...positions.withoutOrderbook] as Position[]) {
     value += p.value.value;
     change += p.lastTradingDayPerformance?.absolute?.value ?? 0;
   }

@@ -9,12 +9,12 @@ import { sessionLabel } from "@/lib/exchanges";
 import { formatPrice } from "@/lib/format";
 
 /**
- * Your portfolio: total value, then the last trading day's change in SEK and %, labelled with
+ * Your portfolio: total value including cash, as on the portfolio page, then the last trading day's change in SEK and %, labelled with
  * that day ("Friday" over a weekend). Suspends while loading.
  */
 export function DailyPerformance() {
   const { data, dataUpdatedAt } = useSuspenseQuery(positionsQuery);
-  const { value, change, ratio } = dailyPerformance(data);
+  const { value, change, ratio, cash } = dailyPerformance(data);
   const Icon = change < 0 ? TrendingDown : TrendingUp;
   const session = sessionLabel(new Date(dataUpdatedAt));
 
@@ -27,7 +27,7 @@ export function DailyPerformance() {
         <span className="text-muted-foreground text-[10px] font-medium tracking-wider uppercase">
           Portfolio
         </span>
-        <span className="num sensitive font-semibold">{formatPrice(value)} SEK</span>
+        <span className="num sensitive font-semibold">{formatPrice(value + cash)} SEK</span>
       </span>
       <span className="bg-border h-6 w-px" />
       <span

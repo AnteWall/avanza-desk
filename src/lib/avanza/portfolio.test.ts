@@ -37,6 +37,7 @@ test("dailyPerformance sums today's change against yesterday's value", () => {
       { value: amount(900), lastTradingDayPerformance: { absolute: amount(-50) } },
       { value: amount(500) },
     ],
+    withoutOrderbook: [],
     cashPositions: [{ totalBalance: amount(250) }],
   } as unknown as PositionListResponse;
   expect(dailyPerformance(positions)).toEqual({
