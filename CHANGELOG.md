@@ -2,6 +2,24 @@
 
 What changed in each AvanzaDesk release. Generated from commit messages by git-cliff.
 
+## 0.5.0 (2026-11-02)
+
+### New
+
+- **Workspace:** Candlestick chart with moving averages, VWAP, RSI and MACD
+- **Alerts:** Get notified when a stock rises or falls to a price level, set right from the chart
+- **Workspace:** Pick watchlist columns like bid, ask, spread and turnover to use it as a live quote board
+- **Workspace:** Price ladder shows the book with your open orders and stop-loss triggers at their prices
+- **Workspace:** Order book shows cumulative depth and brokers show their share of the day's volume
+- **Data:** Export any table as CSV and keep a live quotes file that spreadsheets refresh from
+- **Workspace:** Pop an instrument's chart and order book out into its own window for a second screen
+- **Markets:** See an index as a heatmap of today's moves
+- **App:** Rebind the search, assistant and page shortcuts in Settings
+
+### Fixed
+
+- **Markets:** Index panel only offers indices Avanza lists members for
+
 ## 0.4.0 (2026-11-02)
 
 ### New
