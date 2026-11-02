@@ -33,6 +33,30 @@ export async function toAdded(qc: QueryClient, hit: SearchHit): Promise<AddedIns
   };
 }
 
+/** Targets the assistant suggested, waiting for the Rebalance page to take them. */
+export type SuggestedTargets = { preset: AddedInstrument[]; weights: number[] };
+
+let suggested: SuggestedTargets | null = null;
+let listener: (() => void) | undefined;
+
+export function suggestTargets(next: SuggestedTargets) {
+  suggested = next;
+  listener?.();
+}
+
+/** The waiting suggestion, if any; taking it clears it. */
+export function takeSuggestedTargets() {
+  const s = suggested;
+  suggested = null;
+  return s;
+}
+
+/** One listener: only one Rebalance page is mounted. */
+export function subscribeSuggestedTargets(l: () => void) {
+  listener = l;
+  return () => void (listener = undefined);
+}
+
 /**
  * Something to rebalance: its SEK value, its target share (0…1) of the total, and its SEK price
  * per share. A null price trades in SEK instead of shares (funds, or a price not known yet).

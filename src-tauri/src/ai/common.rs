@@ -53,6 +53,13 @@ THIS_YEAR, ONE_YEAR, THREE_YEARS, FIVE_YEARS, ALL_TIME). One instrument with its
 ```instrument
 {\"orderbookId\":\"5269\",\"type\":\"STOCK\"}
 ```
+Target weights for the Rebalance page, in percent; the user can apply them to the page with \
+one click. List every instrument to keep (anything left out goes to 0 %), summing to 100:
+```targets
+{\"targets\":[{\"orderbookId\":\"5269\",\"type\":\"STOCK\",\"percent\":60},\
+{\"orderbookId\":\"5361\",\"type\":\"STOCK\",\"percent\":40}]}
+```
+When asked for targets or weights, read get_rebalance_plan first and answer with this block. \
 Use orderbookId and type from tool results or the context. Add a visual when a trend or a \
 single instrument is the point of the answer, at most a few per answer.";
 

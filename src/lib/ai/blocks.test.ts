@@ -17,6 +17,16 @@ describe("parseBlock", () => {
     });
   });
 
+  it("reads target weights as shares, dropping bad rows", () => {
+    expect(
+      parseBlock(
+        "targets",
+        '{"targets":[{"orderbookId":"5269","type":"STOCK","percent":25},{"orderbookId":"x","percent":5},{"orderbookId":"1","percent":150}]}',
+      ),
+    ).toEqual({ kind: "targets", targets: [{ orderbookId: "5269", type: "STOCK", target: 0.25 }] });
+    expect(parseBlock("targets", '{"targets":[]}')).toBeUndefined();
+  });
+
   it("falls back to sane periods and rejects anything else", () => {
     expect(parseBlock("chart", '{"orderbookId":"5269","period":"forever"}')).toMatchObject({
       period: "one_year",

@@ -116,14 +116,17 @@ export function useRebalancePlan() {
     add: (a: AddedInstrument) => saveAdded([...added, a]),
     /** Replace every target; `{}` puts them back to today's weights. */
     setTargets: saveTargets,
-    /** Follow a model portfolio: add what you don't hold, equal targets for it, 0 for the rest. */
-    applyPreset: (preset: readonly AddedInstrument[]) => {
+    /**
+     * Follow a model portfolio: add what you don't hold, `weights` (equal by default) for it,
+     * 0 for the rest.
+     */
+    applyPreset: (preset: readonly AddedInstrument[], weights?: readonly number[]) => {
       const inPlan = new Set(items.map((it) => it.key));
       saveAdded([...added, ...preset.filter((p) => !inPlan.has(p.orderbookId))]);
       saveTargets(
         Object.fromEntries([
           ...items.map((it) => [it.key, 0]),
-          ...preset.map((p) => [p.orderbookId, 1 / preset.length]),
+          ...preset.map((p, i) => [p.orderbookId, weights?.[i] ?? 1 / preset.length]),
         ]),
       );
     },

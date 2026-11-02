@@ -41,6 +41,9 @@ import {
   searchQuery,
   totalValuesQuery,
 } from "@/lib/avanza/queries";
+import { getGroupId, getGroups, inGroup } from "@/lib/groups";
+import { addedKey, targetsKey, type AddedInstrument } from "@/lib/rebalance";
+import { getSetting } from "@/lib/settings";
 
 // Read-only Avanza tools for Claude, served over MCP by src-tauri/src/ai/mcp.rs. They read
 // through the query cache, so data a panel already shows costs no extra request.
@@ -368,6 +371,37 @@ export const tools: AiTool[] = [
       }
       const article = await qc.fetchQuery(newsArticleQuery(url));
       return { ...article, body: articleParagraphs(article.body).join("\n\n") };
+    },
+  },
+  {
+    name: "get_rebalance_plan",
+    activity: () => ["Reading your rebalance plan", "Read your rebalance plan"],
+    description:
+      "The Rebalance page's plan: the group it covers (all holdings if none), each holding's " +
+      "weight now and its target (shares 0…1; a target not set is today's weight), and " +
+      "instruments added to buy.",
+    inputSchema: none,
+    run: async (qc) => {
+      const group = getGroups().find((g) => g.id === getGroupId());
+      const suffix = group ? `:${group.id}` : "";
+      const targets = getSetting<Record<string, number>>(targetsKey + suffix, {});
+      const held = aggregateHoldings(await qc.fetchQuery(positionsQuery)).filter(
+        (h) => h.value > 0 && (!group || inGroup(group, h.key)),
+      );
+      const total = held.reduce((s, h) => s + h.value, 0);
+      return {
+        group: group?.name,
+        holdings: held.map((h) => ({
+          orderbookId: h.orderbookId,
+          name: h.name,
+          type: h.type,
+          weight: h.value / total,
+          target: targets[h.key] ?? h.value / total,
+        })),
+        added: getSetting<AddedInstrument[]>(addedKey + suffix, [])
+          .filter((a) => !held.some((h) => h.key === a.orderbookId))
+          .map((a) => ({ ...a, target: targets[a.orderbookId] ?? 0 })),
+      };
     },
   },
   {

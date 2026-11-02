@@ -1,9 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "cn";
-import { Bell, ChevronDown, RotateCcw } from "lucide-react";
-import { useState } from "react";
+import { Bell, ChevronDown, RotateCcw, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { useAssistantEnabled } from "@/components/ai/use-assistant-enabled";
 import { InfoTip } from "@/components/common/info-tip";
 import { Segmented } from "@/components/common/segmented";
 import { GroupPicker } from "@/components/portfolio/holdings/group-picker";
@@ -24,6 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { askAssistant } from "@/lib/ai/ask";
 import {
   formatDecimal,
   formatInteger,
@@ -32,6 +34,7 @@ import {
   parseDecimal,
 } from "@/lib/format";
 import { loadParetoPortfolio } from "@/lib/pareto";
+import { subscribeSuggestedTargets, takeSuggestedTargets } from "@/lib/rebalance";
 import { openRuleDialog } from "@/lib/rule-dialog";
 
 const modes = [
@@ -47,12 +50,23 @@ const modes = [
 export function RebalancePlanner() {
   const plan = useRebalancePlan();
   const queryClient = useQueryClient();
+  const assistant = useAssistantEnabled();
   // Target inputs are uncontrolled; changing every target at once remounts the table.
   const [version, setVersion] = useState(0);
   const replaceTargets = (apply: () => void) => {
     apply();
     setVersion((n) => n + 1);
   };
+  // Targets the assistant suggested: take them on arrival (or on mount, after navigating here).
+  // Resubscribes every render so it applies against the current plan.
+  useEffect(() => {
+    const take = () => {
+      const s = takeSuggestedTargets();
+      if (s) replaceTargets(() => plan.applyPreset(s.preset, s.weights));
+    };
+    take();
+    return subscribeSuggestedTargets(take);
+  });
 
   const orders = plan.rows.flatMap((r) => r.order ?? []);
   const sold = orders.filter((o) => o.amount < 0);
@@ -71,11 +85,28 @@ export function RebalancePlanner() {
             orders; you place them in Avanza.
           </p>
         </div>
-        {!plan.group && (
+        {assistant && (
           <Button
             variant="outline"
             size="xs"
             className="ml-auto shrink-0"
+            onClick={() =>
+              askAssistant({
+                items: [],
+                prompt:
+                  "Suggest target weights for my rebalance plan. What I want from my portfolio: ",
+              })
+            }
+          >
+            <Sparkles />
+            Ask the assistant
+          </Button>
+        )}
+        {!plan.group && (
+          <Button
+            variant="outline"
+            size="xs"
+            className={cn("shrink-0", !assistant && "ml-auto")}
             onClick={() => openRuleDialog({ kind: "drift" })}
           >
             <Bell />
