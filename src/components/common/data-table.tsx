@@ -48,7 +48,7 @@ export function DataTable<TData extends RowData>({
   // oxlint-disable-next-line no-explicit-any -- columns mix value types per accessor.
   columns: ColumnDef<Features, TData, any>[];
   data: TData[];
-  getRowId?: (row: TData) => string;
+  getRowId?: (row: TData, index: number) => string;
   selectedRowId?: string;
   /** Makes rows clickable and keyboard-focusable (↑↓ or j/k move, Enter activates). */
   onRowClick?: (row: TData) => void;

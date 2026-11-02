@@ -43,7 +43,7 @@ export function InsiderTradesTable({ trades }: { trades: readonly InsiderTrade[]
     <DataTable
       columns={columns}
       data={rows}
-      getRowId={(t) => `${t.transactionDate}-${t.insiderName}-${t.quantity}-${t.price}`}
+      getRowId={(t, i) => `${t.transactionDate}-${t.insiderName}-${t.quantity}-${t.price}-${i}`}
     />
   );
 }
