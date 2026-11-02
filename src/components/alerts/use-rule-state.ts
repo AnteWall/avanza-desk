@@ -38,7 +38,8 @@ const dataOf = <T>(results: UseQueryResult<T>[]) => results.map((r) => r.data);
 export function useRuleState(rules: readonly Wanted[]) {
   const needs = (...kinds: string[]) => rules.some((r) => kinds.includes(r.kind));
   const stockRule =
-    needs("signal", "short", "upside") || rules.some((r) => r.kind === "day-move" && r.target);
+    needs("signal", "short", "upside", "price") ||
+    rules.some((r) => r.kind === "day-move" && r.target);
   const { data: positions, dataUpdatedAt } = useQuery({
     ...allPositionsQuery,
     enabled: rules.length > 0,
@@ -83,7 +84,7 @@ export function useRuleState(rules: readonly Wanted[]) {
   const quotes = useQueries({
     queries: stocks.map((s) => ({
       ...quoteQuery(s.orderbookId),
-      enabled: needs("upside", "day-move"),
+      enabled: needs("upside", "day-move", "price"),
     })),
     combine: dataOf,
   });
@@ -102,6 +103,7 @@ export function useRuleState(rules: readonly Wanted[]) {
         held: s.held,
         // Avanza sends the quote's change in percent units.
         dayChange: q?.changePercent != null ? q.changePercent / 100 : undefined,
+        last: q?.last ?? undefined,
         short: f?.shorts ? latestShort(f.shorts.shortSellingHistory) : undefined,
         upside: target && q?.last ? target / q.last - 1 : undefined,
       });

@@ -2,15 +2,17 @@ import type { CreditInfo } from "avanza-ts";
 
 import { InstrumentType } from "@/lib/avanza/codes";
 import type { Holding } from "@/lib/avanza/portfolio";
-import { formatPercent, formatShare, formatSignedShare } from "@/lib/format";
+import { formatPercent, formatPrice, formatShare, formatSignedShare } from "@/lib/format";
 import { getSetting, saveSetting } from "@/lib/settings";
 import type { Signal, SignalKind } from "@/lib/signals";
 
 // AvanzaDesk's own alert rules, checked locally (RuleWatcher) because Avanza's alerts only
 // watch prices. A rule watches one instrument (`target`) or everything it applies to.
-// Thresholds are entered in percent (drift: its weight minus its target), except `signal`, which is a signal score.
+// Thresholds are entered in percent (drift: its weight minus its target), except `signal`,
+// which is a signal score, and `price`, a price level in the instrument's currency.
 
 export type RuleKind =
+  | "price"
   | "day-move"
   | "loss"
   | "weight"
@@ -32,6 +34,8 @@ export type AlertRule = {
   target?: RuleTarget;
   /** Signal rules only: one kind of signal; none = any. */
   signalKind?: SignalKind;
+  /** Price rules only: notify when the last price is at or above (default) or at or below. */
+  direction?: "above" | "below";
 };
 
 /** What a rule kind applies to: your holdings, stocks (held or watched), or credit accounts. */
@@ -42,11 +46,19 @@ type KindInfo = {
   /** One line for the kind picker: what it watches and why you'd want it. */
   explain: string;
   scope: RuleScope;
-  unit: "%" | "score";
+  unit: "%" | "score" | "price";
   presets: number[];
 };
 
 export const ruleKinds: Record<RuleKind, KindInfo> = {
+  price: {
+    label: "Price level",
+    explain: "The price rises to or falls to a level you pick, e.g. a breakout or a stop.",
+    scope: "stocks",
+    unit: "price",
+    // Offsets from the current price; the form turns them into levels.
+    presets: [-10, -5, 5, 10],
+  },
   "day-move": {
     label: "Big day move",
     explain: "A stock or holding moves sharply up or down during the day.",
@@ -118,10 +130,14 @@ export const signalKindLabels: Record<SignalKind, string> = {
 const num = (n: number) => String(n).replace(".", ",");
 
 /** The rule as one plain sentence, e.g. "Volvo B moves 5 % or more in a day". */
-export function describeRule(r: Pick<AlertRule, "kind" | "threshold" | "target" | "signalKind">) {
+export function describeRule(
+  r: Pick<AlertRule, "kind" | "threshold" | "target" | "signalKind" | "direction">,
+) {
   const t = num(r.threshold);
   const name = r.target?.name;
   switch (r.kind) {
+    case "price":
+      return `${name ?? "The stock"} ${r.direction === "below" ? "falls to" : "rises to"} ${formatPrice(r.threshold)} or ${r.direction === "below" ? "lower" : "higher"}`;
     case "day-move":
       return `${name ?? "Any holding"} moves ${t} % or more in a day`;
     case "loss":
@@ -148,6 +164,8 @@ export type StockFacts = {
   name: string;
   held: boolean;
   dayChange?: number;
+  /** Last price, in the instrument's currency. */
+  last?: number;
   short?: number;
   upside?: number;
 };
@@ -187,7 +205,7 @@ export function ltvRatio(c: CreditInfo) {
 
 /** What each subject of `r` stands at now, and whether it crosses the threshold. */
 export function measure(r: AlertRule, s: RuleState): Measure[] {
-  const t = r.kind === "signal" ? r.threshold : r.threshold / 100;
+  const t = r.kind === "signal" || r.kind === "price" ? r.threshold : r.threshold / 100;
   const holdings = s.holdings.filter((h) => isTarget(r, h));
   const total = s.holdings.reduce((sum, h) => sum + h.value, 0);
   const out: Measure[] = [];
@@ -202,6 +220,13 @@ export function measure(r: AlertRule, s: RuleState): Measure[] {
   const when = live ? "today" : s.session === "Yesterday" ? "yesterday" : `on ${s.session}`;
 
   switch (r.kind) {
+    case "price":
+      for (const [id, f] of stocks)
+        if (f.last != null) {
+          const hit = r.direction === "below" ? f.last <= t : f.last >= t;
+          push(id, f.name, f.last, hit, `Last ${formatPrice(f.last)}`);
+        }
+      break;
     case "day-move":
       if (r.target && s.stocks.get(r.target.id)?.dayChange != null) {
         const v = s.stocks.get(r.target.id)!.dayChange!;

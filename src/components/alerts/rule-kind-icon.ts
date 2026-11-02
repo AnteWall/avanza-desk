@@ -3,6 +3,7 @@ import {
   ArrowDownRight,
   ChartPie,
   Crosshair,
+  DollarSign,
   Landmark,
   Radar,
   Scale,
@@ -14,6 +15,7 @@ import type { RuleKind } from "@/lib/alert-rules";
 
 /** One icon per rule kind, shared by the picker, menus and the rules table. */
 export const ruleKindIcon: Record<RuleKind, LucideIcon> = {
+  price: DollarSign,
   "day-move": Activity,
   signal: Radar,
   short: TrendingDown,

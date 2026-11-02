@@ -22,7 +22,10 @@ export function RuleMenuItems({ item }: { item: Extract<ContextItem, { kind: "in
     : false;
   // Rows that don't know their type are listed instruments; the dialog shows missing values.
   const stock = !item.type || item.type === InstrumentType.Stock;
+  // Funds have no live price, so price levels are for listed instruments.
+  const listed = item.type !== InstrumentType.Fund;
   const kinds: RuleKind[] = [
+    ...(listed ? (["price"] as const) : []),
     ...(stock || held ? (["day-move"] as const) : []),
     ...(stock ? (["signal", "short", "upside"] as const) : []),
     ...(held ? (["loss", "weight"] as const) : []),

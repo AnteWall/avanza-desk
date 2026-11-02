@@ -2,7 +2,7 @@ import { ruleKindIcon } from "@/components/alerts/rule-kind-icon";
 import { ruleKinds, type RuleKind } from "@/lib/alert-rules";
 
 const groups: { title: string; kinds: RuleKind[] }[] = [
-  { title: "Stocks you hold or watch", kinds: ["day-move", "signal", "short", "upside"] },
+  { title: "Stocks you hold or watch", kinds: ["price", "day-move", "signal", "short", "upside"] },
   { title: "Your portfolio", kinds: ["loss", "weight", "drift", "ltv"] },
 ];
 

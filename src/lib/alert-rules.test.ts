@@ -174,3 +174,14 @@ test("loan-to-value reads its unit from the account's own numbers", () => {
   expect(ltvRatio(credit(0, 0, 1000))).toBe(0);
   expect(ltvRatio(credit(45, 0, 0))).toBeCloseTo(0.45);
 });
+
+test("price rules fire at or past the level, in the chosen direction", () => {
+  const s = state({ stocks: new Map([["v", { name: "Volvo B", held: false, last: 250 }]]) });
+  const target = { id: "v", name: "Volvo B" };
+  expect(measure(rule("price", 250, { target }), s)[0]?.fires).toBe(true);
+  expect(measure(rule("price", 260, { target }), s)[0]?.fires).toBe(false);
+  expect(measure(rule("price", 260, { target, direction: "below" }), s)[0]?.fires).toBe(true);
+  expect(describeRule(rule("price", 240.5, { target, direction: "below" }))).toBe(
+    "Volvo B falls to 240,50 or lower",
+  );
+});

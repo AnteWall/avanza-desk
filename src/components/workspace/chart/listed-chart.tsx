@@ -1,8 +1,10 @@
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import type { ChartPeriod } from "avanza-ts";
+import { Bell } from "lucide-react";
 import { useMemo } from "react";
 
 import { PriceChart, type OverlayLine, type TradeMarker } from "@/components/common/price-chart";
+import { Button } from "@/components/ui/button";
 import { ChartControls } from "@/components/workspace/chart/chart-controls";
 import { IndicatorPane } from "@/components/workspace/chart/indicator-pane";
 import { useChartView } from "@/components/workspace/chart/use-chart-view";
@@ -18,6 +20,7 @@ import {
 } from "@/lib/avanza/queries";
 import { overlayLabels, type Overlay } from "@/lib/chart-view";
 import { ema, sma, vwap } from "@/lib/indicators";
+import { openRuleDialog } from "@/lib/rule-dialog";
 
 const overlayColor: Record<Overlay, string> = {
   sma20: "var(--chart-2)",
@@ -91,7 +94,20 @@ export function ListedChart({
   const lower = view.lower === "none" ? undefined : view.lower;
   return (
     <div className="flex h-full flex-col gap-1">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-1">
+        <Button
+          variant="outline"
+          size="xs"
+          onClick={() =>
+            openRuleDialog({
+              kind: "price",
+              target: { id: instrument.orderbookId, name: instrument.name },
+            })
+          }
+        >
+          <Bell />
+          Price alert
+        </Button>
         <ChartControls intraday={intraday} />
       </div>
       {chart.ohlc.length === 0 ? (

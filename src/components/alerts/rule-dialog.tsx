@@ -47,9 +47,11 @@ export function RuleDialog() {
     id: draft.id ?? crypto.randomUUID(),
     created: draft.created ?? stockholmDay(),
     kind,
-    threshold: draft.threshold ?? ruleKinds[kind].presets[1]!,
+    // A price level has no sensible default: the form offers levels around the live price.
+    threshold: draft.threshold ?? (kind === "price" ? 0 : ruleKinds[kind].presets[1]!),
     target: draft.target,
     signalKind: draft.signalKind,
+    direction: draft.direction,
   };
 
   return (
