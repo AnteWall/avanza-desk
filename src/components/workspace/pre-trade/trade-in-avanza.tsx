@@ -10,24 +10,28 @@ import { avanzaOrderUrl } from "@/lib/avanza/links";
 export function TradeInAvanza({
   instrument,
   side,
+  quantity,
 }: {
   instrument: Instrument;
   side: "buy" | "sell";
+  quantity?: number;
 }) {
-  const fund = instrument.kind === "fund";
-  const url = avanzaOrderUrl(instrument.orderbookId, instrument.name, side, fund);
+  const url = avanzaOrderUrl(
+    instrument.orderbookId,
+    instrument.name,
+    side,
+    instrument.kind === "fund",
+    quantity,
+  );
   return (
     <Button
       onClick={() => void openUrl(url)}
       className={cn(
-        "w-full",
-        !fund && "text-white",
-        !fund && (side === "buy" ? "bg-buy hover:bg-buy/90" : "bg-sell hover:bg-sell/90"),
+        "w-full text-white",
+        side === "buy" ? "bg-buy hover:bg-buy/90" : "bg-sell hover:bg-sell/90",
       )}
     >
-      {fund
-        ? "Open in Avanza"
-        : `${side === "buy" ? "Buy" : "Sell"} ${instrument.shortName} in Avanza`}
+      {`${side === "buy" ? "Buy" : "Sell"} ${instrument.shortName} in Avanza`}
       <ExternalLink />
     </Button>
   );

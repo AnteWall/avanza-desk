@@ -6,7 +6,12 @@ test("builds Avanza slugs and order URLs", () => {
   expect(avanzaOrderUrl("5247", "Investor B", "sell", false)).toBe(
     "https://www.avanza.se/handla/order.html/salj/5247/investor-b",
   );
-  expect(avanzaOrderUrl("1", "Fond X", "buy", true)).toContain("/fonder/om-fonden.html/1/fond-x");
+  expect(avanzaOrderUrl("5247", "Investor B", "buy", false, 25)).toBe(
+    "https://www.avanza.se/handla/order.html/kop/5247/investor-b?volume=25",
+  );
+  expect(avanzaOrderUrl("1", "Fond X", "sell", true, 5)).toBe(
+    "https://www.avanza.se/handla/fonder.html/salj/1/fond-x",
+  );
 });
 
 test("finds the tick size for a price", () => {

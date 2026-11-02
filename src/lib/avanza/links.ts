@@ -9,19 +9,20 @@ export function slug(name: string) {
 }
 
 /**
- * Avanza's own order page for an instrument, since avanza-ts can't place orders. Funds open
- * the fund page, which has the buy/sell buttons.
- * shortcut: URL patterns copied from avanza.se by hand; quantity can't be prefilled.
+ * Avanza's own order page for an instrument, since avanza-ts can't place orders.
+ * `volume` prefills the share count (Avanza's order page reads `?volume=`; price always comes
+ * from its live quote). The fund order page reads no prefill params, so funds ignore it.
+ * shortcut: URL patterns copied from avanza.se by hand.
  */
 export function avanzaOrderUrl(
   orderbookId: string,
   name: string,
   side: "buy" | "sell",
   fund: boolean,
+  volume?: number,
 ) {
-  return fund
-    ? `https://www.avanza.se/fonder/om-fonden.html/${orderbookId}/${slug(name)}`
-    : `https://www.avanza.se/handla/order.html/${side === "buy" ? "kop" : "salj"}/${orderbookId}/${slug(name)}`;
+  const url = `https://www.avanza.se/handla/${fund ? "fonder" : "order"}.html/${side === "buy" ? "kop" : "salj"}/${orderbookId}/${slug(name)}`;
+  return volume && !fund ? `${url}?volume=${volume}` : url;
 }
 
 /** The tick size that applies at `price`, from an instrument's tick size table. */

@@ -54,58 +54,64 @@ export function PreTradePanel() {
         )
       }
     >
-      {fund ? (
-        <div className="flex flex-col gap-3 p-3">
-          <p className="text-muted-foreground">
-            Fund orders fill at the next NAV, so there is nothing to estimate.
-          </p>
-          {instrument && <TradeInAvanza instrument={instrument} side={side} />}
+      <div className="flex flex-col gap-3 p-3">
+        <div className="bg-muted grid grid-cols-2 gap-1 rounded-md p-0.5">
+          {(["buy", "sell"] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              aria-pressed={side === s}
+              onClick={() => setSide(s)}
+              className={cn(
+                "h-7 rounded-sm font-medium text-muted-foreground capitalize",
+                side === s && s === "buy" && "bg-buy text-white",
+                side === s && s === "sell" && "bg-sell text-white",
+              )}
+            >
+              {s}
+            </button>
+          ))}
         </div>
-      ) : (
-        <div className="flex flex-col gap-3 p-3">
-          <div className="bg-muted grid grid-cols-2 gap-1 rounded-md p-0.5">
-            {(["buy", "sell"] as const).map((s) => (
-              <button
-                key={s}
-                type="button"
-                aria-pressed={side === s}
-                onClick={() => setSide(s)}
-                className={cn(
-                  "h-7 rounded-sm font-medium text-muted-foreground capitalize",
-                  side === s && s === "buy" && "bg-buy text-white",
-                  side === s && s === "sell" && "bg-sell text-white",
-                )}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-          <label className="text-muted-foreground flex flex-col gap-1 text-xs">
-            Quantity
-            <Input
-              type="number"
-              min={1}
-              className="num h-7 text-right"
-              value={quantity}
-              onChange={(e) => setQuantity(Math.max(0, e.currentTarget.valueAsNumber || 0))}
-            />
-          </label>
-          <div className="border-t pt-2">
-            {focus && (
-              <AsyncBoundary
-                what="the estimate"
-                fallback={estimateSkeleton}
-                compact
-                resetKey={focus.id}
-              >
-                <PreTradeEstimate focus={focus} side={side} quantity={quantity} />
-              </AsyncBoundary>
+        {fund ? (
+          <>
+            <p className="text-muted-foreground">
+              Fund orders fill at the next NAV, so there is nothing to estimate.
+            </p>
+            {instrument && <TradeInAvanza instrument={instrument} side={side} />}
+          </>
+        ) : (
+          <>
+            <label className="text-muted-foreground flex flex-col gap-1 text-xs">
+              Quantity
+              <Input
+                type="number"
+                min={1}
+                className="num h-7 text-right"
+                value={quantity}
+                onChange={(e) => setQuantity(Math.max(0, e.currentTarget.valueAsNumber || 0))}
+              />
+            </label>
+            <div className="border-t pt-2">
+              {focus && (
+                <AsyncBoundary
+                  what="the estimate"
+                  fallback={estimateSkeleton}
+                  compact
+                  resetKey={focus.id}
+                >
+                  <PreTradeEstimate focus={focus} side={side} quantity={quantity} />
+                </AsyncBoundary>
+              )}
+            </div>
+            <p className="text-muted-foreground text-xs">
+              Estimate from visible depth, excl. fees.
+            </p>
+            {instrument && (
+              <TradeInAvanza instrument={instrument} side={side} quantity={quantity} />
             )}
-          </div>
-          <p className="text-muted-foreground text-xs">Estimate from visible depth, excl. fees.</p>
-          {instrument && <TradeInAvanza instrument={instrument} side={side} />}
-        </div>
-      )}
+          </>
+        )}
+      </div>
     </Panel>
   );
 }
