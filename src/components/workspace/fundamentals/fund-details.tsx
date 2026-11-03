@@ -1,53 +1,53 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { FundPortfolioPoint } from "avanza-ts";
 
-import { CountryFlag } from "@/components/common/country-flag";
-import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { Empty } from "@/components/common/empty";
 import { StatList } from "@/components/workspace/chart/stat-list";
-import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
+import {
+  type ExposureRow,
+  ExposureTables,
+} from "@/components/workspace/fundamentals/exposure-tables";
 import { InstrumentType } from "@/lib/avanza/codes";
 import { instrumentQuery } from "@/lib/avanza/queries";
 import { formatCompact, formatDate, formatPrice, formatShare } from "@/lib/format";
 
-const col = dataTableColumns<FundPortfolioPoint>();
-const columns = col.columns([
-  col.accessor("name", {
-    header: "Top holdings",
-    cell: (c) => (
-      <span className="flex items-center gap-1.5">
-        <span className="font-medium">{c.getValue()}</span>
-        <CountryFlag code={c.row.original.countryCode ?? undefined} />
-      </span>
-    ),
-  }),
-  col.accessor("y", {
-    header: "Weight",
-    // Percent units.
-    cell: (c) => formatShare(c.getValue() / 100),
-    meta: { align: "end", className: "num font-medium" },
-  }),
-]);
+// Fund guide breakdowns are percent units.
+const rows = (points: readonly FundPortfolioPoint[]): ExposureRow[] =>
+  points.map((p) => ({
+    name: p.name,
+    weight: p.y / 100,
+    countryCode: p.countryCode ?? undefined,
+    orderbookId: p.orderbookId ?? undefined,
+    type: p.type ?? undefined,
+  }));
 
-/** A fund's fees, risk, sustainability, description and top holdings. Suspends. */
+/**
+ * A fund's costs, risk, management, sustainability, description, and what it holds: top
+ * holdings, countries and sectors. Suspends.
+ */
 export function FundDetails({ orderbookId }: { orderbookId: string }) {
   // The fund guide is already cached by the chart header.
   const { data: instrument } = useSuspenseQuery(instrumentQuery(orderbookId, InstrumentType.Fund));
-  const focus = useFocusInstrument();
   const fund = instrument.fund;
   if (!fund) return <Empty>Avanza has no details for this fund.</Empty>;
 
   // Fees and ratios are percent units.
   const pct = (v: number | null) => (v == null ? "–" : formatShare(v / 100));
-  const holdings = [...fund.holdingChartData].sort((a, b) => b.y - a.y);
+  const managers = fund.fundManagers.map((m) => m.name).join(", ");
 
   return (
     <div className="flex flex-col">
       <div className="flex flex-col gap-3 border-b p-3">
         <StatList
           stats={[
-            { label: "Fee", value: pct(fund.productFee) },
+            // productFee is Avanza's "total avgift": the yearly ongoing cost, management fee included.
+            { label: "Total fee / yr", value: pct(fund.productFee) },
             { label: "Management fee", value: pct(fund.managementFee) },
+            // Percent of 10 000 is the fee times 100.
+            {
+              label: "Per 10 000 kr / yr",
+              value: `${formatPrice(fund.productFee * 100)} kr`,
+            },
             { label: "Risk", value: `${fund.risk} of 7` },
             { label: "Rating", value: fund.rating == null ? "–" : `${fund.rating} of 5` },
             {
@@ -60,6 +60,15 @@ export function FundDetails({ orderbookId }: { orderbookId: string }) {
             { label: "Holdings as of", value: formatDate(fund.portfolioDate) },
           ]}
         />
+        <StatList
+          stats={[
+            { label: "Managers", value: managers || "–", text: true },
+            { label: "Benchmark", value: fund.primaryBenchmark || "–", text: true },
+            { label: "Horizon", value: fund.recommendedHoldingPeriod || "–", text: true },
+            { label: "Started", value: formatDate(fund.startDate) },
+            { label: "Pricing", value: fund.pricingFrequency || "–", text: true },
+          ]}
+        />
         <p className="text-muted-foreground max-w-3xl">
           {[fund.fundTypeName, fund.adminCompany.name, fund.indexFund && "Index fund"]
             .filter(Boolean)
@@ -67,14 +76,11 @@ export function FundDetails({ orderbookId }: { orderbookId: string }) {
         </p>
         {fund.description && <p className="max-w-3xl leading-relaxed">{fund.description}</p>}
       </div>
-      {holdings.length > 0 && (
-        <DataTable
-          columns={columns}
-          data={holdings}
-          getRowId={(h) => h.isin ?? h.name}
-          onRowClick={(h) => h.orderbookId && focus(h.orderbookId, h.type ?? undefined)}
-        />
-      )}
+      <ExposureTables
+        holdings={rows(fund.holdingChartData)}
+        countries={rows(fund.countryChartData)}
+        sectors={rows(fund.sectorChartData)}
+      />
     </div>
   );
 }
