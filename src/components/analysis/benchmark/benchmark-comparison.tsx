@@ -1,5 +1,6 @@
 import { useQuery, useSuspenseQueries } from "@tanstack/react-query";
 import type { PerformancePeriod } from "avanza-ts";
+import { cn } from "cn";
 import { useState } from "react";
 
 import { BenchmarkChart } from "@/components/analysis/benchmark/benchmark-chart";
@@ -7,6 +8,7 @@ import { StatList } from "@/components/analysis/stat-list";
 import { Change } from "@/components/common/change";
 import { Segmented } from "@/components/common/segmented";
 import { SignedAmount } from "@/components/common/signed-amount";
+import { Switch } from "@/components/ui/switch";
 import { accountIds } from "@/lib/account";
 import {
   averageCustomerQuery,
@@ -24,6 +26,13 @@ const points = (series: readonly { timestamp: number; performance: { value: numb
 
 const isOmxs30 = (name: string) => /OMXS30|OMX Stockholm 30/i.test(name);
 
+const periodWords: Partial<Record<PerformancePeriod, string>> = {
+  ONE_YEAR: "the last year",
+  THREE_YEARS: "the last 3 years",
+  FIVE_YEARS: "the last 5 years",
+  ALL_TIME: "all time",
+};
+
 /**
  * Your return against an index and the average Avanza customer over `period`, plus the same
  * deposits put into the index and your money-weighted return.
@@ -34,6 +43,7 @@ export function BenchmarkComparison({ period }: { period: PerformancePeriod }) {
   });
   const range = { from: mine.interval.from.slice(0, 10), to: mine.interval.to.slice(0, 10) };
   const [picked, setPicked] = useState<string>();
+  const [withAverage, setWithAverage] = useState(false);
   const index =
     indices.indexes.find((i) => i.link.orderbookId === picked) ??
     indices.indexes.find((i) => isOmxs30(`${i.link.shortLinkDisplay} ${i.link.linkDisplay}`)) ??
@@ -78,24 +88,61 @@ export function BenchmarkComparison({ period }: { period: PerformancePeriod }) {
       ])
     : null;
 
+  const ahead = simulated == null ? null : actual - simulated;
+
   return (
     <div className="flex flex-col gap-3">
-      {indices.indexes.length > 1 && (
-        <Segmented
-          label="Benchmark index"
-          options={indices.indexes.map((i) => ({
-            label: i.link.shortLinkDisplay || i.link.linkDisplay,
-            value: i.link.orderbookId,
-          }))}
-          value={index?.link.orderbookId ?? ""}
-          onChange={setPicked}
-        />
+      {/* The answer first, in a sentence; the chart and figures below back it up. */}
+      {ahead != null && (
+        <p className="text-xl leading-snug font-semibold text-balance">
+          {Math.abs(ahead) < 1 ? (
+            <>
+              You're level with {indexName} over {periodWords[period] ?? "this period"}.
+            </>
+          ) : (
+            <>
+              You're{" "}
+              <span className={cn("num sensitive", ahead > 0 ? "text-up" : "text-down")}>
+                {formatInteger(Math.abs(ahead))} SEK
+              </span>{" "}
+              {ahead > 0 ? "ahead of" : "behind"} {indexName} over{" "}
+              {periodWords[period] ?? "this period"}.
+            </>
+          )}
+          <span className="text-muted-foreground block text-sm font-normal">
+            That's compared with putting the same deposits into the index on the same days.
+          </span>
+        </p>
       )}
+      <div className="flex flex-wrap items-center gap-3">
+        {indices.indexes.length > 1 && (
+          <Segmented
+            label="Benchmark index"
+            options={indices.indexes.map((i) => ({
+              label: i.link.shortLinkDisplay || i.link.linkDisplay,
+              value: i.link.orderbookId,
+            }))}
+            value={index?.link.orderbookId ?? ""}
+            onChange={setPicked}
+          />
+        )}
+        <label className="text-muted-foreground flex items-center gap-2 text-xs">
+          <Switch
+            checked={withAverage}
+            onCheckedChange={setWithAverage}
+            className="data-checked:bg-brand"
+          />
+          Average Avanza customer
+        </label>
+      </div>
       <BenchmarkChart
         series={[
+          // The optional line goes last, so the others keep their colors when it toggles.
           { label: "You", points: yours },
-          { label: "Average Avanza customer", points: points(average.relativeSeries) },
           { label: indexName, points: indexSeries },
+          ...(withAverage
+            ? [{ label: "Average Avanza customer", points: points(average.relativeSeries) }]
+            : []),
         ]}
       />
       <StatList
@@ -112,12 +159,14 @@ export function BenchmarkComparison({ period }: { period: PerformancePeriod }) {
             ),
           },
           {
-            label: "Money-weighted return",
+            label: "Your yearly return",
             value: mwr == null ? "–" : <Change ratio={mwr} />,
             note: "per year, this period",
+            tip: "How much your money grew per year over this period, counting when you deposited and withdrew (money-weighted return).",
           },
           {
-            label: "Avanza CAGR",
+            label: "Yearly return, all time",
+            tip: "Your average growth per year since you started at Avanza, as Avanza calculates it (CAGR).",
             // Avanza sends percent units.
             value: <Change ratio={ratios.compoundAnnualGrowthRate.value / 100} />,
             note: "per year, all time",
