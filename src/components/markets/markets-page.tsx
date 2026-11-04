@@ -1,4 +1,4 @@
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { Flame, TrendingDown, TrendingUp } from "lucide-react";
 
 import { AsyncBoundary } from "@/components/common/async-boundary";
 import { TableSkeleton } from "@/components/common/table-skeleton";
@@ -6,13 +6,14 @@ import { SavedPanelGroup } from "@/components/layout/saved-panel-group";
 import { IndexPanel } from "@/components/markets/index-panel";
 import { MoversTable } from "@/components/markets/movers-table";
 import { ScreenerPanel } from "@/components/markets/screener-panel";
+import { TrendingTable } from "@/components/markets/trending-table";
 import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 import { TabbedPanel } from "@/components/workspace/tabbed-panel";
 import { gutter } from "@/components/workspace/workspace";
 
 const skeleton = <TableSkeleton rows={10} columns={4} />;
 
-/** Today's movers and index members on top, the stock screener below. Rows focus a stock. */
+/** Today's movers, stocks gaining owners and index members on top, the stock screener below. Rows focus a stock. */
 export function MarketsPage() {
   return (
     <SavedPanelGroup id="markets-group-1" orientation="vertical">
@@ -39,6 +40,16 @@ export function MarketsPage() {
                   content: (
                     <AsyncBoundary what="today's movers" fallback={skeleton}>
                       <MoversTable list="losers" />
+                    </AsyncBoundary>
+                  ),
+                },
+                {
+                  value: "trending",
+                  label: "Trending",
+                  icon: Flame,
+                  content: (
+                    <AsyncBoundary what="trending stocks" fallback={skeleton}>
+                      <TrendingTable />
                     </AsyncBoundary>
                   ),
                 },

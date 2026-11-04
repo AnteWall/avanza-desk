@@ -329,6 +329,28 @@ export const screenStocksQuery = (name: string) =>
     staleTime: 60_000,
   });
 
+/** Stocks gaining Avanza owners fastest this week, of those with at least 500 owners. */
+export const trendingStocksQuery = queryOptions({
+  queryKey: ["market", "trending"],
+  queryFn: ({ signal }) =>
+    avanza.instruments.screenStocks({
+      // The floor keeps tiny stocks from topping the list on a handful of new owners.
+      filter: { numberOfOwners: { minValue: 500 } },
+      sortBy: { field: "ownersChangeOneWeek", order: "desc" },
+      limit: 60,
+      signal,
+    }),
+  staleTime: 30 * 60_000,
+});
+
+/** Placera forum activity for a stock: new posts, followers and owners lately. */
+export const forumStatsQuery = (orderbookId: string) =>
+  queryOptions({
+    queryKey: ["instrument", orderbookId, "forum-stats"],
+    queryFn: ({ signal }) => avanza.market.forumStats(orderbookId, signal),
+    staleTime: 30 * 60_000,
+  });
+
 /** Every transaction on every account since `from` (yyyy-MM-dd), newest first. */
 export const transactionsQuery = (from: string) =>
   queryOptions({
