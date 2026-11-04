@@ -112,6 +112,9 @@ export function ChatComposer({
         send();
       }}
     >
+      <p className="text-muted-foreground/60 text-center text-xs leading-none">
+        AI can make mistakes. Check the numbers before you trade.
+      </p>
       <div className="relative">
         {mention !== undefined && (
           <MentionList options={options} active={active} onPick={pick} query={mention} />
@@ -264,9 +267,6 @@ export function ChatComposer({
           </div>
         </div>
       </div>
-      <p className="text-muted-foreground text-center text-xs">
-        AI can make mistakes. Check the numbers before you trade.
-      </p>
     </form>
   );
 }
