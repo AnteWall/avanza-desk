@@ -1,6 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 import { invoke } from "@tauri-apps/api/core";
 
+import { formatDate } from "@/lib/format";
+
 // Daily numbers Avanza only shows as "now" (src-tauri/src/snapshots.rs). `Snapshotter` writes
 // one row per kind and key a day; features read them back as series to show trends.
 
@@ -19,8 +21,7 @@ export type SnapshotRow = { kind: SnapshotKind; key: string; value: number };
 export type SnapshotPoint = { day: string; value: number };
 
 /** Today's date in Stockholm (yyyy-MM-dd): the snapshot day. */
-export const stockholmDay = (date = new Date()) =>
-  date.toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm" });
+export const stockholmDay = (date = new Date()) => formatDate(date);
 
 export const saveSnapshots = (rows: readonly SnapshotRow[], day = stockholmDay()) =>
   invoke("snapshot_save", { day, rows });

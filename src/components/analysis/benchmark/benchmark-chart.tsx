@@ -5,7 +5,7 @@ import { tooltip } from "@tanstack/charts/tooltip";
 import { useMemo } from "react";
 
 import type { ReturnPoint } from "@/lib/benchmark";
-import { formatPercent } from "@/lib/format";
+import { formatDate, formatPercent } from "@/lib/format";
 
 // Literal class names so Tailwind keeps them; strokes follow the same palette order.
 const palette = [
@@ -13,8 +13,6 @@ const palette = [
   { stroke: "var(--chart-2)", dot: "bg-chart-2" },
   { stroke: "var(--chart-3)", dot: "bg-chart-3" },
 ];
-
-const date = new Intl.DateTimeFormat("sv-SE", { dateStyle: "short", timeZone: "Europe/Stockholm" });
 
 /** Several return series (ratios from 0) on one axis, with a legend below. */
 export function BenchmarkChart({
@@ -41,7 +39,7 @@ export function BenchmarkChart({
           ),
         ],
         scales: {
-          x: { scale: scaleLinear, axis: { ticks: { format: (v: number) => date.format(v) } } },
+          x: { scale: scaleLinear, axis: { ticks: { format: (v: number) => formatDate(v) } } },
           y: {
             scale: scaleLinear,
             nice: true,
@@ -64,7 +62,7 @@ export function BenchmarkChart({
                   palette[series.findIndex((s) => s.label === d.series) % palette.length]!.stroke,
               }));
             const at = (points[0]!.datum as ReturnPoint).timestamp;
-            return { title: date.format(at), rows };
+            return { title: formatDate(at), rows };
           },
         },
       }),

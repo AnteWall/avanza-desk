@@ -1,3 +1,5 @@
+import { TZDate } from "@date-fns/tz";
+
 import { getSetting, saveSetting } from "./settings";
 
 // Regular trading hours of the exchanges Avanza trades, in each exchange's own time zone, so
@@ -24,24 +26,10 @@ const KEY = "status-exchanges";
 export const getShownExchanges = () => getSetting<string[]>(KEY, ["STO", "US"]);
 export const setShownExchanges = (shorts: string[]) => saveSetting(KEY, shorts);
 
-const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const wallClocks = new Map<string, Intl.DateTimeFormat>();
-
 /** Weekday (0 = Sunday) and minutes since midnight on the exchange's wall clock. */
 function wallClock(tz: string, now: Date) {
-  let f = wallClocks.get(tz);
-  if (!f) {
-    f = new Intl.DateTimeFormat("en-US", {
-      timeZone: tz,
-      weekday: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-    });
-    wallClocks.set(tz, f);
-  }
-  const part = (type: string) => f.formatToParts(now).find((p) => p.type === type)!.value;
-  return { day: days.indexOf(part("weekday")), minutes: hm(+part("hour"), +part("minute")) };
+  const wall = new TZDate(now, tz);
+  return { day: wall.getDay(), minutes: hm(wall.getHours(), wall.getMinutes()) };
 }
 
 const weekday = (day: number) => day >= 1 && day <= 5;

@@ -1,3 +1,5 @@
+import { TZDate } from "@date-fns/tz";
+
 import type { ReturnPoint } from "@/lib/benchmark";
 
 /** A deal executed today at `timestamp` (epoch ms): `volume` shares, negative when sold. */
@@ -65,7 +67,7 @@ export function weightedLine(
 
 /** Epoch ms of `hm` ("09:00") Stockholm time on `date` ("2026-11-02"), DST included. */
 export function stockholmTime(date: string, hm: string) {
-  const asUtc = Date.parse(`${date}T${hm}:00Z`);
-  const wall = new Date(asUtc).toLocaleString("sv-SE", { timeZone: "Europe/Stockholm" });
-  return asUtc - (Date.parse(`${wall.replace(" ", "T")}Z`) - asUtc);
+  const [y, m, d] = date.split("-").map(Number);
+  const [h, min] = hm.split(":").map(Number);
+  return new TZDate(y!, m! - 1, d!, h!, min!, "Europe/Stockholm").getTime();
 }

@@ -2,6 +2,7 @@ import {
   formatCompact,
   formatDate,
   formatDateTime,
+  formatDay,
   formatDuration,
   formatInteger,
   formatPercent,
@@ -33,4 +34,10 @@ test("formatDuration", () => {
   expect(formatDuration(30_000)).toBe("<1m");
   expect(formatDuration(45 * 60_000)).toBe("45m");
   expect(formatDuration((2 * 60 + 5) * 60_000 + 59_000)).toBe("2h 05m");
+});
+
+test("formatDay reads like a person: weekday this year, year otherwise", () => {
+  const year = new Date().getFullYear();
+  expect(formatDay(`${year}-10-30`)).toMatch(/^\w{3} 30 Oct$/);
+  expect(formatDay("2001-10-30")).toBe("30 Oct 2001");
 });

@@ -1,16 +1,7 @@
 import { cn } from "cn";
 
 import { exchanges, exchangeStatus, getShownExchanges } from "@/lib/exchanges";
-import { formatDuration } from "@/lib/format";
-
-const time = new Intl.DateTimeFormat("sv-SE", { timeStyle: "short", timeZone: "Europe/Stockholm" });
-const dayTime = new Intl.DateTimeFormat("en-GB", {
-  weekday: "short",
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: "Europe/Stockholm",
-});
-const day = new Intl.DateTimeFormat("sv-SE", { dateStyle: "short", timeZone: "Europe/Stockholm" });
+import { formatAs, formatClock, formatDate, formatDuration } from "@/lib/format";
 
 /** The exchanges picked in Settings: open dot, and when it next opens or closes, in Stockholm time. */
 export function ExchangeStrip({ now }: { now: Date }) {
@@ -23,7 +14,7 @@ export function ExchangeStrip({ now }: { now: Date }) {
         .map((ex) => {
           const { open, next } = exchangeStatus(ex, now);
           const when =
-            day.format(next) === day.format(now) ? time.format(next) : dayTime.format(next);
+            formatDate(next) === formatDate(now) ? formatClock(next) : formatAs(next, "EEE HH:mm");
           return (
             <span
               key={ex.short}

@@ -15,7 +15,7 @@ import { tooltip } from "@tanstack/charts/tooltip";
 import { useMemo } from "react";
 
 import { OrderSide } from "@/lib/avanza/codes";
-import { formatCompact, formatPercent, formatPrice } from "@/lib/format";
+import { formatClock, formatCompact, formatDate, formatPercent, formatPrice } from "@/lib/format";
 
 export type ChartPoint = { timestamp: number; value: number };
 export type TradeMarker = { timestamp: number; price: number; side: OrderSide };
@@ -36,9 +36,6 @@ const noTrades: readonly TradeMarker[] = [];
 const noVolumes: readonly VolumeBar[] = [];
 const noEvents: readonly number[] = [];
 const noOverlays: readonly OverlayLine[] = [];
-
-const time = new Intl.DateTimeFormat("sv-SE", { timeStyle: "short", timeZone: "Europe/Stockholm" });
-const date = new Intl.DateTimeFormat("sv-SE", { dateStyle: "short", timeZone: "Europe/Stockholm" });
 
 /**
  * Value line over a brand-tinted area (prices, or % development for funds). Dashed rules:
@@ -85,7 +82,7 @@ export function PriceChart({
     );
     const from = points[0]?.timestamp ?? 0;
     const inRange = trades.filter((t) => t.timestamp >= from);
-    const format = intraday ? time.format : date.format;
+    const format = intraday ? formatClock : formatDate;
     const to = points.at(-1)?.timestamp ?? 0;
     const maxVolume = Math.max(1, ...volumes.map((v) => v.volume));
     // Bars take ~70% of the average spacing between points.

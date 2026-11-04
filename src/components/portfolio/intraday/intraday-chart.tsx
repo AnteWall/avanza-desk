@@ -14,14 +14,13 @@ import { InstrumentType, TransactionSide } from "@/lib/avanza/codes";
 import { toDealRow } from "@/lib/avanza/loose-records";
 import { dealsQuery, headerIndicesQuery, priceChartQuery } from "@/lib/avanza/queries";
 import type { ReturnPoint } from "@/lib/benchmark";
-import { formatPercent } from "@/lib/format";
+import { formatClock, formatPercent } from "@/lib/format";
 import { sinceClose, stockholmTime, weightedLine } from "@/lib/intraday";
 import { getSetting, saveSetting } from "@/lib/settings";
 
 const palette = [1, 2, 3, 4, 5].map((n) => `var(--chart-${n})`);
 // Past five picked lines the colours repeat dashed.
 const dashes = [undefined, "5 3", "1 3"];
-const time = new Intl.DateTimeFormat("sv-SE", { timeStyle: "short", timeZone: "Europe/Stockholm" });
 const isOmxs30 = (name: string) => /OMXS30|OMX Stockholm 30/i.test(name);
 const SETTING = "intraday-lines";
 const TOP = 5;
@@ -165,7 +164,7 @@ export function IntradayChart() {
                 ]
               : [0, 1],
           ),
-          axis: { ticks: { format: (v: number) => time.format(v) } },
+          axis: { ticks: { format: (v: number) => formatClock(v) } },
         },
         y: {
           scale: scaleLinear,
@@ -181,7 +180,7 @@ export function IntradayChart() {
         content: (points) => {
           const data = points.map((p) => p.datum as Datum).sort((a, b) => b.value - a.value);
           return {
-            title: data[0] ? time.format(data[0].timestamp) : "",
+            title: data[0] ? formatClock(data[0].timestamp) : "",
             rows: data.map((d) => ({
               label: d.series,
               value: formatPercent(d.value),

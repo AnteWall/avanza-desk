@@ -6,11 +6,8 @@ import { useMemo } from "react";
 
 import { STACKED_MARGIN } from "@/components/common/price-chart";
 import type { LowerPane } from "@/lib/chart-view";
-import { formatDecimal } from "@/lib/format";
+import { formatClock, formatDate, formatDecimal } from "@/lib/format";
 import { macd, rsi } from "@/lib/indicators";
-
-const time = new Intl.DateTimeFormat("sv-SE", { timeStyle: "short", timeZone: "Europe/Stockholm" });
-const date = new Intl.DateTimeFormat("sv-SE", { dateStyle: "short", timeZone: "Europe/Stockholm" });
 
 type Point = { timestamp: number; v: number; label: string };
 
@@ -33,7 +30,7 @@ export function IndicatorPane({
   const definition = useMemo(() => {
     const ts = bars.map((b) => b.timestamp);
     const closes = bars.map((b) => b.close);
-    const format = intraday ? time.format : date.format;
+    const format = intraday ? formatClock : formatDate;
     const half = bars.length > 1 ? ((ts.at(-1)! - ts[0]!) / (bars.length - 1)) * 0.35 : 0;
     const x = {
       // The price chart's volume bars widen its domain by half a bar on each side.

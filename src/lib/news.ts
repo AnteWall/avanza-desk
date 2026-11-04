@@ -1,6 +1,6 @@
 import type { CalendarResponse, NewsFeedItem, NewsFeedOrderbook } from "avanza-ts";
 
-import { formatDate, formatPrice, formatTime } from "@/lib/format";
+import { formatAs, formatDate, formatPrice, formatTime } from "@/lib/format";
 
 export type NewsGroup = { orderbook: NewsFeedOrderbook; items: NewsFeedItem[] };
 
@@ -41,17 +41,10 @@ export function groupNews(news: readonly NewsFeedItem[], now: string, days = 7):
   return [...groups.values()];
 }
 
-const weekday = new Intl.DateTimeFormat("en-GB", {
-  weekday: "short",
-  timeZone: "Europe/Stockholm",
-});
-
 /** "15:07" today, "Thu" within the week, "2026-10-20" before that. */
 export function newsTime(value: string, now: string) {
   if (formatDate(value) === formatDate(now)) return formatTime(value).slice(0, 5);
-  return Date.parse(now) - Date.parse(value) < 6 * DAY
-    ? weekday.format(new Date(value))
-    : formatDate(value);
+  return Date.parse(now) - Date.parse(value) < 6 * DAY ? formatAs(value, "EEE") : formatDate(value);
 }
 
 /** Weeks from today's week to a `yyyy-MM-dd` date: 0 = this week (Mon–Sun), 1 = next. */
@@ -61,24 +54,15 @@ export function weeksAhead(date: string, today: string) {
   return Math.floor((days + sinceMonday) / 7);
 }
 
-const day = new Intl.DateTimeFormat("en-GB", { weekday: "short", timeZone: "UTC" });
-
 /** "Mon 2" for a `yyyy-MM-dd` date. */
-export const eventDay = (date: string) => `${day.format(new Date(date))} ${Number(date.slice(8))}`;
-
-const month = new Intl.DateTimeFormat("en-GB", { month: "long", timeZone: "UTC" });
-const monthYear = new Intl.DateTimeFormat("en-GB", {
-  month: "long",
-  year: "numeric",
-  timeZone: "UTC",
-});
+export const eventDay = (date: string) => formatAs(date, "EEE d");
 
 /** Heading for a `yyyy-MM-dd` event: "This week", "Next week", then "December" / "January 2027". */
 export function eventGroup(date: string, today: string) {
   const weeks = weeksAhead(date, today);
   if (weeks <= 0) return "This week";
   if (weeks === 1) return "Next week";
-  return (date.slice(0, 4) === today.slice(0, 4) ? month : monthYear).format(new Date(date));
+  return formatAs(date, date.slice(0, 4) === today.slice(0, 4) ? "MMMM" : "MMMM yyyy");
 }
 
 /** Today in Stockholm as `yyyy-MM-dd`. */

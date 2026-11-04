@@ -14,12 +14,7 @@ import { InstrumentType } from "@/lib/avanza/codes";
 import { instrumentQuery, marketplaceQuery, quoteQuery } from "@/lib/avanza/queries";
 import { REPO_URL } from "@/lib/changelog";
 import { connection } from "@/lib/connection";
-import { formatDuration } from "@/lib/format";
-
-const clock = new Intl.DateTimeFormat("sv-SE", {
-  timeStyle: "medium",
-  timeZone: "Europe/Stockholm",
-});
+import { formatDuration, formatTime } from "@/lib/format";
 
 export function StatusBar() {
   // Status chrome, not a data panel: if these fail the indicators just stay hidden.
@@ -76,7 +71,7 @@ export function StatusBar() {
         </span>
       )}
       <ExchangeStrip now={now} />
-      <span className="num">{clock.format(now)}</span>
+      <span className="num">{formatTime(now)}</span>
       {quote && (
         <span className="ml-auto flex items-center gap-1.5">
           <span

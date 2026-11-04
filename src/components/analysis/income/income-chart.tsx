@@ -3,9 +3,10 @@ import { Chart } from "@tanstack/charts/react";
 import { scaleBand } from "@tanstack/charts/scales/band";
 import { scaleLinear } from "@tanstack/charts/scales/linear";
 import { tooltip } from "@tanstack/charts/tooltip";
+import { sv } from "date-fns/locale";
 import { useMemo } from "react";
 
-import { formatCompact, formatInteger } from "@/lib/format";
+import { formatAs, formatCompact, formatInteger } from "@/lib/format";
 import type { IncomeMonth } from "@/lib/income";
 
 const series = [
@@ -13,13 +14,7 @@ const series = [
   { key: "estimated", label: "Estimated", fill: "var(--chart-2)", dot: "bg-chart-2" },
 ] as const;
 
-const monthName = new Intl.DateTimeFormat("sv-SE", { month: "short", timeZone: "UTC" });
-const monthYear = new Intl.DateTimeFormat("en", {
-  month: "long",
-  year: "numeric",
-  timeZone: "UTC",
-});
-const label = (month: string) => monthName.format(new Date(`${month}-01T00:00:00Z`));
+const label = (month: string) => formatAs(`${month}-01`, "MMM", sv);
 
 /** Expected dividends per month, announced stacked under estimated. */
 export function IncomeChart({ months }: { months: readonly IncomeMonth[] }) {
@@ -64,7 +59,7 @@ export function IncomeChart({ months }: { months: readonly IncomeMonth[] }) {
           );
           const ym = (points[0]!.datum as (typeof bars)[number]).ym;
           return {
-            title: `${monthYear.format(new Date(`${ym}-01T00:00:00Z`))} · SEK`,
+            title: `${formatAs(`${ym}-01`, "MMMM yyyy")} · SEK`,
             rows: [...rows, { label: "Total", value: formatInteger(total), active: true }],
           };
         },
