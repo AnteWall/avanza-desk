@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { Change } from "@/components/common/change";
 import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { Empty } from "@/components/common/empty";
+import { infoHeader } from "@/components/common/info-tip";
 import { InstrumentLogo } from "@/components/common/instrument-logo";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { instrumentItem } from "@/lib/ai/context";
@@ -35,7 +36,7 @@ const words = (code: string) => code.toLowerCase().replaceAll("_", " ");
 const dataOf = <T,>(results: UseQueryResult<T>[]) => results.map((r) => r.data);
 
 const col = dataTableColumns<Row>();
-const columns = col.columns([
+const analystColumns = col.columns([
   col.accessor((r) => r.stock.name, {
     id: "name",
     header: "Stock",
@@ -65,7 +66,10 @@ const columns = col.columns([
     meta: { align: "end", className: "num" },
   }),
   col.accessor("targetUpside", {
-    header: "Upside",
+    header: infoHeader(
+      "Upside",
+      "How far the analysts' average price target is above today's price. Targets are opinions, often wrong, and look about a year ahead.",
+    ),
     cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()!} />),
     meta: { align: "end", className: "num font-medium" },
   }),
@@ -76,26 +80,38 @@ const columns = col.columns([
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.accessor("consensus", {
-    header: "Consensus",
+    header: "Analysts say",
     cell: (c) => <span className="capitalize">{c.getValue() ?? dash}</span>,
     meta: { className: "text-muted-foreground" },
   }),
-  col.accessor("fairValue", {
-    header: "Fair value",
-    cell: (c) => (c.getValue() == null ? dash : formatPrice(c.getValue()!)),
-    meta: { align: "end", className: "num" },
-  }),
-  col.accessor("fairUpside", {
-    header: "To fair",
-    cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()!} />),
-    meta: { align: "end", className: "num" },
-  }),
-  col.accessor("moat", {
-    header: "Moat",
-    cell: (c) => c.getValue() ?? dash,
-    meta: { className: "text-muted-foreground" },
-  }),
 ]);
+// Morningstar's columns, shown only when Morningstar covers at least one stock.
+const allColumns = [
+  ...analystColumns,
+  ...col.columns([
+    col.accessor("fairValue", {
+      header: infoHeader(
+        "Fair value",
+        "What Morningstar's analysts think one share is really worth, based on the company's future cash flows.",
+      ),
+      cell: (c) => (c.getValue() == null ? dash : formatPrice(c.getValue()!)),
+      meta: { align: "end", className: "num" },
+    }),
+    col.accessor("fairUpside", {
+      header: "To fair value",
+      cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()!} />),
+      meta: { align: "end", className: "num" },
+    }),
+    col.accessor("moat", {
+      header: infoHeader(
+        "Moat",
+        "How well Morningstar thinks the company can keep competitors away: wide, narrow or none.",
+      ),
+      cell: (c) => c.getValue() ?? dash,
+      meta: { className: "text-muted-foreground" },
+    }),
+  ]),
+];
 
 /**
  * Held and watched stocks against the analysts' average target and Morningstar's fair value.
@@ -142,7 +158,7 @@ export function UpsideTable() {
   if (rows.length === 0) return <Empty>No held or watched stocks.</Empty>;
   return (
     <DataTable
-      columns={columns}
+      columns={rows.some((r) => r.fairValue != null || r.moat) ? allColumns : analystColumns}
       data={rows}
       getRowId={(r) => r.stock.orderbookId}
       onRowClick={(r) => focus(r.stock.orderbookId, InstrumentType.Stock)}
