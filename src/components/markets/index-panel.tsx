@@ -6,12 +6,14 @@ import { AsyncBoundary } from "@/components/common/async-boundary";
 import { Segmented } from "@/components/common/segmented";
 import { TableSkeleton } from "@/components/common/table-skeleton";
 import { IndexConstituents } from "@/components/markets/index-constituents";
+import { WorldMap } from "@/components/markets/world-map";
 import { Panel } from "@/components/workspace/panel";
 import { headerIndicesQuery, indexConstituentsQuery } from "@/lib/avanza/queries";
 
 /**
  * Members of the indices in the top bar, as a heatmap (the default: the day at a glance, and
- * no repeat of the gainers list beside it) or a list; pick one in the title bar.
+ * no repeat of the gainers list beside it), a list, or every index Avanza tracks on a world map with
+ * each exchange's open status; pick one in the title bar.
  */
 export function IndexPanel() {
   // Shares the top bar's ticker cache.
@@ -27,7 +29,7 @@ export function IndexPanel() {
   });
   const indexes = all.filter((_, i) => members[i]?.data?.length !== 0);
   const [picked, setPicked] = useState<string>();
-  const [view, setView] = useState<"list" | "map">("map");
+  const [view, setView] = useState<"list" | "map" | "world">("map");
   // A pick that turns out to have no members falls back to the first that has.
   const active =
     indexes.find((i) => i.link.orderbookId === picked)?.link.orderbookId ??
@@ -38,38 +40,47 @@ export function IndexPanel() {
       title="Index"
       icon={ChartNoAxesColumn}
       actions={
-        indexes.length > 0 && (
+        all.length > 0 && (
           <>
             <Segmented
               label="View"
               options={[
                 { label: "Heatmap", value: "map" },
                 { label: "List", value: "list" },
+                { label: "World", value: "world" },
               ]}
               value={view}
               onChange={setView}
             />
-            <Segmented
-              label="Index"
-              options={indexes.map((i) => ({
-                label: i.link.shortLinkDisplay,
-                value: i.link.orderbookId,
-              }))}
-              value={active}
-              onChange={setPicked}
-            />
+            {view !== "world" && indexes.length > 0 && (
+              <Segmented
+                label="Index"
+                options={indexes.map((i) => ({
+                  label: i.link.shortLinkDisplay,
+                  value: i.link.orderbookId,
+                }))}
+                value={active}
+                onChange={setPicked}
+              />
+            )}
           </>
         )
       }
     >
-      {active && (
-        <AsyncBoundary
-          what="the index"
-          fallback={<TableSkeleton rows={10} columns={2} />}
-          resetKey={active}
-        >
-          <IndexConstituents orderbookId={active} view={view} />
+      {view === "world" ? (
+        <AsyncBoundary what="world indices" fallback={<TableSkeleton rows={10} columns={3} />}>
+          <WorldMap />
         </AsyncBoundary>
+      ) : (
+        active && (
+          <AsyncBoundary
+            what="the index"
+            fallback={<TableSkeleton rows={10} columns={2} />}
+            resetKey={active}
+          >
+            <IndexConstituents orderbookId={active} view={view} />
+          </AsyncBoundary>
+        )
       )}
     </Panel>
   );

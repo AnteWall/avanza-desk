@@ -79,6 +79,7 @@ export function DataTable<TData extends RowData>({
   getRowId,
   selectedRowId,
   onRowClick,
+  onRowHover,
   askAbout,
   rowMenu,
 }: {
@@ -89,6 +90,8 @@ export function DataTable<TData extends RowData>({
   selectedRowId?: string;
   /** Makes rows clickable (↑↓ or j/k move, Enter activates). */
   onRowClick?: (row: TData) => void;
+  /** The row under the pointer or keyboard focus, `undefined` when it leaves. */
+  onRowHover?: (row: TData | undefined) => void;
   /** What a row is, for its right-click "Ask the assistant" menu. */
   askAbout?: (row: TData) => ContextItem | undefined;
   /** More right-click items, acting on the selected rows. */
@@ -150,7 +153,11 @@ export function DataTable<TData extends RowData>({
               dragging.current = true;
             }
           }}
+          onMouseLeave={() => onRowHover?.(undefined)}
+          onFocus={(e) => e.target === e.currentTarget && onRowHover?.(row.original)}
+          onBlur={() => onRowHover?.(undefined)}
           onMouseEnter={(e) => {
+            onRowHover?.(row.original);
             if (dragging.current && e.buttons === 1) {
               setSelection(range(anchor.current ?? row.id, row.id));
             }

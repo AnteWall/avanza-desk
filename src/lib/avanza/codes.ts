@@ -27,3 +27,11 @@ export const TransactionType = {
   Withdraw: "WITHDRAW",
 } as const;
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
+
+/** Market overview widgets that list indices, in the order the World view shows them. */
+export const OverviewWidget = {
+  NordicIndices: "NORDIC_INDICES",
+  EuropeIndices: "EUROPE_INDICES",
+  WorldIndices: "WORLD_INDICES",
+} as const;
+export type OverviewWidget = (typeof OverviewWidget)[keyof typeof OverviewWidget];

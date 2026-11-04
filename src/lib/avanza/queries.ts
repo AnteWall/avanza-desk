@@ -15,7 +15,7 @@ import { accountIds, getAccount } from "@/lib/account";
 import { refreshEvery } from "@/lib/refresh-intervals";
 
 import { avanza } from "./client";
-import { InstrumentType, TransactionSide } from "./codes";
+import { InstrumentType, OverviewWidget, TransactionSide } from "./codes";
 import { loadInstrument } from "./instrument";
 import { loadLookThrough } from "./look-through";
 import { captureRaw } from "./loose-records";
@@ -180,6 +180,33 @@ export const headerIndicesQuery = queryOptions({
   queryKey: ["market", "header-indices"],
   queryFn: ({ signal }) => avanza.market.headerIndices(signal),
   refetchInterval: refreshEvery("indices"),
+});
+
+/**
+ * Every index on Avanza's market overview (Nordic, European and world), each with today's
+ * chart: name, country, last price and previous close. One request per index.
+ */
+export const worldIndicesQuery = queryOptions({
+  queryKey: ["market", "world-indices"],
+  queryFn: async ({ signal }) => {
+    const overviews = await avanza.market.overviews(signal);
+    const widgets = (overviews.find((o) => o.active) ?? overviews[0])?.widgets ?? [];
+    const ids = Object.values(OverviewWidget).flatMap((type) =>
+      widgets
+        .filter((w) => w.type === type)
+        // Untyped in the SDK: `{ orderbooks: [{ orderbookId }] }` on index widgets.
+        .flatMap(
+          (w) => (w.data as { orderbooks?: { orderbookId: string }[] } | null)?.orderbooks ?? [],
+        )
+        .map((o) => o.orderbookId),
+    );
+    // One failing index shouldn't blank the map.
+    const charts = await Promise.allSettled(
+      [...new Set(ids)].map((id) => avanza.market.overviewChart(id, "today", signal)),
+    );
+    return charts.flatMap((c) => (c.status === "fulfilled" ? [c.value] : []));
+  },
+  refetchInterval: refreshEvery("market"),
 });
 
 export const searchQuery = (query: string) =>
