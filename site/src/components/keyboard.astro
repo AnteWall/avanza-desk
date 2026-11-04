@@ -1,0 +1,31 @@
+---
+import Kbd from "./kbd.astro";
+import SectionHeading from "./section-heading.astro";
+
+const shortcuts = [
+  { keys: ["Ctrl", "K"], text: "Search instruments and pages" },
+  { keys: ["Alt", "1…9"], text: "Jump to any page" },
+  { keys: ["Ctrl", "J"], text: "Open the assistant" },
+  { keys: ["1…6"], text: "Switch chart ranges" },
+  { keys: ["j", "k"], text: "Move through tables" },
+  { keys: ["A"], text: "Add an instrument" },
+];
+---
+
+<section class="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+  <SectionHeading
+    kicker="Keyboard first"
+    title="Never reach for the mouse"
+    lede="Every action has a shortcut, and the app-wide ones are yours to rebind in Settings."
+  />
+  <ul class="mx-auto mt-14 grid max-w-4xl gap-3 sm:grid-cols-2 lg:grid-cols-3" data-reveal>
+    {
+      shortcuts.map((s) => (
+        <li class="flex h-14 items-center gap-4 rounded-lg border border-border bg-card px-4">
+          <span class="flex shrink-0 gap-1">{s.keys.map((k) => <Kbd>{k}</Kbd>)}</span>
+          <span class="text-sm text-muted-foreground">{s.text}</span>
+        </li>
+      ))
+    }
+  </ul>
+</section>

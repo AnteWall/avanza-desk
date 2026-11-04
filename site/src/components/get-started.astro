@@ -1,0 +1,40 @@
+---
+import SectionHeading from "./section-heading.astro";
+import { url } from "../lib/url";
+
+const steps = [
+  {
+    title: "Install",
+    text: "Download the installer for your computer, or paste the one-line install command. After that the app updates itself and shows what's new.",
+    link: { href: url("#download"), label: "Downloads" },
+  },
+  {
+    title: "Sign in with BankID",
+    text: "Scan the QR code with the BankID app on your phone. Your session stays in the system keychain until you sign out.",
+  },
+  {
+    title: "Make it yours",
+    text: "Start on Home for a short summary of your day. When you want more on screen, switch to compact text, the trading workspace and icon-only navigation in Settings.",
+  },
+];
+---
+
+<section id="start" class="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+  <SectionHeading kicker="Get started" title="Up and running in a minute" />
+  <ol class="mt-16 grid gap-4 md:grid-cols-3" data-reveal>
+    {
+      steps.map((s, i) => (
+        <li class="relative rounded-lg border border-border bg-card p-6">
+          <span class="num flex size-8 items-center justify-center rounded-md bg-brand/15 text-sm font-semibold text-brand">{i + 1}</span>
+          <h3 class="mt-5 text-lg font-semibold">{s.title}</h3>
+          <p class="mt-2 text-sm text-muted-foreground">{s.text}</p>
+          {s.link && (
+            <a class="mt-4 inline-block text-sm font-medium text-brand hover:underline" href={s.link.href}>
+              {s.link.label} →
+            </a>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</section>

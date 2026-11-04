@@ -1,0 +1,9 @@
+---
+import Logo from "./logo.astro";
+import { url } from "../lib/url";
+---
+
+<a href={url()} class="flex items-center gap-2.5 text-lg" aria-label="AvanzaDesk home">
+  <Logo />
+  <span><span class="font-semibold">Avanza</span><span class="text-muted-foreground">Desk</span></span>
+</a>

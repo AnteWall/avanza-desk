@@ -1,0 +1,28 @@
+---
+import { siApple, siDebian, siFedora, siLinux } from "simple-icons";
+
+// Platform marks, monochrome in currentColor (simple-icons, CC0). Windows isn't in simple-icons,
+// so its four panes are drawn here.
+export type OsIconName = "mac" | "windows" | "linux" | "debian" | "fedora";
+interface Props {
+  name: OsIconName;
+  class?: string;
+}
+const { name, class: className = "size-4" } = Astro.props;
+const paths: Record<Exclude<OsIconName, "windows">, string> = {
+  mac: siApple.path,
+  linux: siLinux.path,
+  debian: siDebian.path,
+  fedora: siFedora.path,
+};
+---
+
+<svg class={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+  {
+    name === "windows" ? (
+      <path d="M2 2h9.5v9.5H2zM12.5 2H22v9.5h-9.5zM2 12.5h9.5V22H2zM12.5 12.5H22V22h-9.5z" />
+    ) : (
+      <path d={paths[name]} />
+    )
+  }
+</svg>

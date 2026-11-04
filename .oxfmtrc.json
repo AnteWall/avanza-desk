@@ -3,5 +3,13 @@
   "printWidth": 100,
   "sortImports": {},
   "sortTailwindcss": {},
-  "ignorePatterns": ["src/routeTree.gen.ts", "CHANGELOG.md", "src-tauri/**", "pnpm-lock.yaml"]
+  "ignorePatterns": [
+    "src/routeTree.gen.ts",
+    "CHANGELOG.md",
+    "src-tauri/**",
+    "pnpm-lock.yaml",
+    "site/pnpm-lock.yaml",
+    "site/dist/**",
+    "site/.astro/**"
+  ]
 }

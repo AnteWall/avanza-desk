@@ -1,0 +1,164 @@
+@import "tailwindcss";
+@import "@fontsource-variable/roboto";
+@import "@fontsource-variable/roboto-mono";
+
+/* AvanzaDesk's dark tokens (src/index.css, DESIGN.md). The site is dark like the app's default. */
+:root {
+  color-scheme: dark;
+  --background: #090b0b;
+  --foreground: #f9fbfb;
+  --card: #0f1415;
+  --popover: #121819;
+  --primary: #f9fbfb;
+  --primary-foreground: #0d1112;
+  --muted: #192224;
+  --muted-foreground: #9aa8ac;
+  --border: #243133;
+  --brand: #00c281;
+  --up: #4f99ed;
+  --down: #e85582;
+  --warning: #f58f6c;
+  --chart-2: #a698fa;
+  --chart-3: #f99258;
+  --chart-4: #2af3ff;
+}
+
+@theme inline {
+  --font-sans: "Roboto Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Roboto Mono Variable", ui-monospace, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-popover: var(--popover);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-brand: var(--brand);
+  --color-up: var(--up);
+  --color-down: var(--down);
+  --color-warning: var(--warning);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --radius-md: 0.375rem;
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --shadow-float: 0 8px 24px rgb(0 0 0 / 0.4), 0 2px 6px rgb(0 0 0 / 0.3);
+}
+
+@utility num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Floating layer only (nav bar, menus): DESIGN.md "Two layers". */
+@utility material {
+  background-color: color-mix(in oklab, var(--popover) 85%, transparent);
+  backdrop-filter: blur(24px) saturate(1.6);
+}
+
+/* The marketing exception to "no gradients": one brand glow behind the hero and download. */
+@utility glow {
+  background: radial-gradient(
+    60% 50% at 50% 0%,
+    color-mix(in oklab, var(--brand) 22%, transparent),
+    transparent 70%
+  );
+}
+
+/* A faint grid of the app's 4px rhythm, scaled up, fading out from the top. */
+@utility grid-lines {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--border) 45%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--border) 45%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 48px 48px;
+  mask-image: radial-gradient(70% 60% at 50% 0%, black, transparent 75%);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+::selection {
+  background-color: color-mix(in oklab, var(--brand) 30%, transparent);
+}
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* Show the download button for the visitor's OS (set by the script in base.astro). */
+.os-only {
+  display: none;
+}
+html[data-os="mac"] .os-mac,
+html[data-os="windows"] .os-windows,
+html[data-os="linux"] .os-linux {
+  display: inline-flex;
+}
+html[data-os="mac"] .os-any,
+html[data-os="windows"] .os-any,
+html[data-os="linux"] .os-any {
+  display: none;
+}
+
+/* Sections rise in once as they scroll into view; content stays visible without JS. */
+.js [data-reveal] {
+  opacity: 0;
+  translate: 0 16px;
+  transition:
+    opacity 600ms var(--ease-out-quint),
+    translate 600ms var(--ease-out-quint);
+}
+.js [data-reveal].shown {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* The hero's install one-liner: PowerShell on Windows, curl everywhere else. */
+.cmd-win,
+html[data-os="windows"] .cmd-unix {
+  display: none;
+}
+html[data-os="windows"] .cmd-win {
+  display: flex;
+}
+
+/* The download card for the visitor's OS stands out. */
+html[data-os="mac"] .os-card-mac,
+html[data-os="windows"] .os-card-windows,
+html[data-os="linux"] .os-card-linux {
+  border-color: color-mix(in oklab, var(--brand) 60%, transparent);
+}
+html[data-os="mac"] .os-card-mac .os-mine,
+html[data-os="windows"] .os-card-windows .os-mine,
+html[data-os="linux"] .os-card-linux .os-mine {
+  display: inline-flex;
+}

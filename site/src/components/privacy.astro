@@ -1,0 +1,35 @@
+---
+import SectionHeading from "./section-heading.astro";
+
+const points = [
+  { title: "No servers of ours", text: "The app talks directly to Avanza. There is no AvanzaDesk backend, account or tracking." },
+  { title: "No passwords", text: "You sign in with BankID. The app never sees or stores a password." },
+  { title: "Session in your keychain", text: "Kept in macOS Keychain, Windows Credential Manager or Secret Service, and removed when you sign out." },
+  { title: "Local storage only", text: "Settings, saved chats and portfolio history live in a SQLite database on your machine." },
+  { title: "No trades placed", text: "Trading happens in Avanza. AvanzaDesk opens the order there with your quantity filled in." },
+  { title: "Assistant is opt-in", text: "Nothing goes to an AI provider unless you connect one, and it runs read-only." },
+];
+---
+
+<section id="privacy" class="relative overflow-hidden border-y border-border/60 bg-card/40">
+  <div class="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+    <SectionHeading
+      kicker="Privacy"
+      title="Your data stays on your computer"
+      lede="Open source under AGPL-3.0, so you can read every line that touches your account."
+    />
+    <div class="mt-16 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2 lg:grid-cols-3" data-reveal>
+      {
+        points.map((p) => (
+          <div class="bg-card p-6">
+            <div class="flex items-center gap-2.5">
+              <span class="size-1.5 rounded-full bg-brand" />
+              <h3 class="font-semibold">{p.title}</h3>
+            </div>
+            <p class="mt-2 text-sm text-muted-foreground">{p.text}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

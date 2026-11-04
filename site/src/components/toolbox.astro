@@ -1,0 +1,151 @@
+---
+import SectionHeading from "./section-heading.astro";
+
+// Illustrative mini views drawn from tokens, not real data.
+const depth = [
+  { bid: 38, ask: 22 },
+  { bid: 64, ask: 41 },
+  { bid: 80, ask: 70 },
+  { bid: 52, ask: 90 },
+  { bid: 30, ask: 58 },
+];
+const rebalance = [
+  { name: "Global index", now: 48, target: 40 },
+  { name: "Sweden", now: 22, target: 30 },
+  { name: "Emerging", now: 12, target: 15 },
+  { name: "Bonds", now: 18, target: 15 },
+];
+const months = [12, 4, 30, 72, 88, 40, 8, 6, 22, 10, 18, 26];
+const monthNames = "JFMAMJJASOND";
+const small = [
+  { title: "Trading profile", text: "Finds habits in your buy and sell history and shows whether they are changing." },
+  { title: "Price ladder", text: "The order book with your open orders and stop-loss triggers at their prices." },
+  { title: "Pop-out windows", text: "Pull a chart and order book into its own window for a second screen." },
+  { title: "CSV and live quotes", text: "Export any table, or keep a quotes file your spreadsheet refreshes from." },
+  { title: "Live quote board", text: "Pick watchlist columns like bid, ask, spread and turnover and keep it open as a quote board." },
+  { title: "Depth and brokers", text: "Cumulative order book depth, and each broker's share of the day's volume." },
+];
+const card = "rounded-lg border border-border bg-card p-6";
+---
+
+<section class="border-y border-border/60 bg-card/40">
+  <div class="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+    <SectionHeading
+      kicker="Toolbox"
+      title="The tools Avanza's app doesn't have"
+      lede="Built for people who keep Avanza open all day and want more data with fewer clicks."
+    />
+
+    <div class="mt-16 grid gap-4 md:grid-cols-6" data-reveal>
+      <article class:list={[card, "md:col-span-3"]}>
+        <h3 class="font-semibold">Pre-trade estimate</h3>
+        <p class="mt-1 text-sm text-muted-foreground">
+          Walks the visible order book to show the average price, slippage and how much of a market order would fill.
+        </p>
+        <div class="mt-6 space-y-1" aria-hidden="true">
+          {
+            depth.map((d) => (
+              <div class="grid h-5 grid-cols-2 gap-1">
+                <div class="flex justify-end"><div class="h-full rounded-sm bg-up/25" style={`width:${d.bid}%`} /></div>
+                <div><div class="h-full rounded-sm bg-down/25" style={`width:${d.ask}%`} /></div>
+              </div>
+            ))
+          }
+          <div class="num flex justify-between pt-2 text-xs text-muted-foreground">
+            <span>Avg price <span class="text-foreground">218,42</span></span>
+            <span>Slippage <span class="text-down">+0,31 %</span></span>
+          </div>
+        </div>
+      </article>
+
+      <article class:list={[card, "md:col-span-3"]}>
+        <h3 class="font-semibold">Alert rules</h3>
+        <p class="mt-1 text-sm text-muted-foreground">
+          Day moves, price levels, position weight, drift from target, short interest and loan-to-value, with desktop
+          notifications.
+        </p>
+        <div class="mt-6 space-y-2 text-sm" aria-hidden="true">
+          {
+            [
+              ["Volvo B", "falls", "3 % today"],
+              ["Investor B", "rises to", "320 SEK"],
+              ["Global index", "drifts", "5 % from target"],
+            ].map(([who, verb, what]) => (
+              <div class="flex h-9 items-center gap-2 rounded-md border border-border bg-background/60 px-3">
+                <span class="size-1.5 rounded-full bg-brand" />
+                <span class="text-muted-foreground">When</span>
+                <span class="font-medium">{who}</span>
+                <span class="text-muted-foreground">{verb}</span>
+                <span class="num font-medium">{what}</span>
+              </div>
+            ))
+          }
+        </div>
+      </article>
+
+      <article class:list={[card, "md:col-span-2"]}>
+        <h3 class="font-semibold">Rebalancing</h3>
+        <p class="mt-1 text-sm text-muted-foreground">Stocks, funds, ETFs and certificates in one plan, across accounts. Set target weights and get the exact orders, or buy-only for new money.</p>
+        <div class="mt-6 space-y-3" aria-hidden="true">
+          {
+            rebalance.map((r) => (
+              <div>
+                <div class="num flex justify-between text-xs text-muted-foreground">
+                  <span class="font-sans">{r.name}</span>
+                  <span>{r.now} → {r.target} %</span>
+                </div>
+                <div class="relative mt-1 h-1.5 rounded-full bg-muted">
+                  <div class="h-full rounded-full bg-brand/70" style={`width:${r.now * 1.6}%`} />
+                  <div class="absolute -top-1 h-3.5 w-0.5 rounded-full bg-foreground" style={`left:${r.target * 1.6}%`} />
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </article>
+
+      <article class:list={[card, "md:col-span-2"]}>
+        <h3 class="font-semibold">Dividend forecast</h3>
+        <p class="mt-1 text-sm text-muted-foreground">Expected income by month and by holding.</p>
+        <div class="mt-6 flex h-24 items-end gap-1" aria-hidden="true">
+          {months.map((m) => <div class="flex-1 rounded-t-sm bg-brand/70" style={`height:${m}%`} />)}
+        </div>
+        <div class="num mt-1.5 flex gap-1 text-center text-xs text-muted-foreground" aria-hidden="true">
+          {[...monthNames].map((m) => <span class="flex-1">{m}</span>)}
+        </div>
+      </article>
+
+      <article class:list={[card, "group md:col-span-2"]}>
+        <h3 class="font-semibold">Privacy mode</h3>
+        <p class="mt-1 text-sm text-muted-foreground">One click hides every amount you own. Market data stays readable.</p>
+        <dl class="mt-6 grid grid-cols-2 gap-4" aria-hidden="true">
+          <div>
+            <dt class="text-xs text-muted-foreground">Your value</dt>
+            <dd class="num mt-1 text-xl font-semibold blur-[6px] transition group-hover:blur-none">482 150</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-muted-foreground">Today</dt>
+            <dd class="num mt-1 text-xl font-semibold text-up">+1,24 %</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-muted-foreground">Gain since you bought</dt>
+            <dd class="num mt-1 font-medium blur-[6px] transition group-hover:blur-none">+61 380</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-muted-foreground">OMXS30</dt>
+            <dd class="num mt-1 font-medium text-down">−0,42 %</dd>
+          </div>
+        </dl>
+      </article>
+
+      {
+        small.map((s) => (
+          <article class:list={[card, "md:col-span-2"]}>
+            <h3 class="font-semibold">{s.title}</h3>
+            <p class="mt-1 text-sm text-muted-foreground">{s.text}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

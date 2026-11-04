@@ -1,0 +1,16 @@
+---
+// AppLogo: mint square, four rising bars on a desk line (src-tauri/icons/logo.svg).
+interface Props {
+  class?: string;
+}
+const { class: className = "size-7" } = Astro.props;
+---
+
+<svg class={className} viewBox="0 0 32 32" aria-hidden="true">
+  <rect width="32" height="32" rx="7.5" fill="var(--brand)"></rect>
+  <g fill="#fff">
+    <rect x="7" y="16.5" width="3" height="6"></rect><rect x="11.5" y="14.5" width="3" height="8"></rect>
+    <rect x="16" y="12" width="3" height="10.5"></rect><rect x="20.5" y="7.5" width="3" height="15"></rect>
+    <rect x="5" y="24" width="22" height="2" rx="1"></rect>
+  </g>
+</svg>

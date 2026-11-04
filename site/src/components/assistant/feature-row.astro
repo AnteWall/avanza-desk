@@ -1,0 +1,38 @@
+---
+import type { ImageMetadata } from "astro";
+
+import CloseUp from "./close-up.astro";
+
+// One assistant feature: text on one side, one or two close-ups on the other.
+interface Props {
+  kicker: string;
+  title: string;
+  text: string;
+  points: string[];
+  images: { src: ImageMetadata; alt: string }[];
+  flip?: boolean;
+}
+const { kicker, title, text, points, images, flip = false } = Astro.props;
+---
+
+<article class="grid items-center gap-10 lg:grid-cols-2 lg:gap-16" data-reveal>
+  <div class:list={[flip && "lg:order-2"]}>
+    <p class="text-xs font-semibold tracking-wider text-brand uppercase">{kicker}</p>
+    <h3 class="mt-3 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">{title}</h3>
+    <p class="mt-4 text-muted-foreground">{text}</p>
+    <ul class="mt-6 space-y-2.5 text-sm">
+      {
+        points.map((p) => (
+          <li class="flex items-start gap-3">
+            <svg class="mt-0.5 size-4 shrink-0 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            {p}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+  <!-- Close-ups stack: side by side they shrink below reading size. -->
+  <div class="grid gap-4">
+    {images.map((i) => <CloseUp src={i.src} alt={i.alt} />)}
+  </div>
+</article>

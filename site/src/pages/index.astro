@@ -1,0 +1,35 @@
+---
+import workspaceLight from "../../../docs/screenshots/workspace-light.png";
+import workspace from "../../../docs/screenshots/workspace.png";
+import AssistantSpotlight from "../components/assistant-spotlight.astro";
+import assistant from "../../../docs/screenshots/assistant-hero.png";
+import Downloads from "../components/downloads.astro";
+import GetStarted from "../components/get-started.astro";
+import Hero from "../components/hero.astro";
+import Keyboard from "../components/keyboard.astro";
+import LatestChanges from "../components/latest-changes.astro";
+import Privacy from "../components/privacy.astro";
+import Showcase from "../components/showcase.astro";
+import ThemeSplit from "../components/theme-split.astro";
+import Toolbox from "../components/toolbox.astro";
+import Base from "../layouts/base.astro";
+import { latestRelease } from "../lib/release";
+
+const release = await latestRelease();
+---
+
+<Base
+  title="AvanzaDesk: a trading terminal for your Avanza account"
+  description="A fast, keyboard-first desktop app for your Avanza account. Holdings, live prices, order books, news and analysis side by side. Free and open source."
+>
+  <Hero release={release} />
+  <AssistantSpotlight image={assistant} />
+  <Showcase />
+  <Toolbox />
+  <ThemeSplit dark={workspace} light={workspaceLight} alt="The AvanzaDesk workspace" />
+  <Keyboard />
+  <Privacy />
+  <GetStarted />
+  <LatestChanges />
+  <Downloads release={release} />
+</Base>

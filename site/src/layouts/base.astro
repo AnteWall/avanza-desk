@@ -1,0 +1,64 @@
+---
+import "../styles/global.css";
+import Footer from "../components/footer.astro";
+import Nav from "../components/nav.astro";
+import { url } from "../lib/url";
+
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#090b0b" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href={url("favicon.svg")} />
+    <script is:inline>
+      // Before paint, so the right download button shows without a flash.
+      const ua = navigator.userAgent;
+      const os = /Mac/.test(ua) && !/iPhone|iPad/.test(ua) ? "mac" : /Win/.test(ua) ? "windows" : /Linux/.test(ua) && !/Android/.test(ua) ? "linux" : "";
+      if (os) document.documentElement.dataset.os = os;
+      document.documentElement.classList.add("js");
+    </script>
+  </head>
+  <body class="min-h-svh leading-relaxed">
+    <Nav />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            e.target.classList.add("shown");
+            io.unobserve(e.target);
+          }
+        },
+        { rootMargin: "0px 0px -10% 0px" },
+      );
+      document.querySelectorAll("[data-reveal]").forEach((el) => io.observe(el));
+
+      document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((btn) =>
+        btn.addEventListener("click", async () => {
+          await navigator.clipboard.writeText(btn.dataset.copy ?? "");
+          const label = btn.querySelector("[data-copy-label]");
+          if (!label) return;
+          label.textContent = "Copied";
+          setTimeout(() => (label.textContent = "Copy"), 1500);
+        }),
+      );
+    </script>
+  </body>
+</html>

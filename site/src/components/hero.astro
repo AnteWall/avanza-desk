@@ -1,0 +1,81 @@
+---
+import workspace from "../../../docs/screenshots/workspace.png";
+import Command from "./command.astro";
+import OsIcon from "./os-icon.astro";
+import WindowFrame from "./window-frame.astro";
+import { formatDay } from "../lib/format";
+import { INSTALL_UNIX, INSTALL_WINDOWS } from "../lib/install";
+import { REPO, RELEASES_URL, type LatestRelease } from "../lib/release";
+import { url } from "../lib/url";
+
+interface Props {
+  release?: LatestRelease;
+}
+const { release } = Astro.props;
+const first = (os: string) => release?.downloads.find((d) => d.os === os)?.url ?? RELEASES_URL;
+const buttons = [
+  { os: "mac", label: "Download for macOS", href: first("mac") },
+  { os: "windows", label: "Download for Windows", href: first("windows") },
+  { os: "linux", label: "Download for Linux", href: first("linux") },
+] as const;
+const button =
+  "h-11 items-center gap-2 rounded-md bg-primary px-5 font-medium text-primary-foreground transition-transform active:scale-[0.97]";
+---
+
+<section class="relative overflow-hidden">
+  <div class="glow pointer-events-none absolute inset-0"></div>
+  <div class="grid-lines pointer-events-none absolute inset-0"></div>
+
+  <div class="relative mx-auto max-w-6xl px-4 pt-20 pb-16 text-center sm:px-6 sm:pt-28">
+    {
+      release && (
+        <a
+          href={url("changelog/")}
+          class="inline-flex h-7 items-center gap-2 rounded-full border border-border bg-card/80 pr-3 pl-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <span class="num rounded-full bg-brand/15 px-2 py-0.5 font-medium text-brand">v{release.version}</span>
+          Released {formatDay(release.date)} · see what's new →
+        </a>
+      )
+    }
+
+    <h1 class="mx-auto mt-6 max-w-4xl text-4xl font-semibold tracking-tight text-balance sm:text-6xl">
+      Your Avanza account, <span class="text-brand">as a trading terminal.</span>
+    </h1>
+    <p class="mx-auto mt-6 max-w-2xl text-lg text-pretty text-muted-foreground">
+      AvanzaDesk puts your holdings, live prices, order books, news and analysis side by side in one fast desktop
+      app. Sign in with BankID, and every page is one shortcut away.
+    </p>
+
+    <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
+      {
+        buttons.map((b) => (
+          <a href={b.href} class:list={["os-only", `os-${b.os}`, button]}>
+            <OsIcon name={b.os} />
+            {b.label}
+          </a>
+        ))
+      }
+      <a href={url("#download")} class:list={["os-any inline-flex", button]}>Download</a>
+      <a
+        href={`https://github.com/${REPO}`}
+        class="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-card px-5 font-medium transition hover:bg-muted active:scale-[0.97]"
+      >
+        View source
+      </a>
+    </div>
+
+    <div class="mx-auto mt-6 max-w-xl">
+      <Command command={INSTALL_UNIX} class="cmd-unix" />
+      <Command command={INSTALL_WINDOWS} prompt=">" class="cmd-win" />
+      <p class="mt-3 text-xs text-muted-foreground">
+        Free and open source · macOS, Windows and Linux · Updates itself ·
+        <a class="underline underline-offset-2 hover:text-foreground" href={url("#download")}>All downloads</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="relative mx-auto max-w-6xl px-4 pb-24 sm:px-6">
+    <WindowFrame src={workspace} alt="The AvanzaDesk workspace: watchlist, chart and order book side by side" eager />
+  </div>
+</section>

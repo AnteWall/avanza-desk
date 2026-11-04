@@ -1,6 +1,6 @@
 #!/bin/sh
 # Installs the latest AvanzaDesk release on macOS or Linux:
-#   curl -fsSL https://raw.githubusercontent.com/AnteWall/avanza-desk/main/scripts/install.sh | sh
+#   curl -fsSL https://antewall.github.io/avanza-desk/install.sh | sh
 # The app updates itself after that.
 set -eu
 

@@ -1,0 +1,84 @@
+---
+import Command from "./command.astro";
+import OsIcon from "./os-icon.astro";
+import { formatSize } from "../lib/format";
+import { INSTALL_UNIX, INSTALL_WINDOWS } from "../lib/install";
+import { RELEASES_URL, type LatestRelease } from "../lib/release";
+
+interface Props {
+  release?: LatestRelease;
+}
+const { release } = Astro.props;
+const platforms = [
+  { os: "mac", label: "macOS", note: "macOS 12 or later", command: INSTALL_UNIX, prompt: "$" },
+  { os: "windows", label: "Windows", note: "Windows 10 or later", command: INSTALL_WINDOWS, prompt: ">" },
+  { os: "linux", label: "Linux", note: "x86_64", command: INSTALL_UNIX, prompt: "$" },
+] as const;
+---
+
+<section id="download" class="relative overflow-hidden border-t border-border/60">
+  <div class="glow pointer-events-none absolute inset-0"></div>
+  <div class="relative mx-auto max-w-6xl px-4 py-24 sm:px-6">
+    <div class="mx-auto max-w-2xl text-center" data-reveal>
+      <p class="text-xs font-semibold tracking-wider text-brand uppercase">Download</p>
+      <h2 class="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Get AvanzaDesk</h2>
+      <p class="mt-4 text-lg text-muted-foreground">
+        Free, for every desktop.{release && <> Version <span class="num text-foreground">{release.version}</span>.</>} It updates itself after you install it.
+      </p>
+    </div>
+
+    <div class="mt-14 grid gap-4 lg:grid-cols-3" data-reveal>
+      {
+        platforms.map((p) => {
+          const files = release?.downloads.filter((d) => d.os === p.os) ?? [];
+          return (
+            <div class:list={["os-card flex flex-col rounded-lg border border-border bg-card p-6 transition-colors", `os-card-${p.os}`]}>
+              <div class="flex items-center gap-3">
+                <span class="flex size-11 shrink-0 items-center justify-center rounded-md bg-muted">
+                  <OsIcon name={p.os} class="size-5" />
+                </span>
+                <div class="min-w-0">
+                  <h3 class="text-lg leading-tight font-semibold">{p.label}</h3>
+                  <p class="text-xs text-muted-foreground">{p.note}</p>
+                </div>
+                <span class="os-mine ml-auto hidden rounded-full bg-brand/15 px-2 py-0.5 text-xs font-medium text-brand">Your system</span>
+              </div>
+              <ul class="mt-5 space-y-2">
+                {files.map((f, i) => (
+                  <li>
+                    <a
+                      href={f.url}
+                      class:list={[
+                        "flex h-11 items-center gap-3 rounded-md px-4 text-sm transition active:scale-[0.99]",
+                        i === 0 ? "bg-primary font-medium text-primary-foreground" : "border border-border hover:bg-muted",
+                      ]}
+                    >
+                      <OsIcon name={f.icon} class="size-4 shrink-0" />
+                      {f.detail}
+                      <span class:list={["num ml-auto text-xs", i === 0 ? "opacity-70" : "text-muted-foreground"]}>{formatSize(f.size)}</span>
+                    </a>
+                  </li>
+                ))}
+                {!files.length && (
+                  <li>
+                    <a href={RELEASES_URL} class="flex h-11 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground">
+                      Latest release on GitHub
+                    </a>
+                  </li>
+                )}
+              </ul>
+              <div class="mt-auto pt-6">
+                <p class="mb-2 text-xs text-muted-foreground">Or in a terminal</p>
+                <Command command={p.command} prompt={p.prompt} />
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+    <p class="mt-8 text-center text-sm text-muted-foreground">
+      Older versions are on <a class="text-foreground underline underline-offset-2" href="https://github.com/AnteWall/avanza-desk/releases">GitHub Releases</a>.
+      Want to build it yourself? <a class="text-foreground underline underline-offset-2" href="https://github.com/AnteWall/avanza-desk#build-from-source">Build from source</a>.
+    </p>
+  </div>
+</section>

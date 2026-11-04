@@ -1,0 +1,103 @@
+---
+import analysis from "../../../docs/screenshots/analysis.png";
+import basket from "../../../docs/screenshots/basket.png";
+import home from "../../../docs/screenshots/home.png";
+import markets from "../../../docs/screenshots/markets.png";
+import news from "../../../docs/screenshots/news.png";
+import portfolio from "../../../docs/screenshots/portfolio.png";
+import signals from "../../../docs/screenshots/signals.png";
+import SectionHeading from "./section-heading.astro";
+import WindowFrame from "./window-frame.astro";
+
+// The demo data behind these screenshots is made up (src/lib/demo); `pnpm screenshots` retakes them.
+const rows = [
+  {
+    kicker: "Home",
+    isNew: true,
+    title: "Catch up in ten seconds",
+    text: "AvanzaDesk opens on a short letter about your money: what changed since you last looked, in one sentence, then what moved, what happened while you were away and what's coming in the next two weeks.",
+    points: ["\"You're up 43 013 SEK since Sunday\"", "Trades, dividends and alerts on a timeline", "Reports and ex-dates for what you own"],
+    image: home,
+  },
+  {
+    kicker: "Portfolio",
+    title: "See all your money in one place, in plain words",
+    text: "Holdings across every account, updating live as prices move. Totals read like sentences, and allocation is one donut with labelled slices.",
+    points: ["Group holdings across accounts", "Today's chart of each holding against OMXS30", "Pick the columns you care about"],
+    image: portfolio,
+  },
+  {
+    kicker: "Markets",
+    isNew: true,
+    title: "Read the whole market at a glance",
+    text: "Indices open as a heatmap grouped by sector and sized by market cap, with company logos. A world map shows which exchanges are open right now, and Trending shows the stocks gaining Avanza owners fastest this week.",
+    points: ["Heatmaps for nine indices", "World map of open exchanges, with day and night", "Movers, trending and popular stocks explained"],
+    image: markets,
+  },
+  {
+    kicker: "Basket",
+    isNew: true,
+    title: "Got money to invest? Split it over a basket",
+    text: "Collect what you want to buy from search, a watchlist or a right-click anywhere. Give each a weight, enter the amount, and get the orders: whole shares for stocks, kronor for funds, each one opening in Avanza ready to place.",
+    points: ["Stocks, funds and ETFs in one basket", "Weights instead of spreadsheets", "One click per order into Avanza"],
+    image: basket,
+  },
+  {
+    kicker: "Analysis",
+    title: "Are you beating the index? It says so in a sentence",
+    text: "Benchmark your return against the index and see which holdings drove it. Look through funds to what they hold, forecast dividends, and see this year's ISK tax and fees.",
+    points: ["Benchmark and attribution", "Fund overlap and dividend forecast", "A trading profile that finds habits in your trades"],
+    image: analysis,
+  },
+  {
+    kicker: "Signals",
+    title: "Know what's happening in your holdings",
+    text: "Signals from your holdings and watchlists, each one marked as a good sign or a warning and explained in a sentence. Analyst price targets show the upside.",
+    points: ["Insider trades and short interest", "Analyst upside to targets", "Alert rules from any signal"],
+    image: signals,
+  },
+  {
+    kicker: "News",
+    title: "Headlines first, with the reports and dividends calendar",
+    text: "A news feed that leads with the headline, plus the coming reports and dividends for what you own, so nothing catches you by surprise.",
+    points: ["News for your holdings and watchlists", "Reports and dividends calendar", "Open articles in the app"],
+    image: news,
+  },
+];
+---
+
+<section id="features" class="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+  <SectionHeading
+    kicker="Features"
+    title="Everything Avanza knows, on one screen"
+    lede="Calm and readable when you check in now and then. Dense as a Bloomberg terminal when you want it."
+  />
+
+  <p class="mt-4 text-center text-xs text-muted-foreground">Screenshots show made-up demo data, not a real account.</p>
+
+  <div class="mt-16 space-y-28">
+    {
+      rows.map((r, i) => (
+        <article class="grid items-center gap-10 lg:grid-cols-[5fr_7fr] lg:gap-14" data-reveal>
+          <div class:list={[i % 2 && "lg:order-2"]}>
+            <p class="flex items-center gap-2 text-xs font-semibold tracking-wider text-brand uppercase">
+              {r.kicker}
+              {r.isNew && <span class="rounded-full bg-brand/15 px-2 py-0.5 text-[0.625rem] tracking-normal normal-case">New</span>}
+            </p>
+            <h3 class="mt-3 text-2xl font-semibold tracking-tight text-balance">{r.title}</h3>
+            <p class="mt-4 text-muted-foreground">{r.text}</p>
+            <ul class="mt-6 space-y-2.5 text-sm">
+              {r.points.map((p) => (
+                <li class="flex items-center gap-3">
+                  <svg class="size-4 shrink-0 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                  {p}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <WindowFrame src={r.image} alt={`${r.kicker} page in AvanzaDesk`} title={r.kicker} />
+        </article>
+      ))
+    }
+  </div>
+</section>

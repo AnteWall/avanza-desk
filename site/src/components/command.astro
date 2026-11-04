@@ -1,0 +1,23 @@
+---
+// A shell one-liner with a copy button (wired up in base.astro).
+interface Props {
+  command: string;
+  prompt?: string;
+  class?: string;
+}
+const { command, prompt = "$", class: className = "" } = Astro.props;
+---
+
+<div class:list={["flex h-11 min-w-0 items-center gap-3 rounded-md border border-border bg-card pr-1.5 pl-4", className]}>
+  <span class="num shrink-0 text-sm text-brand select-none">{prompt}</span>
+  <code class="num min-w-0 flex-1 truncate text-sm">{command}</code>
+  <button
+    type="button"
+    data-copy={command}
+    class="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground active:scale-[0.97]"
+    aria-label="Copy command"
+  >
+    <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+    <span data-copy-label>Copy</span>
+  </button>
+</div>

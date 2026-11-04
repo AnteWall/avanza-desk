@@ -1,0 +1,36 @@
+---
+import ChangeList from "./change-list.astro";
+import SectionHeading from "./section-heading.astro";
+import { formatDay } from "../lib/format";
+import { releases } from "../lib/releases";
+import { url } from "../lib/url";
+
+const latest = releases[0];
+const shipped = releases.reduce((n, r) => n + r.sections.reduce((m, s) => m + s.changes.length, 0), 0);
+const added = latest?.sections.find((s) => s.title === "New")?.changes ?? [];
+---
+
+{
+  latest && (
+    <section class="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+      <SectionHeading
+        kicker="Changelog"
+        title="Shipping fast, in the open"
+        lede={`${releases.length} releases and ${shipped} improvements so far. The app tells you what's new after every update.`}
+      />
+      <div class="mx-auto mt-14 max-w-3xl rounded-lg border border-border bg-card" data-reveal>
+        <div class="flex h-12 items-center gap-3 border-b border-border bg-muted/40 px-5">
+          <span class="num font-semibold">v{latest.version}</span>
+          {latest.date && <span class="text-xs text-muted-foreground">{formatDay(latest.date)}</span>}
+          <span class="ml-auto rounded-full bg-brand/15 px-2 py-0.5 text-xs font-medium text-brand">Latest</span>
+        </div>
+        <div class="p-5">
+          <ChangeList changes={added.slice(0, 8)} />
+          <a class="mt-6 inline-block text-sm font-medium text-brand hover:underline" href={url("changelog/")}>
+            Full changelog →
+          </a>
+        </div>
+      </div>
+    </section>
+  )
+}

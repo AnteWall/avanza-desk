@@ -1,0 +1,214 @@
+---
+import answer from "../../../../docs/screenshots/assistant-answer.png";
+import ask from "../../../../docs/screenshots/assistant-ask.png";
+import hero from "../../../../docs/screenshots/assistant-hero.png";
+import history from "../../../../docs/screenshots/assistant-history.png";
+import mention from "../../../../docs/screenshots/assistant-mention.png";
+import models from "../../../../docs/screenshots/assistant-models.png";
+import setup from "../../../../docs/screenshots/assistant-setup.png";
+import steps from "../../../../docs/screenshots/assistant-steps.png";
+import targets from "../../../../docs/screenshots/assistant-targets.png";
+import CloseUp from "../../components/assistant/close-up.astro";
+import FeatureRow from "../../components/assistant/feature-row.astro";
+import SectionHeading from "../../components/section-heading.astro";
+import WindowFrame from "../../components/window-frame.astro";
+import Base from "../../layouts/base.astro";
+import { PROVIDERS, SAFETY, TOOL_COUNT, TOOL_GROUPS } from "../../lib/assistant";
+import { url } from "../../lib/url";
+
+const features = [
+  {
+    kicker: "Context",
+    title: "It knows what you're looking at",
+    text: "Open it with Ctrl J and it already has the page, the account and the instrument in focus, as chips you can remove. Right-click any table row, chart or headline and choose Ask to start from exactly that.",
+    points: [
+      "@ mentions any instrument by name",
+      "The article you're reading comes along",
+      "Paste or drop up to four images, like a chart from somewhere else",
+    ],
+    images: [
+      { src: ask, alt: "Right-clicking a holding to ask the assistant about it" },
+      { src: mention, alt: "Typing @ to mention an instrument in a question" },
+    ],
+  },
+  {
+    kicker: "Work steps",
+    title: "Watch it work, check every step",
+    text: "Each tool call is a quiet line above the answer: \"Reading your holdings…\" while it runs, a check when it's done. Open any step to see exactly what it asked the app and what came back.",
+    points: [
+      "The same data the app shows you",
+      "Nothing hidden between question and answer",
+      "Stop it any time and ask again",
+    ],
+    images: [{ src: steps, alt: "The assistant's work steps, one expanded to show its result" }],
+  },
+  {
+    kicker: "Answers",
+    title: "Answers built from your data",
+    text: "Charts in an answer are drawn live from Avanza, not by the model, so you can hover them like any other chart. Tables line up their numbers, and every instrument it names is a chip that opens it in the workspace.",
+    points: [
+      "Live price charts and portfolio charts",
+      "Instrument cards with today's price",
+      "Plain words first, the numbers after",
+    ],
+    images: [{ src: answer, alt: "An answer with a table of holdings and instrument chips" }],
+  },
+  {
+    kicker: "Action",
+    title: "From answer to action in one click",
+    text: "When it suggests target weights, they come as a card with names straight from Avanza. One click sets them on the Rebalance page, which works out the orders, and each order opens in Avanza with the shares filled in.",
+    points: [
+      "Suggested targets go straight to Rebalance",
+      "Right-click what it names to add it to your Basket or an alert",
+      "Trading itself always happens in Avanza",
+    ],
+    images: [{ src: targets, alt: "Suggested target weights with a button to use them for rebalancing" }],
+  },
+  {
+    kicker: "Models",
+    title: "Your model, your subscription",
+    text: "Use the Claude or ChatGPT plan you already pay for through Claude Code or Codex, or paste an API key. The model menu groups models by provider, and the settings say how each one is billed.",
+    points: [
+      "Switch model or effort mid-conversation",
+      "Standing instructions: language, how much detail, your goals and risk",
+      "Turn web search and external articles on or off",
+    ],
+    images: [{ src: models, alt: "The model menu grouped by provider, with effort levels" }],
+  },
+  {
+    kicker: "History",
+    title: "Every conversation, saved and searchable",
+    text: "Chats are saved as you go and grouped by day. Search titles and what was said, pin the ones you come back to, rename them, or export one as Markdown.",
+    points: ["Search across every chat", "Pin, rename and export", "Wide reading mode for long answers"],
+    images: [{ src: history, alt: "The chat history list grouped by day" }],
+  },
+];
+---
+
+<Base
+  title="AI assistant · AvanzaDesk"
+  description="Ask about your Avanza portfolio in plain language. The AvanzaDesk assistant reads your holdings with the app's own read-only tools and answers with live charts."
+>
+  <section class="relative overflow-hidden">
+    <div class="glow pointer-events-none absolute inset-0"></div>
+    <div class="grid-lines pointer-events-none absolute inset-0"></div>
+    <div class="relative mx-auto max-w-6xl px-4 pt-20 pb-14 text-center sm:px-6 sm:pt-28">
+      <p class="inline-flex items-center gap-2 text-xs font-semibold tracking-wider text-brand uppercase">
+        <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.94 14.06 3 21M14 4l1.5 3.5L19 9l-3.5 1.5L14 14l-1.5-3.5L9 9l3.5-1.5Z"/></svg>
+        AI assistant
+      </p>
+      <h1 class="mx-auto mt-5 max-w-4xl text-4xl font-semibold tracking-tight text-balance sm:text-6xl">
+        Ask your portfolio <span class="text-brand">anything.</span>
+      </h1>
+      <p class="mx-auto mt-6 max-w-2xl text-lg text-pretty text-muted-foreground">
+        An assistant that lives next to your data. It reads your holdings, returns, funds and news with the app's own
+        tools, answers in plain words, and hands you charts, instruments and target weights you can act on.
+      </p>
+      <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
+        <a
+          href={url("#download")}
+          class="inline-flex h-11 items-center rounded-md bg-primary px-5 font-medium text-primary-foreground transition-transform active:scale-[0.97]"
+        >
+          Download AvanzaDesk
+        </a>
+        <a
+          href="#tools"
+          class="inline-flex h-11 items-center rounded-md border border-border bg-card px-5 font-medium transition hover:bg-muted active:scale-[0.97]"
+        >
+          What it can read
+        </a>
+      </div>
+      <p class="mt-5 text-xs text-muted-foreground">Optional and off by default · Read-only · Bring your own model</p>
+    </div>
+    <div class="relative mx-auto max-w-6xl px-4 pb-24 sm:px-6">
+      <WindowFrame src={hero} alt="The assistant answering a question about the portfolio next to the app" title="AvanzaDesk" eager />
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl space-y-28 px-4 py-24 sm:px-6">
+    {features.map((f, i) => <FeatureRow {...f} flip={i % 2 === 1} />)}
+  </section>
+
+  <section id="tools" class="border-y border-border/60 bg-card/40">
+    <div class="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+      <SectionHeading
+        kicker="Tools"
+        title={`${TOOL_COUNT} ways into your data`}
+        lede="The assistant can't see anything the app doesn't give it. These are the tools it gets, and every one of them only reads."
+      />
+      <div class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-reveal>
+        {
+          TOOL_GROUPS.map((g) => (
+            <div class="rounded-lg border border-border bg-card p-5">
+              <div class="flex items-baseline justify-between">
+                <h3 class="font-semibold">{g.title}</h3>
+                <span class="num text-xs text-muted-foreground">{g.tools.length}</span>
+              </div>
+              <ul class="mt-4 flex flex-wrap gap-1.5">
+                {g.tools.map((t) => (
+                  <li class="rounded-sm bg-muted px-2 py-1 text-xs">{t}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+    <SectionHeading
+      kicker="Providers"
+      title="Bring the model you already have"
+      lede="No AvanzaDesk account and nothing extra to pay for. Connect one in Settings › Assistant."
+    />
+    <div class="mx-auto mt-14 max-w-4xl" data-reveal>
+      <CloseUp src={setup} alt="Settings › Assistant: Claude connected, the other providers one click away, and the answer preferences" />
+    </div>
+    <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-reveal>
+      {
+        PROVIDERS.map((p) => (
+          <li class="flex items-center gap-4 rounded-lg border border-border bg-card p-5">
+            <span class="flex size-11 shrink-0 items-center justify-center rounded-md bg-muted">
+              <img src={p.logo.src} alt="" width="24" height="24" class="size-6" />
+            </span>
+            <div>
+              <h3 class="font-semibold">{p.name}</h3>
+              <p class="text-sm text-muted-foreground">{p.how}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="border-t border-border/60 bg-card/40">
+    <div class="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+      <SectionHeading kicker="Safety" title="It can look, it can't touch" />
+      <div class="mt-14 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2" data-reveal>
+        {
+          SAFETY.map((s) => (
+            <div class="bg-card p-6">
+              <div class="flex items-center gap-2.5">
+                <span class="size-1.5 rounded-full bg-brand" />
+                <h3 class="font-semibold">{s.title}</h3>
+              </div>
+              <p class="mt-2 text-sm text-muted-foreground">{s.text}</p>
+            </div>
+          ))
+        }
+      </div>
+      <p class="mx-auto mt-8 max-w-2xl text-center text-xs text-muted-foreground">
+        AI answers can be wrong. They are not investment advice: check the numbers in Avanza before you act.
+      </p>
+      <div class="mt-10 text-center">
+        <a
+          href={url("#download")}
+          class="inline-flex h-11 items-center rounded-md bg-primary px-5 font-medium text-primary-foreground transition-transform active:scale-[0.97]"
+        >
+          Download AvanzaDesk
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
