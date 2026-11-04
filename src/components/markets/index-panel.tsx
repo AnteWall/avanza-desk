@@ -9,7 +9,10 @@ import { IndexConstituents } from "@/components/markets/index-constituents";
 import { Panel } from "@/components/workspace/panel";
 import { headerIndicesQuery, indexConstituentsQuery } from "@/lib/avanza/queries";
 
-/** Members of the indices in the top bar, as a list or a heatmap; pick one in the title bar. */
+/**
+ * Members of the indices in the top bar, as a heatmap (the default: the day at a glance, and
+ * no repeat of the gainers list beside it) or a list; pick one in the title bar.
+ */
 export function IndexPanel() {
   // Shares the top bar's ticker cache.
   const { data } = useQuery(headerIndicesQuery);
@@ -24,7 +27,7 @@ export function IndexPanel() {
   });
   const indexes = all.filter((_, i) => members[i]?.data?.length !== 0);
   const [picked, setPicked] = useState<string>();
-  const [view, setView] = useState<"list" | "map">("list");
+  const [view, setView] = useState<"list" | "map">("map");
   // A pick that turns out to have no members falls back to the first that has.
   const active =
     indexes.find((i) => i.link.orderbookId === picked)?.link.orderbookId ??
@@ -40,8 +43,8 @@ export function IndexPanel() {
             <Segmented
               label="View"
               options={[
-                { label: "List", value: "list" },
                 { label: "Heatmap", value: "map" },
+                { label: "List", value: "list" },
               ]}
               value={view}
               onChange={setView}

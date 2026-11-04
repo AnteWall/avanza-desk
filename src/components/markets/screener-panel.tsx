@@ -17,9 +17,9 @@ export function ScreenerPanel() {
 
   return (
     <Panel
-      title="Screener"
+      title="Popular on Avanza"
       icon={Filter}
-      subtitle="Most owned on Avanza"
+      subtitle="the stocks most Avanza customers own"
       actions={
         <Input
           value={query}

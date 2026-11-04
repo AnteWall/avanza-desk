@@ -5,6 +5,7 @@ import { Change } from "@/components/common/change";
 import { CountryFlag } from "@/components/common/country-flag";
 import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { Empty } from "@/components/common/empty";
+import { infoHeader } from "@/components/common/info-tip";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { instrumentItem } from "@/lib/ai/context";
 import { screenStocksQuery } from "@/lib/avanza/queries";
@@ -44,17 +45,23 @@ const columns = col.columns([
     meta: { align: "end" },
   }),
   col.accessor("priceEarningsRatio", {
-    header: "P/E",
+    header: infoHeader(
+      "P/E",
+      "Price per share divided by profit per share: how many years of today's profit the price pays for. Lower is cheaper, but fast growers often have a high P/E.",
+    ),
     cell: (c) => num(c.getValue(), formatPrice),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.accessor("directYield", {
-    header: "Yield",
+    header: infoHeader(
+      "Yield",
+      "The yearly dividend as a share of today's price: what the stock pays you each year for holding it.",
+    ),
     cell: (c) => num(c.getValue(), (v) => formatShare(v / 100)),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.accessor("marketCapitalization", {
-    header: "Market cap",
+    header: infoHeader("Market cap", "What the whole company is worth on the stock market."),
     cell: (c) => num(c.getValue(), formatCompact),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
