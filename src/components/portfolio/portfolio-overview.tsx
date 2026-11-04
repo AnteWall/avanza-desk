@@ -35,7 +35,7 @@ export function PortfolioOverview() {
     yields && holdings.reduce((s, h) => s + h.value * (holdingYield(h, yields) ?? 0), 0);
 
   return (
-    <dl className="bg-card flex items-center gap-x-10 overflow-hidden rounded-md border px-4 py-2.5">
+    <dl className="bg-card @container flex flex-wrap items-center gap-x-10 gap-y-2 overflow-hidden rounded-md border px-4 py-2.5">
       {/* First, so what the numbers cover reads before the numbers. */}
       <div className="-my-1 flex flex-col gap-0.5 border-r pr-10">
         <dt className="text-muted-foreground text-xs">Showing</dt>
@@ -79,9 +79,10 @@ export function PortfolioOverview() {
           </span>
         )}
       </Kpi>
-      {/* The numbers in a sentence, for anyone who doesn't read KPI rows. */}
+      {/* The numbers in a sentence, for anyone who doesn't read KPI rows. Sized by the bar, not
+          the window: beside a wide assistant panel it would squeeze to a word per line. */}
       {biggest && total > 0 && (
-        <p className="text-muted-foreground ml-auto hidden max-w-md text-xs leading-relaxed xl:block">
+        <p className="text-muted-foreground ml-auto hidden max-w-md text-xs leading-relaxed @min-[88rem]:block">
           {cost > 0 && (
             <>
               Your holdings are {profit >= 0 ? "up" : "down"}{" "}
