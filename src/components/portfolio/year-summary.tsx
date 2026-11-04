@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { Change } from "@/components/common/change";
 import { SignedAmount } from "@/components/common/signed-amount";
 import { StatList } from "@/components/workspace/chart/stat-list";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
@@ -26,7 +25,10 @@ export function YearSummary({ year }: { year: number }) {
           className="hover:bg-muted/60 -mx-1 flex justify-between gap-4 rounded-sm px-1 text-left transition-colors"
         >
           <span className="truncate font-medium">{s.instrumentName}</span>
-          <Change ratio={s.development / 100} />
+          {/* Despite its name, `development` is the holding's result in SEK. */}
+          <span className="sensitive shrink-0">
+            <SignedAmount value={s.development} className="font-medium" /> SEK
+          </span>
         </button>
       ))}
     </section>
@@ -71,7 +73,7 @@ export function YearSummary({ year }: { year: number }) {
             ),
         )}
       </dl>
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid max-w-3xl grid-cols-2 gap-x-10 gap-y-4">
         {securities("Best holdings", dev.bestSecurities)}
         {securities("Worst holdings", dev.worstSecurities)}
       </div>
