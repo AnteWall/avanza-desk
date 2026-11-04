@@ -1,7 +1,7 @@
 import {
   Bell,
   Briefcase,
-  History,
+  House,
   ChartLine,
   LayoutGrid,
   ListOrdered,
@@ -22,11 +22,11 @@ export const pages: {
   description: string;
 }[] = [
   {
-    icon: History,
-    label: "Since last visit",
+    icon: House,
+    label: "Home",
     to: "/briefing",
     description:
-      "What changed while you were away: moves, trades, dividends, alerts and what's next.",
+      "How your portfolio is doing: today, or what changed while you were away, and what's next.",
   },
   {
     icon: LayoutGrid,

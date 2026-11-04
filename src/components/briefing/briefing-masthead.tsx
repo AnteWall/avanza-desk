@@ -18,7 +18,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
  * The front page: how long you were away, a one-line headline of how it went, a paragraph on
  * what stood out, the key figures and the return over the period.
  */
-export function BriefingMasthead({ b }: { b: Briefing }) {
+export function BriefingMasthead({ b, today }: { b: Briefing; today: boolean }) {
   const [now] = useState(Date.now);
   const days = Math.max(1, Math.round((now - Date.parse(b.since)) / DAY));
   const flat = Math.abs(b.ratio) < 0.001;
@@ -38,22 +38,29 @@ export function BriefingMasthead({ b }: { b: Briefing }) {
   return (
     <header className="flex flex-col gap-5">
       <p className="text-xs font-semibold tracking-wider uppercase">
-        <span className="text-brand">Since last visit</span>
+        <span className="text-brand">{today ? "Today" : "Since last visit"}</span>
         <span className="text-muted-foreground">
           {" "}
-          · {plural(days, "day")} away · {visitDay(b.since)} to today
+          ·{" "}
+          {today
+            ? visitDay(b.since)
+            : `${plural(days, "day")} away · ${visitDay(b.since)} to today`}
         </span>
       </p>
       <h1 className="text-3xl leading-tight font-semibold text-balance">
         {flat ? (
-          "Your portfolio is about where you left it."
+          today ? (
+            "Your portfolio is about where it started the day."
+          ) : (
+            "Your portfolio is about where you left it."
+          )
         ) : (
           <>
             You're {up ? "up" : "down"}{" "}
             <span className={cn("num sensitive", up ? "text-up" : "text-down")}>
               {formatInteger(Math.abs(b.result))} SEK
             </span>{" "}
-            since {visitDay(b.since)}.
+            {today ? "today" : `since ${visitDay(b.since)}`}.
           </>
         )}
       </h1>
@@ -81,7 +88,7 @@ export function BriefingMasthead({ b }: { b: Briefing }) {
           <dd className="num sensitive text-lg font-semibold">{formatPrice(b.total)}</dd>
         </div>
         <div className="flex flex-col gap-1">
-          <dt className="text-muted-foreground text-xs">Result</dt>
+          <dt className="text-muted-foreground text-xs">{today ? "Today" : "Result"}</dt>
           <dd className="text-lg font-semibold">
             <SignedAmount value={b.result} className="sensitive" />
           </dd>
@@ -101,8 +108,12 @@ export function BriefingMasthead({ b }: { b: Briefing }) {
           </dd>
         </div>
       </dl>
+      {today && <span className="text-muted-foreground -mb-3 text-xs">Your return this year</span>}
       <AsyncBoundary what="your return" fallback={<Skeleton className="h-40 w-full" />} compact>
-        <BriefingChart from={formatDate(b.since)} to={stockholmToday()} />
+        <BriefingChart
+          from={today ? `${stockholmToday().slice(0, 4)}-01-01` : formatDate(b.since)}
+          to={stockholmToday()}
+        />
       </AsyncBoundary>
     </header>
   );

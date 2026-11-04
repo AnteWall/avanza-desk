@@ -3,8 +3,9 @@ import type { PositionListResponse, Transaction } from "avanza-ts";
 import { TransactionSide, TransactionType } from "@/lib/avanza/codes";
 import type { AlertRow } from "@/lib/avanza/loose-records";
 import { aggregateHoldings, dailyPerformance } from "@/lib/avanza/portfolio";
-import { formatDate } from "@/lib/format";
+import { formatAs, formatDate } from "@/lib/format";
 import type { CalendarEvent } from "@/lib/news";
+import { getSetting, saveSetting } from "@/lib/settings";
 
 /** What the portfolio looked like at a moment. Prices are SEK per unit. */
 export type LastVisit = { at: string; total: number; prices: Record<string, number> };
@@ -12,6 +13,12 @@ export type LastVisit = { at: string; total: number; prices: Record<string, numb
 /** Settings keys: the latest look (kept current while signed in), and the one the page compares with. */
 export const LATEST_KEY = "briefing:lastVisit";
 export const SINCE_KEY = "briefing:since";
+
+/** Where the app opens after signing in (Settings › General). */
+export type StartPage = "home" | "workspace";
+const START_KEY = "startPage";
+export const getStartPage = () => getSetting<StartPage>(START_KEY, "home");
+export const setStartPage = (page: StartPage) => saveSetting(START_KEY, page);
 
 const HOUR = 3_600_000;
 /** Back after this long, even without signing in again, and a new visit starts. */
@@ -41,6 +48,19 @@ export function lastVisitOf(positions: PositionListResponse, now: number): LastV
   const prices: Record<string, number> = {};
   for (const h of aggregateHoldings(positions)) if (h.volume) prices[h.key] = h.value / h.volume;
   return { at: new Date(now).toISOString(), total: totalValue(positions), prices };
+}
+
+/**
+ * The portfolio as it stood at the start of `today` (`yyyy-MM-dd`), backed out of each holding's
+ * change over the last trading day, so the briefing can tell today's story without a saved visit.
+ */
+export function startOfDayOf(positions: PositionListResponse, today: string): LastVisit {
+  const prices: Record<string, number> = {};
+  for (const h of aggregateHoldings(positions)) {
+    if (h.volume && h.value - h.today > 0) prices[h.key] = (h.value - h.today) / h.volume;
+  }
+  const total = totalValue(positions) - dailyPerformance(positions).change;
+  return { at: `${today}T00:00:00.000Z`, total, prices };
 }
 
 export type Mover = {
@@ -178,23 +198,12 @@ export function buildBriefing(input: {
   };
 }
 
-const dayFormat = (options: Intl.DateTimeFormatOptions) =>
-  new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", ...options });
-const weekdayShort = dayFormat({ weekday: "short" });
-const monthShort = dayFormat({ month: "short" });
-const visit = new Intl.DateTimeFormat("en-GB", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-  timeZone: "Europe/Stockholm",
-});
-
 /** A `yyyy-MM-dd` date split for a date tile: 2, "Mon", "Nov". */
 export const dayParts = (date: string) => ({
   day: Number(date.slice(8, 10)),
-  weekday: weekdayShort.format(new Date(date)),
-  month: monthShort.format(new Date(date)),
+  weekday: formatAs(date, "EEE"),
+  month: formatAs(date, "MMM"),
 });
 
 /** When a visit was, as a reader says it: "Thu 23 Oct". */
-export const visitDay = (at: string) => visit.format(new Date(at));
+export const visitDay = (at: string) => formatAs(at, "EEE d MMM");

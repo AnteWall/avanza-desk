@@ -5,6 +5,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { isUnauthorized, signOut } from "./lib/avanza/client";
+import { initDensity } from "./lib/density";
 import { initPrivacy } from "./lib/privacy";
 import { loadSettings } from "./lib/settings";
 import { initTheme } from "./lib/theme";
@@ -16,6 +17,7 @@ import "./index.css";
 // Settings come from SQLite; read them before rendering so the theme never flashes.
 await loadSettings();
 initTheme();
+initDensity();
 initPrivacy();
 initWindowFrame();
 

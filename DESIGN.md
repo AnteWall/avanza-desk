@@ -11,13 +11,18 @@ this file explains how to use them.
 muted regular. To regenerate the app icons, render the SVG to a 1024px PNG and run
 `pnpm tauri icon <png>`.
 
-**Direction:** a Bloomberg-style trading terminal (dense, keyboard-first, every pixel showing
-data), made modern and calm: flat panels, one accent color, no chrome. Colors come from
+**Direction:** calm and readable by default, dense on demand. Someone who checks their savings
+now and then opens on Home, reads plain words and comfortable type, and every page leads with
+its answer in a sentence. Underneath it is still a Bloomberg-style terminal (keyboard-first,
+every pixel showing data) for those who want it: compact density, the trading workspace and
+icon-only nav are one setting away. Flat panels, one accent color, no chrome. Colors come from
 Avanza's own design system ("Mint"), so the app feels like Avanza.
 
 ## Principles
 
-1. **Data first, clear hierarchy.** Numbers are the content. Labels and secondary values recede
+1. **Answer first, then data.** A page that answers a question (am I beating the index? how is
+   my money split?) says the answer in one sentence above its chart or table. Numbers are the
+   content after that. Labels and secondary values recede
    into muted grays; titles, symbols and key values use full contrast and a heavier weight so
    the eye finds them first.
 2. **Color means something.** Blue = up/buy, red = down/sell, mint green = brand/focus/active.
@@ -93,6 +98,10 @@ Rules:
 - The type scale is redefined for density: `text-sm` = **13px** (the body default, set on
   `body`), `text-xs` = **11px**. shadcn primitives use `text-sm`, so they come out dense
   automatically.
+- **Density** (Settings › General › Text size, `src/lib/density.ts`): `.comfortable` on `<html>`
+  raises `text-sm` to 15px, `text-xs` to 13px and table rows to 40px. First launches start
+  comfortable; it also picks the defaults for nav labels, the workspace layout and holdings
+  columns until the user sets those. Never hardcode a row height: use `h-row`.
 
 | Role                     | Classes                                                          |
 | ------------------------ | ---------------------------------------------------------------- |
@@ -112,7 +121,12 @@ Rules:
   percentage, time and keyboard hint. Right-align numeric table columns.
 - **Formatting:** Swedish, via `src/lib/format.ts` (`formatPrice`, `formatInteger`,
   `formatPercent`): `1 234,50`, `+1,23 %`. Never call `toFixed` or build number strings by hand.
-  Times are `Europe/Stockholm`, 24h.
+- **Dates and times** go through date-fns on Stockholm's wall clock (`@date-fns/tz`), always via
+  `format.ts`: `formatDate` (`2026-10-30`, tables people sort and export), `formatDay`
+  (`Thu 30 Oct`, anything people read), `formatTime`/`formatClock`, or `formatAs(value,
+  pattern)` for anything else. Never `Intl.DateTimeFormat` or `toLocale*String` in a component.
+- **Plain words.** Label for someone who isn't a trader ("Gain since you bought", "Your yearly
+  return", "Avg price") and keep the jargon in the ⓘ ("also called unrealized P/L", "VWAP").
 
 ## Spacing and sizing
 
@@ -121,10 +135,10 @@ Base unit 4px (Tailwind's scale). Fixed heights keep rows aligned across panels:
 | Element                | Size                                                     |
 | ---------------------- | -------------------------------------------------------- |
 | Top bar                | `h-10` (40px)                                            |
-| Nav rail               | `w-12` (48px), `size-8` icon buttons                     |
+| Nav rail               | `w-12` (48px) icons, or `w-44` with page names           |
 | Status bar             | `h-6` (24px)                                             |
 | Panel header / tab bar | `h-8` (32px), `px-3`, `bg-muted/40` strip                |
-| Table row and header   | `h-8` (32px), cell `px-3`                                |
+| Table row and header   | `h-row` (32px, 40px comfortable), cell `px-3`            |
 | Small control          | `h-7` (28px)                                             |
 | Panel gutter           | `p-1` / 4px resize handles                               |
 | Panel inner padding    | `p-3` for forms and free content; tables go edge-to-edge |
@@ -152,6 +166,8 @@ inside them. No shadows on panels; separation comes from the gutter and `border`
 - `components/layout/`: `AppShell` (CSS grid wrapping the router `Outlet`), `TopBar`,
   `NavRail`, `StatusBar`. Rendered once by `routes/__root.tsx`.
 - `components/workspace/`: `Workspace` (the panel grid) and one file per panel.
+  Two layouts (Settings › General › Workspace): Simple is watchlist and Overview; Trading adds
+  the Depth/Trades and Pre-trade column drawn above.
 - The Overview panel (`workspace/dossier/`) is one scrolling page about the focused instrument,
   most decisive first: chart, period returns, "At a glance" facts in plain words (valuation vs
   its own history, analysts, next report, dividend, insider flow), then `Section`s paired two
@@ -185,7 +201,8 @@ inside them. No shadows on panels; separation comes from the gutter and `border`
   short popover: what it is, what to type, an example. In a table header use
   `header: infoHeader(title, tip)`. Use it where a value needs a sentence to be understood,
   not on every label.
-- **Active state** (nav rail): `data-active` → `bg-accent text-brand`. Hovering a nav button shows
+- **Nav rail** shows page names next to the icons until collapsed (the button above Settings;
+  remembered). **Active state:** `data-active` → `bg-accent text-brand`. Hovering a nav button shows
   a `Tooltip`: the page name, its shortcut in `Kbd` (`Alt 1`), and one line on what it's for
   (`description` in `pages.ts`).
 - **Buy/sell:** segmented toggle on `bg-muted`; the selected side is filled `bg-buy`/`bg-sell`.
@@ -194,9 +211,8 @@ inside them. No shadows on panels; separation comes from the gutter and `border`
 - **Empty state:** one muted sentence in `p-3` ("No open orders."). No illustrations.
   The one exception is a feature that is off until set up (the assistant panel,
   `AssistantOff`): a small illustration drawn from tokens, a line on what it does and one button
-  to its Settings page. The setup itself lives only in Settings. The same goes for a page that
-  has nothing to show until something happens (Since last visit before a second visit,
-  `BriefingEmpty`): an illustration, a title, and a line on why it's empty and when it fills.
+  to its Settings page. The setup itself lives only in Settings. A page should rarely be empty
+  at all: Home falls back to today's story before there is an earlier visit to compare with.
 - **Status dots:** `size-1.5 rounded-full`, `bg-brand` = ok/live, `bg-warning` = delayed,
   `bg-destructive` = disconnected.
 - **Create from where you are.** Anything the user can make (alert rules today) has one
@@ -283,10 +299,12 @@ rather than a terminal, so it bends a few rules on purpose. Keep these exception
   mark that vanishes on dark (OpenAI's black knot) ships a `-dark` file as `logoDark`.
 - **Privacy mode** blurs answers and tool results (`sensitive`): they quote your amounts.
 
-## Since last visit
+## Home
 
-The briefing page (`components/briefing/`) is read, not scanned: a catch-up letter for someone
-who checks in now and then. Like the assistant, it bends a few rules on purpose; keep these
+Home (`/briefing`, `components/briefing/`) is where the app opens (Settings › General › Open
+on). It is read, not scanned: a catch-up letter for someone who checks in now and then. It
+tells what changed since the last visit, or, before there is one (or with the "Today" toggle),
+today's story measured from this morning (`startOfDayOf`). Like the assistant, it bends a few rules on purpose; keep these
 exceptions inside it.
 
 - **One reading column**, `max-w-3xl`, centered in a single scrolling card. No panel grid.

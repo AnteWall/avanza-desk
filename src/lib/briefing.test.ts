@@ -1,7 +1,13 @@
 import type { PositionListResponse, Transaction } from "avanza-ts";
 
 import type { AlertRow } from "@/lib/avanza/loose-records";
-import { buildBriefing, lastVisitOf, markSignedIn, startsVisit } from "@/lib/briefing";
+import {
+  buildBriefing,
+  lastVisitOf,
+  markSignedIn,
+  startOfDayOf,
+  startsVisit,
+} from "@/lib/briefing";
 import type { CalendarEvent } from "@/lib/news";
 
 const num = (value: number) => ({ value, unit: "SEK", unitType: "MONETARY", decimalPrecision: 2 });
@@ -73,4 +79,25 @@ test("result excludes deposits, movers rank by size, alerts and events filter", 
     ["dividend", "2026-10-02"],
     ["alert", "2026-10-02"],
   ]);
+});
+
+test("start of day backs today's change out of value and prices", () => {
+  const p = position("A", 10, 1100);
+  const now = positions(500, {
+    ...p,
+    lastTradingDayPerformance: { absolute: num(100) },
+  } as ReturnType<typeof position>);
+  const start = startOfDayOf(now, "2026-10-02");
+  expect(start.total).toBe(1500);
+  expect(start.prices.A).toBe(100);
+  const b = buildBriefing({
+    last: start,
+    positions: now,
+    transactions: [],
+    triggered: [],
+    calendar: [],
+    today: "2026-10-02",
+  });
+  expect(b.result).toBe(100);
+  expect(b.movers[0]?.ratio).toBeCloseTo(0.1);
 });
