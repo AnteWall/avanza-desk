@@ -2,6 +2,32 @@
 
 What changed in each AvanzaDesk release. Generated from commit messages by git-cliff.
 
+## 0.6.0 (2026-11-04)
+
+### New
+
+- **Markets:** Trending tab shows stocks gaining Avanza owners fastest this week
+- **App:** Open on a home page that sums up your day, with bigger text, page names and a simpler workspace
+- **Markets:** Index opens as a heatmap and popular stocks explain p/e, yield and market cap
+- **News:** Headlines lead, with the source on hover
+- **Signals:** Each signal says whether it's a good or warning sign and what it means
+- **Analysis:** Benchmark says in a sentence whether you're ahead of the index
+- **Portfolio:** One allocation panel, plain-language totals and a pick of holdings columns
+- **Workspace:** Plain-language labels with explanations and readable dates in the overview
+- **Assistant:** Model menu groups models by provider, older ones folded away
+- **Assistant:** Use Claude or OpenAI with your own API key, nothing to install, and see how each provider is billed
+- **Markets:** World map of indices shows which exchanges are open, with day and night
+- **App:** Menus, tabs, toggles and the nav rail move smoothly, and colors pass contrast in both themes
+- **Markets:** Index heatmap grouped by sector and sized by market cap, with logos and nine indices to pick from
+- **Basket:** Collect what you want to buy and split an amount over it
+- **Portfolio:** Allocation donut with labelled slices on every tab, plus an instruments tab
+- **Analysis:** Years tab charts value against deposits and dividends per year
+
+### Fixed
+
+- **Portfolio:** Best and worst holdings of a year show their result in SEK, not a wrong percentage
+- **Markets:** Today's change no longer shows 100 times too small in the screener, movers, trending, watchlist and alerts
+
 ## 0.5.0 (2026-11-02)
 
 ### New
