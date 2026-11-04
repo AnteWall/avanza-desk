@@ -28,11 +28,14 @@ function Row({
   onClick,
   children,
   selected,
+  expanded,
   className,
 }: {
   onClick: () => void;
   children: ReactNode;
   selected?: boolean;
+  /** Set on a row that folds a list open. */
+  expanded?: boolean;
   className?: string;
 }) {
   return (
@@ -41,6 +44,7 @@ function Row({
       data-row
       onClick={onClick}
       aria-pressed={selected}
+      aria-expanded={expanded}
       className={cn(
         "hover:bg-muted/60 focus-visible:bg-muted/60 flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-colors outline-none",
         selected && "bg-accent",
@@ -53,9 +57,10 @@ function Row({
 }
 
 /**
- * The model chip in the message box and its popover: every provider's models in one list with
- * the provider's logo, a search, and older models folded under "More models". Picking a model
- * of another provider switches provider; picking one of the same keeps the conversation.
+ * The model chip in the message box and its popover. One provider lists its models; several get
+ * a folding group each, the one in use open. Older models fold under "More models", and search
+ * looks through every provider at once. Picking a model of another provider switches provider;
+ * picking one of the same keeps the conversation.
  */
 export function ModelPicker({
   sources,
@@ -81,7 +86,9 @@ export function ModelPicker({
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [showMore, setShowMore] = useState(false);
+  // The provider whose group is open, and the one whose older models show.
+  const [openGroup, setOpenGroup] = useState<string>();
+  const [moreOf, setMoreOf] = useState<string>();
 
   const source = sources.find((s) => s.provider === selection.provider);
   const current = selection.model ?? source?.defaultModel;
@@ -93,7 +100,7 @@ export function ModelPicker({
     words.every((w) => `${provider.name} ${model.label}`.toLowerCase().includes(w)),
   );
   const latest = words.length ? matches : matches.filter((e) => !e.model.legacy);
-  const legacy = words.length ? [] : matches.filter((e) => e.model.legacy);
+  const grouped = sources.length > 1 && !words.length;
 
   const pick = (provider: Provider, model: string) => {
     onSelect({ provider, model });
@@ -101,7 +108,10 @@ export function ModelPicker({
     setQuery("");
   };
 
-  const modelRow = ({ provider, model, defaultModel }: (typeof entries)[number]) => {
+  const modelRow = (
+    { provider, model, defaultModel }: (typeof entries)[number],
+    logo = !grouped,
+  ) => {
     const selected = provider === selection.provider && model.value === current;
     return (
       <Row
@@ -109,7 +119,7 @@ export function ModelPicker({
         selected={selected}
         onClick={() => pick(provider, model.value)}
       >
-        <ProviderLogo provider={provider} className="size-3.5" />
+        {logo && <ProviderLogo provider={provider} className="size-3.5" />}
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="flex items-center gap-1.5">
             {model.label}
@@ -126,12 +136,72 @@ export function ModelPicker({
     );
   };
 
+  /** One provider's current models, then its older ones folded under "More models". */
+  const modelList = (source: ModelSource) => {
+    const own = entries.filter((e) => e.provider === source.provider);
+    const older = own.filter((e) => e.model.legacy);
+    const showMore = moreOf === source.provider.id;
+    return (
+      <>
+        {own.filter((e) => !e.model.legacy).map((e) => modelRow(e))}
+        {older.length > 0 && (
+          <>
+            <Row
+              onClick={() => setMoreOf(showMore ? undefined : source.provider.id)}
+              expanded={showMore}
+              className="text-muted-foreground"
+            >
+              <span className="flex-1">More models</span>
+              <span className="num text-xs">{older.length}</span>
+              <ChevronRight
+                className={cn("size-3.5 transition-transform", showMore && "rotate-90")}
+                aria-hidden
+              />
+            </Row>
+            {showMore && (
+              <div className="flex flex-col gap-0.5 pl-2">{older.map((e) => modelRow(e))}</div>
+            )}
+          </>
+        )}
+      </>
+    );
+  };
+
+  /** A provider's folding group: its name and the model it would use, its models when open. */
+  const group = (source: ModelSource) => {
+    const { provider } = source;
+    const isOpen = openGroup === provider.id;
+    const using = provider === selection.provider ? current : source.defaultModel;
+    return (
+      <div key={provider.id} className="flex flex-col gap-0.5">
+        <Row onClick={() => setOpenGroup(isOpen ? undefined : provider.id)} expanded={isOpen}>
+          <ProviderLogo provider={provider} className="size-3.5" />
+          <span className="flex-1 font-medium">{provider.name}</span>
+          <span className="text-muted-foreground truncate text-xs">
+            {source.models.find((m) => m.value === using)?.label}
+          </span>
+          <ChevronRight
+            className={cn(
+              "text-muted-foreground size-3.5 shrink-0 transition-transform",
+              isOpen && "rotate-90",
+            )}
+            aria-hidden
+          />
+        </Row>
+        {isOpen && <div className="flex flex-col gap-0.5 pl-3">{modelList(source)}</div>}
+      </div>
+    );
+  };
+
   return (
     <Popover
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next) setQuery("");
+        if (next) {
+          setOpenGroup(selection.provider.id);
+          setMoreOf(undefined);
+        } else setQuery("");
       }}
     >
       <PopoverTrigger
@@ -161,31 +231,17 @@ export function ModelPicker({
           </label>
 
           <div className="flex max-h-96 flex-col gap-0.5 overflow-y-auto pt-1">
-            <span className="text-muted-foreground px-2 pt-1 pb-0.5 text-xs">Models</span>
-            {latest.map(modelRow)}
-            {latest.length === 0 && (
-              <p className="text-muted-foreground px-2 py-1.5 text-xs">No models match.</p>
-            )}
-            {legacy.length > 0 && (
+            {words.length ? (
               <>
-                <Row onClick={() => setShowMore((s) => !s)} className="text-muted-foreground">
-                  <span className="flex-1">More models</span>
-                  <ChevronRight
-                    className={cn("size-3.5 transition-transform", showMore && "rotate-90")}
-                    aria-hidden
-                  />
-                </Row>
-                {showMore && (
-                  <div className="flex flex-col gap-0.5 pl-2">{legacy.map(modelRow)}</div>
+                {latest.map((e) => modelRow(e))}
+                {latest.length === 0 && (
+                  <p className="text-muted-foreground px-2 py-1.5 text-xs">No models match.</p>
                 )}
               </>
-            )}
-            {!words.length && (
-              <div className="text-muted-foreground flex items-center gap-2.5 px-2 py-1.5">
-                <CircleDashed className="size-3.5" aria-hidden />
-                <span className="flex-1">More providers</span>
-                <span className="text-xs tracking-wider uppercase">Soon</span>
-              </div>
+            ) : grouped ? (
+              sources.map(group)
+            ) : (
+              sources[0] && modelList(sources[0])
             )}
           </div>
 
