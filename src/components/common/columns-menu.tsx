@@ -1,5 +1,6 @@
 import { Columns3 } from "lucide-react";
 
+import { useColumnPicks } from "@/components/common/use-column-picks";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,16 +10,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useWatchlistColumns } from "@/components/workspace/use-watchlist-columns";
-import {
-  toggleWatchlistColumn,
-  watchlistColumnLabels,
-  type WatchlistColumn,
-} from "@/lib/watchlist-columns";
+import type { ColumnPicks } from "@/lib/column-picks";
 
-/** Picks the watchlist's quote columns, turning it into a quote board when widened. */
-export function WatchlistColumnsMenu() {
-  const shown = useWatchlistColumns();
+/** A table's optional columns, ticked on and off from a small menu in its panel's actions. */
+export function ColumnsMenu<C extends string>({ picks }: { picks: ColumnPicks<C> }) {
+  const shown = useColumnPicks(picks);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -37,13 +33,13 @@ export function WatchlistColumnsMenu() {
       <DropdownMenuContent align="end" className="w-40">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="text-muted-foreground text-xs">Columns</DropdownMenuLabel>
-          {(Object.keys(watchlistColumnLabels) as WatchlistColumn[]).map((c) => (
+          {(Object.keys(picks.labels) as C[]).map((c) => (
             <DropdownMenuCheckboxItem
               key={c}
               checked={shown.includes(c)}
-              onCheckedChange={() => toggleWatchlistColumn(c)}
+              onCheckedChange={() => picks.toggle(c)}
             >
-              {watchlistColumnLabels[c]}
+              {picks.labels[c]}
             </DropdownMenuCheckboxItem>
           ))}
         </DropdownMenuGroup>

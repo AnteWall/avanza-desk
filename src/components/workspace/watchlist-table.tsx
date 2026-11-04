@@ -8,16 +8,17 @@ import { CountryFlag } from "@/components/common/country-flag";
 import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { Flash } from "@/components/common/flash";
 import { InstrumentLogo } from "@/components/common/instrument-logo";
+import { useColumnPicks } from "@/components/common/use-column-picks";
 import {
   useFocusedInstrument,
   useFocusInstrument,
 } from "@/components/workspace/use-focused-instrument";
-import { useWatchlistColumns } from "@/components/workspace/use-watchlist-columns";
 import { instrumentItem } from "@/lib/ai/context";
 import { avanza } from "@/lib/avanza/client";
 import { applyRowQuote, follow } from "@/lib/avanza/push";
 import { positionsQuery, watchlistRowsQuery, watchlistsQuery } from "@/lib/avanza/queries";
 import { formatCompact, formatInteger, formatPercent, formatPrice } from "@/lib/format";
+import { watchlistColumns } from "@/lib/watchlist-columns";
 
 type Row = WatchlistRow & { held: boolean };
 
@@ -130,7 +131,7 @@ export function WatchlistTable({ watchListId }: { watchListId: string | null }) 
   // Decoration only: a failed positions load just hides the "held" dots.
   const { data: positions } = useQuery(positionsQuery);
   const held = new Set(positions?.withOrderbook.map((p) => p.instrument.orderbook?.id));
-  const shown = useWatchlistColumns();
+  const shown = useColumnPicks(watchlistColumns);
   // Memoized so TanStack keeps the same column references between ticks.
   const columns = useMemo(
     () =>

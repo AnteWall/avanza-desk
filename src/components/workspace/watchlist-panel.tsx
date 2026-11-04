@@ -3,6 +3,7 @@ import { ChevronDown, Star } from "lucide-react";
 import { useState } from "react";
 
 import { AsyncBoundary } from "@/components/common/async-boundary";
+import { ColumnsMenu } from "@/components/common/columns-menu";
 import { TableSkeleton } from "@/components/common/table-skeleton";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,10 +14,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Panel } from "@/components/workspace/panel";
-import { WatchlistColumnsMenu } from "@/components/workspace/watchlist-columns-menu";
 import { WatchlistTable } from "@/components/workspace/watchlist-table";
 import { watchlistsQuery } from "@/lib/avanza/queries";
 import { getSetting, saveSetting } from "@/lib/settings";
+import { watchlistColumns } from "@/lib/watchlist-columns";
 
 const SETTING = "watchlist";
 
@@ -58,7 +59,7 @@ export function WatchlistPanel() {
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <WatchlistColumnsMenu />
+          <ColumnsMenu picks={watchlistColumns} />
         </>
       }
     >
