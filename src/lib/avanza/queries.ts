@@ -342,6 +342,22 @@ export const indexConstituentsQuery = (orderbookId: string) =>
     refetchInterval: 60_000,
   });
 
+/** Market caps in SEK by orderbook id; Avanza converts foreign stocks, so a Nordic index's
+ *  DKK, EUR and SEK members compare fairly (the stock guide gives each in its own currency). */
+export const marketCapsQuery = (orderbookIds: readonly string[]) =>
+  queryOptions({
+    queryKey: ["market", "market-caps", orderbookIds],
+    queryFn: async ({ signal }) => {
+      const { stocks } = await avanza.instruments.getThemeStocks(
+        orderbookIds,
+        { field: "marketCap", order: "desc" },
+        signal,
+      );
+      return Object.fromEntries(stocks.map((s) => [s.orderbookId, s.marketCap ?? 0]));
+    },
+    staleTime: 60 * 60_000,
+  });
+
 /** Stocks matching `name` (all when empty), most owned first. */
 export const screenStocksQuery = (name: string) =>
   queryOptions({
