@@ -26,6 +26,10 @@ export function PortfolioOverview() {
   const invested = group ? groupValue : totals.totalValue.positionValue.value;
   const profit = holdings.reduce((s, h) => s + h.profit, 0);
   const cost = holdings.reduce((s, h) => s + h.cost, 0);
+  const biggest = holdings.reduce<(typeof holdings)[number] | undefined>(
+    (top, h) => (!top || h.value > top.value ? h : top),
+    undefined,
+  );
   const yields = stockRatios && dividendYields(stockRatios);
   const dividends =
     yields && holdings.reduce((s, h) => s + h.value * (holdingYield(h, yields) ?? 0), 0);
@@ -45,12 +49,16 @@ export function PortfolioOverview() {
       >
         {formatPrice(total)} SEK
       </Kpi>
-      <Kpi label="Invested" className="sensitive">
+      <Kpi
+        label="In holdings"
+        hint="What your stocks and funds are worth right now, without cash."
+        className="sensitive"
+      >
         {formatInteger(invested)}
       </Kpi>
       <Kpi
-        label="Unrealized P/L"
-        hint="Market value minus acquisition cost, over positions with a known cost"
+        label="Gain since you bought"
+        hint="What your holdings are worth now minus what you paid for them. It becomes real when you sell (also called unrealized P/L)."
       >
         <SignedAmount value={profit} className="sensitive" />
         {cost > 0 && <Change ratio={profit / cost} className="ml-2 text-xs" />}
@@ -60,7 +68,10 @@ export function PortfolioOverview() {
           {formatInteger(total - invested)}
         </Kpi>
       )}
-      <Kpi label="Dividends / yr" hint="Each stock's current dividend yield applied to its value">
+      <Kpi
+        label="Dividends per year"
+        hint="Roughly what your stocks would pay you in a year at today's dividend yields."
+      >
         <span className="sensitive">{dividends == null ? "–" : formatInteger(dividends)}</span>
         {dividends != null && invested > 0 && (
           <span className="text-muted-foreground ml-2 text-xs">
@@ -68,6 +79,21 @@ export function PortfolioOverview() {
           </span>
         )}
       </Kpi>
+      {/* The numbers in a sentence, for anyone who doesn't read KPI rows. */}
+      {biggest && total > 0 && (
+        <p className="text-muted-foreground ml-auto hidden max-w-md text-xs leading-relaxed xl:block">
+          {cost > 0 && (
+            <>
+              Your holdings are {profit >= 0 ? "up" : "down"}{" "}
+              <span className="num text-foreground">{formatShare(Math.abs(profit / cost))}</span> on
+              what you paid.{" "}
+            </>
+          )}
+          Your biggest holding is <span className="text-foreground">{biggest.name}</span>, at{" "}
+          <span className="num text-foreground">{formatShare(biggest.value / total)}</span> of your
+          money.
+        </p>
+      )}
     </dl>
   );
 }

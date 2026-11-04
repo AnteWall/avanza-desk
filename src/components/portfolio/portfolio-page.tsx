@@ -1,13 +1,7 @@
-import { Building2, Factory, Globe } from "lucide-react";
-
 import { AsyncBoundary } from "@/components/common/async-boundary";
 import { Skeleton } from "@/components/common/skeleton";
 import { SavedPanelGroup } from "@/components/layout/saved-panel-group";
-import { CountryAllocation } from "@/components/portfolio/allocation/country-allocation";
-import { ExposurePanel } from "@/components/portfolio/allocation/exposure-panel";
-import { MixPanel } from "@/components/portfolio/allocation/mix-panel";
-import { SectorAllocation } from "@/components/portfolio/allocation/sector-allocation";
-import { UnderlyingAllocation } from "@/components/portfolio/allocation/underlying-allocation";
+import { AllocationPanel } from "@/components/portfolio/allocation/allocation-panel";
 import { HoldingsPanel } from "@/components/portfolio/holdings/holdings-panel";
 import { PerformancePanel } from "@/components/portfolio/performance-panel";
 import { PortfolioOverview } from "@/components/portfolio/portfolio-overview";
@@ -24,7 +18,7 @@ const overviewSkeleton = (
 /**
  * Every account at once, fitted to the window like the workspace (panels scroll, the page
  * doesn't): headline numbers on top; performance and holdings (with dividends, accounts and key
- * figures) on the left; look-through exposure and the asset mix on the right.
+ * figures) on the left; where the money is (industries, countries, types…) on the right.
  */
 export function PortfolioPage() {
   return (
@@ -47,37 +41,7 @@ export function PortfolioPage() {
           </ResizablePanel>
           <ResizableHandle className={gutter} />
           <ResizablePanel id="portfolio-panel-4" defaultSize="46" minSize="25">
-            <SavedPanelGroup id="portfolio-group-3" orientation="vertical">
-              <ResizablePanel id="portfolio-panel-5" defaultSize="55" minSize="20">
-                <SavedPanelGroup id="portfolio-group-4" orientation="horizontal">
-                  <ResizablePanel id="portfolio-panel-6" defaultSize="50" minSize="20">
-                    <ExposurePanel title="Countries" icon={Globe}>
-                      <CountryAllocation />
-                    </ExposurePanel>
-                  </ResizablePanel>
-                  <ResizableHandle className={gutter} />
-                  <ResizablePanel id="portfolio-panel-7" defaultSize="50" minSize="20">
-                    <ExposurePanel title="Industries" icon={Factory}>
-                      <SectorAllocation />
-                    </ExposurePanel>
-                  </ResizablePanel>
-                </SavedPanelGroup>
-              </ResizablePanel>
-              <ResizableHandle className={gutter} />
-              <ResizablePanel id="portfolio-panel-8" defaultSize="45" minSize="20">
-                <SavedPanelGroup id="portfolio-group-5" orientation="horizontal">
-                  <ResizablePanel id="portfolio-panel-9" defaultSize="55" minSize="20">
-                    <ExposurePanel title="Underlying" icon={Building2}>
-                      <UnderlyingAllocation />
-                    </ExposurePanel>
-                  </ResizablePanel>
-                  <ResizableHandle className={gutter} />
-                  <ResizablePanel id="portfolio-panel-10" defaultSize="45" minSize="20">
-                    <MixPanel />
-                  </ResizablePanel>
-                </SavedPanelGroup>
-              </ResizablePanel>
-            </SavedPanelGroup>
+            <AllocationPanel />
           </ResizablePanel>
         </SavedPanelGroup>
       </div>

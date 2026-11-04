@@ -1,10 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 
 import { Change } from "@/components/common/change";
 import { CountryFlag } from "@/components/common/country-flag";
 import { DataTable, dataTableColumns } from "@/components/common/data-table";
+import { infoHeader } from "@/components/common/info-tip";
 import { InstrumentLogo } from "@/components/common/instrument-logo";
 import { SignedAmount } from "@/components/common/signed-amount";
+import { useColumnPicks } from "@/components/common/use-column-picks";
 import { useGroupMenu } from "@/components/portfolio/holdings/use-group-menu";
 import { useGroup } from "@/components/portfolio/holdings/use-groups";
 import { useLookThroughs } from "@/components/portfolio/use-holdings";
@@ -15,13 +18,14 @@ import { dividendYields, holdingYield, typeLabel, type Holding } from "@/lib/ava
 import { stockKeyRatiosQuery } from "@/lib/avanza/queries";
 import { sessionLabel } from "@/lib/exchanges";
 import { formatInteger, formatShare } from "@/lib/format";
+import { holdingsColumns } from "@/lib/holdings-columns";
 
 type Row = Holding & { sector: string; weight: number; dividendYield?: number };
 
 const dash = "–";
 
 const col = dataTableColumns<Row>();
-const columns = col.columns([
+const allColumns = col.columns([
   col.accessor("name", {
     header: "Instrument",
     cell: (c) => (
@@ -33,6 +37,8 @@ const columns = col.columns([
     ),
   }),
   col.accessor("sector", {
+    // Explicit: key-accessor columns carry no `id` on their definition, and the filter below needs one.
+    id: "sector",
     header: "Sector / type",
     meta: { className: "text-muted-foreground max-w-36 truncate" },
   }),
@@ -47,6 +53,7 @@ const columns = col.columns([
     meta: { align: "end", className: "sensitive num font-medium" },
   }),
   col.accessor("weight", {
+    id: "weight",
     header: "Weight",
     cell: (c) => formatShare(c.getValue()),
     meta: { align: "end", className: "num" },
@@ -59,7 +66,11 @@ const columns = col.columns([
     meta: { align: "end" },
   }),
   col.accessor("profit", {
-    header: "P/L",
+    id: "profit",
+    header: infoHeader(
+      "Gain",
+      "What the holding is worth now minus what you paid for it (unrealized P/L).",
+    ),
     cell: (c) => (c.row.original.cost ? <SignedAmount value={c.getValue()} /> : dash),
     meta: { align: "end", className: "sensitive" },
   }),
@@ -70,6 +81,7 @@ const columns = col.columns([
     meta: { align: "end" },
   }),
   col.accessor("dividendYield", {
+    id: "dividendYield",
     header: "Yield",
     cell: (c) => (c.getValue() ? formatShare(c.getValue()!) : dash),
     meta: { align: "end", className: "num text-muted-foreground" },
@@ -84,6 +96,12 @@ const columns = col.columns([
 export function HoldingsTable() {
   // Sectors fill in as each look-through arrives; the table doesn't wait for them.
   const { holdings, byKey } = useLookThroughs({ grouped: true });
+  const shown = useColumnPicks(holdingsColumns);
+  // Memoized so TanStack keeps the same column references between renders.
+  const columns = useMemo(
+    () => allColumns.filter((c) => !(c.id! in holdingsColumns.labels) || shown.includes(c.id!)),
+    [shown],
+  );
   const group = useGroup();
   const groupMenu = useGroupMenu();
   const { data: ratios } = useQuery(stockKeyRatiosQuery);

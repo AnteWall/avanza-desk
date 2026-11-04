@@ -10,7 +10,9 @@ import {
 } from "lucide-react";
 
 import { AsyncBoundary } from "@/components/common/async-boundary";
+import { ColumnsMenu } from "@/components/common/columns-menu";
 import { TableSkeleton } from "@/components/common/table-skeleton";
+import { useTab } from "@/components/common/use-tab";
 import { useAccount } from "@/components/layout/use-account";
 import { AccountsTable } from "@/components/portfolio/accounts-table";
 import { DividendsTable } from "@/components/portfolio/holdings/dividends-table";
@@ -21,25 +23,27 @@ import { useGroup } from "@/components/portfolio/holdings/use-groups";
 import { KeyFigures } from "@/components/portfolio/key-figures";
 import { YearPanel } from "@/components/portfolio/year-panel";
 import { TabbedPanel } from "@/components/workspace/tabbed-panel";
+import { holdingsColumns } from "@/lib/holdings-columns";
 
 export function HoldingsPanel() {
   const account = useAccount();
   const group = useGroup();
+  const tab = useTab("holdings");
   return (
     <TabbedPanel
       id="holdings"
       aside={
-        group ? (
-          <>
+        <>
+          {group && (
             <span className="text-brand flex min-w-0 items-center gap-1">
               <Folder className="size-3 shrink-0" />
               <span className="truncate">{group.name}</span>
             </span>
-            {account.label}
-          </>
-        ) : (
-          account.label
-        )
+          )}
+          {account.label}
+          {/* The holdings tab's optional columns; the other tabs ignore it. */}
+          {(!tab || tab === "holdings") && <ColumnsMenu picks={holdingsColumns} />}
+        </>
       }
       tabs={[
         {

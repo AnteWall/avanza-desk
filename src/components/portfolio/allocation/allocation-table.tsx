@@ -91,7 +91,7 @@ export function AllocationTable({
       <DataTable columns={columns} data={shown} getRowId={(r) => r.key} />
       {rest && (
         <p className="text-muted-foreground p-3 text-xs">
-          {formatShare(1 - (gap?.share ?? 0))} looked through
+          {formatShare(1 - (gap?.share ?? 0))} sorted, counting what's inside your funds
           {gap && restNote && ` · ${gap.name}: ${restNote}`}
         </p>
       )}
