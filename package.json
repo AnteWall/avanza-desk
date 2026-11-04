@@ -15,7 +15,9 @@
     "lint": "oxlint",
     "typecheck": "tsc -b",
     "test": "vitest",
-    "check": "oxfmt --check && oxlint && tsc -b && vitest run"
+    "check": "oxfmt --check && oxlint && tsc -b && vitest run",
+    "demo": "VITE_DEMO=1 vite --port 1440 --strictPort",
+    "screenshots": "node scripts/demo-screenshots.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

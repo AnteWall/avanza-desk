@@ -12,7 +12,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       <AppShell>
         <Outlet />
       </AppShell>
-      {import.meta.env.DEV && (
+      {import.meta.env.DEV && !import.meta.env.VITE_DEMO && (
         <TanStackDevtools
           plugins={[
             { name: "TanStack Query", render: <ReactQueryDevtoolsPanel /> },

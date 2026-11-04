@@ -14,6 +14,9 @@ import { routeTree } from "./routeTree.gen";
 
 import "./index.css";
 
+// `pnpm demo`: the app on made-up data in a browser, for screenshots. Stripped from real builds.
+if (import.meta.env.VITE_DEMO) (await import("./lib/demo/install")).installDemo();
+
 // Settings come from SQLite; read them before rendering so the theme never flashes.
 await loadSettings();
 initTheme();

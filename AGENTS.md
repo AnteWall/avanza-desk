@@ -2,7 +2,12 @@
 
 Tauri 2 desktop app: React 19 + TypeScript, Vite, Tailwind v4, shadcn/ui (Base UI, `base-nova`),
 TanStack Router (file-based, `src/routes`) + Query + Devtools, Vitest, oxlint, oxfmt.
-Rust backend lives in `src-tauri/`.
+Rust backend lives in `src-tauri/`. The website (download/marketing page, GitHub Pages) is a separate
+Astro package in `site/` with its own lockfile: `cd site && pnpm install && pnpm dev`.
+
+`pnpm demo` runs the app in a browser on made-up data (`src/lib/demo/`, Tauri IPC mocked, no
+account or Rust). `pnpm screenshots [name…]` retakes `docs/screenshots/` from it (shots in
+`scripts/demo-shots/`). Update the demo fixtures when a page needs new endpoints.
 
 Read `DESIGN.md` before any UI work: colors, type, spacing and layout rules live there.
 
