@@ -65,8 +65,20 @@ export const refetch =
 // `null` is a real value (no trade yet); only fields missing from the event keep the old one.
 const or = <T>(next: T | undefined, old: T) => (next === undefined ? old : next);
 
+/**
+ * Today's change in percent units (as REST quotes and watchlist rows send it), worked out from
+ * the change and last price: the push `changePercent` showed moves 100x too small (−0.02 for a
+ * −2 % day) once a tick replaced the REST value. last − change is yesterday's close.
+ */
+const percentOf = (change: number | null | undefined, last: number | null | undefined) =>
+  typeof change === "number" && typeof last === "number" && last !== change
+    ? (change / (last - change)) * 100
+    : undefined;
+
 export function applyQuote(old: StockQuote | undefined, q: PushQuote): StockQuote | undefined {
   if (!old) return old;
+  const change = or(q.change, old.change);
+  const last = or(q.lastPrice, old.last);
   return {
     ...old,
     buy: or(q.buyPrice, old.buy),
@@ -74,8 +86,14 @@ export function applyQuote(old: StockQuote | undefined, q: PushQuote): StockQuot
     last: or(q.lastPrice, old.last),
     highest: or(q.highestPrice, old.highest),
     lowest: or(q.lowestPrice, old.lowest),
-    change: or(q.change, old.change),
-    changePercent: or(q.changePercent, old.changePercent),
+    change,
+    // Worked out when the tick carries a change (cleared with it); never the pushed field.
+    changePercent:
+      q.change === undefined
+        ? old.changePercent
+        : q.change === null
+          ? null
+          : (percentOf(change, last) ?? old.changePercent),
     spread: or(q.spreadPercent, old.spread),
     timeOfLast: or(q.lastPriceUpdated, old.timeOfLast),
     totalValueTraded: or(q.totalValueTraded, old.totalValueTraded),
@@ -144,6 +162,8 @@ export function applyRowQuote(rows: readonly WatchlistRow[] | undefined, q: Push
       const next = q[key];
       if (typeof next === "number") quote[key] = next;
     }
+    if (typeof q.change === "number")
+      quote.changePercent = percentOf(quote.change, quote.lastPrice) ?? r.quote.changePercent;
     return { ...r, quote };
   });
 }
@@ -151,7 +171,6 @@ export function applyRowQuote(rows: readonly WatchlistRow[] | undefined, q: Push
 const numericRowFields = [
   "lastPrice",
   "change",
-  "changePercent",
   "highestPrice",
   "lowestPrice",
   "buyPrice",

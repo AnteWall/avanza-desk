@@ -37,8 +37,8 @@ const columns = col.columns([
   }),
   col.accessor("oneWeekChangePercent", {
     header: "Week",
-    // Price changes come in percent units; Change takes a ratio.
-    cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()! / 100} />),
+    // The stock filter sends ratios (0.0078 = +0.78 %), unlike quotes.
+    cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()!} />),
     meta: { align: "end" },
   }),
   col.accessor("ownersChangeOneWeekAbsolute", {
@@ -46,7 +46,7 @@ const columns = col.columns([
     cell: (c) => (c.getValue() == null ? dash : formatInteger(c.getValue()!)),
     meta: { align: "end", className: "num font-medium" },
   }),
-  // Owner changes, unlike price changes, already come as ratios.
+  // Owner changes are ratios too.
   col.accessor("ownersChangeOneWeek", {
     header: "Owners 1W",
     cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()!} />),

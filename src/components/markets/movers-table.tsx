@@ -30,8 +30,8 @@ const columns = col.columns([
   }),
   col.accessor("oneDayChangePercent", {
     header: "Today",
-    // Avanza sends percent units; Change takes a ratio.
-    cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()! / 100} />),
+    // The stock filter sends ratios (0.8035 = +80.35 %), unlike quotes.
+    cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()!} />),
     meta: { align: "end" },
   }),
   col.accessor("totalValueTraded", {

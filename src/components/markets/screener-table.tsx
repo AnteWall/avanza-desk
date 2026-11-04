@@ -14,9 +14,8 @@ import { formatCompact, formatInteger, formatPrice, formatShare } from "@/lib/fo
 const dash = "–";
 const num = (value: number | undefined, format: (v: number) => string) =>
   value == null ? dash : format(value);
-// Avanza sends percentages in percent units; Change and formatShare take ratios.
-const change = (value: number | undefined) =>
-  value == null ? dash : <Change ratio={value / 100} />;
+// The stock filter sends price changes and yield as ratios (0.0274 = 2.74 %), unlike quotes.
+const change = (value: number | undefined) => (value == null ? dash : <Change ratio={value} />);
 
 const col = dataTableColumns<ScreenedStock>();
 const columns = col.columns([
@@ -57,7 +56,7 @@ const columns = col.columns([
       "Yield",
       "The yearly dividend as a share of today's price: what the stock pays you each year for holding it.",
     ),
-    cell: (c) => num(c.getValue(), (v) => formatShare(v / 100)),
+    cell: (c) => num(c.getValue(), formatShare),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.accessor("marketCapitalization", {

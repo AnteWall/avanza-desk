@@ -324,14 +324,18 @@ export const tools: AiTool[] = [
   {
     name: "get_market_movers",
     activity: () => ["Reading today's movers", "Read today's movers"],
-    description: "Today's biggest gainers and losers on the Stockholm exchange.",
+    description:
+      "Today's biggest gainers and losers on the Stockholm exchange. Change fields are ratios, " +
+      "not percents: 0.0389 means +3.89 %.",
     inputSchema: none,
     run: (qc) => qc.fetchQuery(gainersLosersQuery),
   },
   {
     name: "get_index_constituents",
     activity: () => ["Reading the index members", "Read the index members"],
-    description: "The stocks in an index (e.g. OMXS30) with price and change.",
+    description:
+      "The stocks in an index (e.g. OMXS30) with today's change. changePercent is a ratio, " +
+      "not a percent: 0.0389 means +3.89 %.",
     inputSchema: orderbookId,
     run: (qc, args) => qc.fetchQuery(indexConstituentsQuery(id(args))),
   },
@@ -340,7 +344,8 @@ export const tools: AiTool[] = [
     activity: () => ["Screening stocks", "Screened stocks"],
     description:
       "Stocks with key figures (P/E, yield, owners…), most owned first; filter by name or leave " +
-      "empty for the most owned overall.",
+      "empty for the most owned overall. Changes and yield are ratios, not percents: 0.0274 " +
+      "means 2.74 %.",
     inputSchema: withProps({ name: { type: "string" } }),
     run: (qc, args) => qc.fetchQuery(screenStocksQuery(String(args.name ?? ""))),
   },

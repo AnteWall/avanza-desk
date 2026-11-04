@@ -40,6 +40,21 @@ test("a push quote updates only its watchlist row", () => {
   expect(next?.[1]?.quote).toEqual({ lastPrice: 3, changePercent: 0 });
 });
 
+test("a push tick keeps today's change in percent units, whatever unit the push sends", () => {
+  // Closed at 100 yesterday; a tick to 98 is −2 %, even when the push says −0.02.
+  const rest = { last: 99, change: -1, changePercent: -1 } as StockQuote;
+  const tick = { orderbookId: "1", lastPrice: 98, change: -2, changePercent: -0.02 };
+  expect(applyQuote(rest, tick)?.changePercent).toBeCloseTo(-2);
+  // A tick without a change keeps the last good percent.
+  expect(applyQuote(rest, { orderbookId: "1", lastPrice: 98 })?.changePercent).toBe(-1);
+  // No trade yet (a new day): the change and its percent clear together.
+  expect(applyQuote(rest, { orderbookId: "1", change: null })?.changePercent).toBeNull();
+  const rows = [
+    { id: "1", quote: { lastPrice: 99, change: -1, changePercent: -1 } },
+  ] as unknown as WatchlistRow[];
+  expect(applyRowQuote(rows, tick)?.[0]?.quote.changePercent).toBeCloseTo(-2);
+});
+
 test("push depth levels become REST order depth sides", () => {
   const depth = applyDepth({
     orderbookId: "1",

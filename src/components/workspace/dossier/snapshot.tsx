@@ -146,7 +146,7 @@ export function Snapshot({ instrument }: { instrument: Instrument }) {
       value: formatInteger(ki.numberOfOwners),
       rule: { kind: "signal", signalKind: "owners", target },
       // Avanza sends percent units.
-      note: `${formatPercent(owners.historySummary.oneYearChangePercent / 100)} in a year`,
+      note: `${formatPercent(owners.historySummary.oneYearChangePercent)} in a year`,
     });
 
   if (facts.length === 0) return null;
