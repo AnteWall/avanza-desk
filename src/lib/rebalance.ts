@@ -101,16 +101,18 @@ export function rebalance(
   const wanted = gaps.map((g) =>
     (buyOnly && g < 0) || Math.abs(g) <= band * total || Math.abs(g) < minOrder ? 0 : g,
   );
-  const cash = newMoney - wanted.reduce((s, w) => s + Math.min(w, 0), 0);
-  const buys = wanted.reduce((s, w) => s + Math.max(w, 0), 0);
-  const scale = buys > cash ? cash / buys : 1;
-  return positions.map((p, i) => {
-    const w = wanted[i]!;
-    const raw = w > 0 ? w * scale : w;
+  const order = (p: Position, raw: number) => {
     const shares = p.price && p.price > 0 ? Math.trunc(raw / p.price) || 0 : null;
     // `|| 0` turns a rounded -0 into 0.
     const amount = Math.round(shares == null ? raw : shares * p.price!) || 0;
-    if (!amount) return null;
-    return { side: amount > 0 ? OrderSide.Buy : OrderSide.Sell, amount, shares };
-  });
+    return amount ? { side: amount > 0 ? OrderSide.Buy : OrderSide.Sell, amount, shares } : null;
+  };
+  // Sells first, rounded to whole shares: what they really free up is what the buys can spend.
+  const sells = positions.map((p, i) => (wanted[i]! < 0 ? order(p, wanted[i]!) : null));
+  const cash = newMoney - sells.reduce((s, o) => s + (o?.amount ?? 0), 0);
+  const buys = wanted.reduce((s, w) => s + Math.max(w, 0), 0);
+  const scale = buys > cash ? cash / buys : 1;
+  return positions.map(
+    (p, i) => sells[i] ?? (wanted[i]! > 0 ? order(p, wanted[i]! * scale) : null),
+  );
 }

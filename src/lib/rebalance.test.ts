@@ -86,3 +86,15 @@ test("buys never spend more than the sells free up", () => {
   );
   expect(result).toEqual([-100, 100]);
 });
+
+test("buys never spend more than the sells free up after rounding to whole shares", () => {
+  // The stock should sell 150 SEK but only whole 100 SEK shares sell: 1 share, 100 SEK freed.
+  const result = amounts(
+    [
+      { value: 650, price: 100, target: 0.5 },
+      { value: 350, price: null, target: 0.5 },
+    ],
+    exact(0, false),
+  );
+  expect(result).toEqual([-100, 100]);
+});
