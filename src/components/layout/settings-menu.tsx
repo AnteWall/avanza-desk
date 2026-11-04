@@ -32,7 +32,17 @@ const themes: { value: Theme; label: string }[] = [
 ];
 
 /** Settings button at the bottom of the nav rail: user, theme, settings, what's new, suggest a feature, sign out. */
-export function SettingsMenu({ className }: { className?: string }) {
+export function SettingsMenu({
+  className,
+  labelClassName,
+  active,
+}: {
+  className?: string;
+  /** Styles the "Settings" name beside the icon (the nav rail fades it when collapsed). */
+  labelClassName?: string;
+  /** A settings page is open: the nav rail highlights this button. */
+  active?: boolean;
+}) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { data: me } = useQuery(meQuery);
@@ -53,14 +63,15 @@ export function SettingsMenu({ className }: { className?: string }) {
           render={
             <Button
               variant="ghost"
-              size="icon"
               aria-label="Settings"
               title="Settings"
+              data-active={active}
               className={className}
             />
           }
         >
           <Settings />
+          <span className={labelClassName}>Settings</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent side="right" align="end" sideOffset={8} className="w-56">
           {me && (

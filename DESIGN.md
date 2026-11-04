@@ -72,17 +72,20 @@ Neutrals are Mint's cool, slightly teal-tinted grays.
 | `border`              | `#243133`           | `#dfe5e7` | Panel edges, row dividers                     |
 | `input`               | `#243133`           | `#c0cbce` | Input borders                                 |
 | `primary`             | `#f9fbfb`           | `#0d1112` | Neutral primary button (inverted)             |
-| `brand` / `ring`      | `#00c281`           | `#068e6a` | Logo, active nav, focus ring, chart line      |
+| `brand` / `ring`      | `#00c281`           | `#047f5f` | Logo, active nav, focus ring, chart line      |
 | `up`                  | `#4f99ed`           | `#2970c2` | Positive change, bid side                     |
-| `down`                | `#df3b6b`           | `#d0184d` | Negative change, ask side                     |
+| `down`                | `#e85582`           | `#d0184d` | Negative change, ask side                     |
 | `buy`                 | `#2970c2`           | `#2970c2` | Buy button / buy side fill                    |
 | `sell`                | `#d0184d`           | `#d0184d` | Sell button / sell side fill                  |
-| `warning`             | `#f58f6c`           | `#d66707` | Warnings, stale data                          |
+| `warning`             | `#f58f6c`           | `#b35500` | Warnings, stale data                          |
 | `destructive`         | `#ef6b8f`           | `#d0184d` | Errors, destructive actions                   |
 | `chart-1` … `chart-5` | Mint series strokes |           | Multi-series charts, in order                 |
 
 Rules:
 
+- **Text tokens pass 4.5:1** on `card` and `muted` in both themes (light `brand` is a shade
+  darker than Avanza's `#068e6a`, which measured 4.13:1 on white). Check new values before
+  changing one. `prefers-contrast: more` firms up `border` and `muted-foreground`.
 - **Up is blue, not green.** Like Avanza, which keeps red/green colorblind-safe and green free
   for the brand. Flat (0) is `muted-foreground`.
 - Use `<Change ratio={…} />` (`components/common/change.tsx`) for any signed percentage
@@ -134,7 +137,7 @@ Base unit 4px (Tailwind's scale). Fixed heights keep rows aligned across panels:
 
 | Element                | Size                                                     |
 | ---------------------- | -------------------------------------------------------- |
-| Top bar                | `h-10` (40px)                                            |
+| Top bar                | `h-12` (48px)                                            |
 | Nav rail               | `w-12` (48px) icons, or `w-44` with page names           |
 | Status bar             | `h-6` (24px)                                             |
 | Panel header / tab bar | `h-8` (32px), `px-3`, `bg-muted/40` strip                |
@@ -143,14 +146,20 @@ Base unit 4px (Tailwind's scale). Fixed heights keep rows aligned across panels:
 | Panel gutter           | `p-1` / 4px resize handles                               |
 | Panel inner padding    | `p-3` for forms and free content; tables go edge-to-edge |
 
-Radius is small (`--radius: 0.375rem`): `rounded-md` for panels, `rounded-sm` for controls
-inside them. No shadows on panels; separation comes from the gutter and `border`.
+Radius is small (`--radius: 0.375rem`): `rounded-md` for panels, buttons and framed groups
+(`Segmented`), `rounded-sm` for the segments and chips inside a frame. No shadows on panels; separation comes from the gutter and `border`.
+
+**Two layers.** Panels are the content layer: solid, flat, bordered. Menus, popovers and context
+menus float above it: the `material` utility (`popover` at 96 % with
+a backdrop blur, so it reads as solid and only hints at what is beneath; solid under `prefers-reduced-transparency`) and `shadow-float`. Dialogs are
+solid `bg-popover` with `shadow-sheet` over a dimmed backdrop. Never put `material` or a
+shadow on anything in the content layer.
 
 ## Layout
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│ TopBar: logo · search (Ctrl K) ·· index tickers          │ h-10
+│ TopBar: logo · search (Ctrl K) ·· index tickers          │ h-12
 ├────┬─────────────────────────────────────────────────────┤
 │Nav │ Workspace: resizable columns                        │
 │Rail│ ┌ Watchlist ┐┌ Overview (dossier) ──┐┌ Depth/Trades ┐│
@@ -201,8 +210,11 @@ inside them. No shadows on panels; separation comes from the gutter and `border`
   short popover: what it is, what to type, an example. In a table header use
   `header: infoHeader(title, tip)`. Use it where a value needs a sentence to be understood,
   not on every label.
-- **Nav rail** shows page names next to the icons until collapsed (the button above Settings;
-  remembered). **Active state:** `data-active` → `bg-accent text-brand`. Hovering a nav button shows
+- **Nav rail** shows page names next to the icons (Collapse and Settings too) until collapsed
+  (the button above Settings; remembered). Collapsing animates the width and fades the names;
+  every button keeps one shape so the icons never move. **Active state:** `data-active` →
+  `text-brand` over one `bg-accent` highlight that slides to the active page (Settings while a
+  settings page is open). Hovering a nav button shows
   a `Tooltip`: the page name, its shortcut in `Kbd` (`Alt 1`), and one line on what it's for
   (`description` in `pages.ts`).
 - **Buy/sell:** segmented toggle on `bg-muted`; the selected side is filled `bg-buy`/`bg-sell`.
@@ -213,6 +225,10 @@ inside them. No shadows on panels; separation comes from the gutter and `border`
   `AssistantOff`): a small illustration drawn from tokens, a line on what it does and one button
   to its Settings page. The setup itself lives only in Settings. A page should rarely be empty
   at all: Home falls back to today's story before there is an earlier visit to compare with.
+- **Heatmap** (`markets/heatmap.tsx`): a squarified treemap (`lib/treemap.ts`), one labelled
+  block per sector, tiles sized by market cap and tinted `up`/`down` by today's move (20–70 %
+  over `card`, so text keeps 4.5:1). Content follows tile size: logo, ticker and change on big
+  tiles, ticker and change on medium, a logo on small, color alone on the smallest.
 - **Status dots:** `size-1.5 rounded-full`, `bg-brand` = ok/live, `bg-warning` = delayed,
   `bg-destructive` = disconnected.
 - **Create from where you are.** Anything the user can make (alert rules today) has one
@@ -252,9 +268,22 @@ in a `DataTable`, put it in the column's `meta.className`.
 
 ## Motion
 
-Minimal. `transition-colors` on hover and active states. No entrance animations on data.
-A live price that changes flashes its `up`/`down` tint for 600ms: wrap it in `<Flash value>`
-(`components/common/flash.tsx`); it is off under `prefers-reduced-motion`.
+Quiet and quick: motion explains where something came from or went, never decorates. Use the
+tokens: `ease-out-quint` (everything), `ease-spring` (rare, a thumb settling). Things that
+appear take 150–250ms; things that leave are faster (`data-closed:duration-100`). No entrance
+animations on data, and nothing ambient except the assistant's shimmer.
+
+- **Controls move, they don't blink.** Pressed buttons give way (`active:scale-[0.97]`). The
+  `Segmented` fill, the line tabs' underline (`Tabs.Indicator`) and the nav rail's highlight
+  slide to the new choice.
+- **Floating layer** fades and scales in from its anchor (`origin-(--transform-origin)`);
+  dialogs rise 8px while scaling from 97%.
+- **Page changes** are instant. No View Transitions: WebKitGTK paints them as a gray flash.
+- **Privacy mode** eases the blur in and out.
+- `prefers-reduced-motion` collapses every transition and animation globally in `index.css`;
+  don't add per-component guards for CSS motion.
+  A live price that changes flashes its `up`/`down` tint for 600ms: wrap it in `<Flash value>`
+  (`components/common/flash.tsx`); it is off under `prefers-reduced-motion`.
 
 The one orchestrated moment is the BankID sign-in overlay (`components/auth/`): it slides up
 over the app (`ease-sheet`, 500ms), draws a brand check on success, then slides down. Its
@@ -323,5 +352,5 @@ exceptions inside it.
 
 - No hex values, `text-[Npx]` sizes or new grays in components: use tokens and the scale.
 - No green for "up", no red/blue for decoration.
-- No cards inside panels, no shadows, no gradients.
+- No cards inside panels, no shadows or blur in the content layer, no gradients.
 - No Radix packages.

@@ -37,7 +37,7 @@ export function TabbedPanel({
           <TabsTrigger
             key={tab.value}
             value={tab.value}
-            className="h-full flex-none gap-2 rounded-none px-1.5 text-xs font-semibold tracking-wider uppercase after:bottom-[-1px]"
+            className="h-full flex-none gap-2 rounded-none px-1.5 text-xs font-semibold tracking-wider uppercase"
           >
             <tab.icon className="size-3.5" />
             {tab.label}
