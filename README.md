@@ -53,18 +53,24 @@ stop losses and deals, and a news feed with a reports and dividends calendar.
 
 <table>
   <tr>
+    <td width="50%"><img src="docs/screenshots/home.png" alt="Home" /><p align="center"><b>Home</b></p></td>
     <td width="50%"><img src="docs/screenshots/portfolio.png" alt="Portfolio" /><p align="center"><b>Portfolio</b></p></td>
+  </tr>
+  <tr>
     <td width="50%"><img src="docs/screenshots/markets.png" alt="Markets" /><p align="center"><b>Markets</b></p></td>
+    <td width="50%"><img src="docs/screenshots/basket.png" alt="Basket" /><p align="center"><b>Basket</b></p></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/news.png" alt="News" /><p align="center"><b>News</b></p></td>
-    <td><img src="docs/screenshots/signals.png" alt="Signals" /><p align="center"><b>Signals</b></p></td>
+    <td width="50%"><img src="docs/screenshots/analysis.png" alt="Analysis" /><p align="center"><b>Analysis</b></p></td>
+    <td width="50%"><img src="docs/screenshots/signals.png" alt="Signals" /><p align="center"><b>Signals</b></p></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/analysis.png" alt="Analysis" /><p align="center"><b>Analysis</b></p></td>
-    <td><img src="docs/screenshots/assistant.png" alt="AI assistant" /><p align="center"><b>AI assistant</b></p></td>
+    <td width="50%"><img src="docs/screenshots/news.png" alt="News" /><p align="center"><b>News</b></p></td>
+    <td width="50%"><img src="docs/screenshots/assistant-hero.png" alt="AI assistant" /><p align="center"><b>AI assistant</b></p></td>
   </tr>
 </table>
+
+Screenshots use made-up demo data (`pnpm demo`, `pnpm screenshots`).
 
 ## Your data stays on your computer
 
@@ -83,7 +89,7 @@ stop losses and deals, and a news feed with a reports and dividends calendar.
 macOS and Linux:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/AnteWall/avanza-desk/main/scripts/install.sh | sh
+curl -fsSL https://antewall.github.io/avanza-desk/install.sh | sh
 ```
 
 Windows (PowerShell):
