@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { ChartPeriod } from "avanza-ts";
 
+import { AskMenu } from "@/components/ai/ask-menu";
 import { AsyncBoundary } from "@/components/common/async-boundary";
 import { Skeleton } from "@/components/common/skeleton";
 import { FundChart } from "@/components/workspace/chart/fund-chart";
@@ -8,6 +9,8 @@ import { FundHeader } from "@/components/workspace/chart/fund-header";
 import { ListedChart } from "@/components/workspace/chart/listed-chart";
 import { ListedHeader } from "@/components/workspace/chart/listed-header";
 import type { Focus } from "@/components/workspace/use-focused-instrument";
+import { instrumentItem } from "@/lib/ai/context";
+import { InstrumentType } from "@/lib/avanza/codes";
 import { instrumentQuery } from "@/lib/avanza/queries";
 
 export const headerSkeleton = (
@@ -31,9 +34,26 @@ export function ChartBody({ focus, period }: { focus: Focus; period: ChartPeriod
 
   return (
     <div className="flex h-full flex-col gap-4 p-3">
-      <AsyncBoundary what="the quote" fallback={headerSkeleton} compact resetKey={focus.id}>
-        {fund ? <FundHeader instrument={instrument} /> : <ListedHeader instrument={instrument} />}
-      </AsyncBoundary>
+      {/* Right-click the header for the instrument's menu: basket, alerts, the assistant. */}
+      <AskMenu
+        item={instrumentItem(
+          instrument.orderbookId,
+          instrument.name,
+          fund ? InstrumentType.Fund : focus.type,
+          instrument.isin ?? undefined,
+        )}
+        trigger={
+          <div>
+            <AsyncBoundary what="the quote" fallback={headerSkeleton} compact resetKey={focus.id}>
+              {fund ? (
+                <FundHeader instrument={instrument} />
+              ) : (
+                <ListedHeader instrument={instrument} />
+              )}
+            </AsyncBoundary>
+          </div>
+        }
+      />
       <div className="min-h-0 flex-1">
         <AsyncBoundary what="the chart" fallback={plotSkeleton} resetKey={`${focus.id}:${period}`}>
           {fund ? (

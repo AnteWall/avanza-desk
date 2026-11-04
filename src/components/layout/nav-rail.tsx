@@ -3,6 +3,7 @@ import { cn } from "cn";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 
+import { BasketMenu } from "@/components/basket/basket-menu";
 import { pages } from "@/components/layout/pages";
 import { SettingsMenu } from "@/components/layout/settings-menu";
 import { usePageShortcuts } from "@/components/layout/use-page-shortcuts";
@@ -107,12 +108,17 @@ export function NavRail() {
           </Tooltip>
         ))}
       </TooltipProvider>
+      <BasketMenu
+        className={itemClass}
+        labelClassName={labelClass}
+        active={pathname === "/basket"}
+      />
       <Button
         variant="ghost"
         aria-label={labels ? "Hide page names" : "Show page names"}
         title={labels ? "Hide page names" : "Show page names"}
         onClick={toggle}
-        className={cn("mt-auto", itemClass)}
+        className={itemClass}
       >
         {labels ? <PanelLeftClose /> : <PanelLeftOpen />}
         <span className={labelClass}>Collapse</span>

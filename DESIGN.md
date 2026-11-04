@@ -32,7 +32,7 @@ Avanza's own design system ("Mint"), so the app feels like Avanza.
 4. **Aligned digits.** Every number is mono with tabular figures and right-aligned in tables,
    so columns line up and ticking values don't jitter.
 5. **Keyboard reachable.** Every action has a focusable control, and global actions get a
-   shortcut: `Ctrl K` search (instruments and pages), `Alt 1…9`, `Alt 0` pages, `1…6` chart ranges, `A` add instrument (Rebalance),
+   shortcut: `Ctrl K` search (instruments and pages), `Alt 1…9`, `Alt 0` pages, `1…6` chart ranges, `A` add instrument (Rebalance, Basket),
    `↑↓`/`j k` + `Enter` in clickable tables. Single-key shortcuts skip text fields (`isTyping`).
    App-wide combos (search, assistant, pages) are rebindable in Settings › Shortcuts: register
    them in `src/lib/shortcuts.ts` and listen with `useShortcut`, and show hints with

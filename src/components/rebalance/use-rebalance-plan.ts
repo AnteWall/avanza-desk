@@ -144,7 +144,7 @@ export function useRebalancePlan() {
  * Last price in SEK of each instrument to buy, or null while it loads (it then trades in SEK).
  * Foreign prices use Avanza's rate for buying the currency.
  */
-function useBuyPrices(instruments: readonly AddedInstrument[]) {
+export function useBuyPrices(instruments: readonly AddedInstrument[]) {
   const quotes = useQueries({
     queries: instruments.map((a) => ({
       ...quoteQuery(a.orderbookId),

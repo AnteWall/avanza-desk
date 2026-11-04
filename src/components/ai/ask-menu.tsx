@@ -3,6 +3,7 @@ import type { ReactElement, ReactNode } from "react";
 
 import { useAssistantEnabled } from "@/components/ai/use-assistant-enabled";
 import { RuleMenuItems } from "@/components/alerts/rule-menu-items";
+import { BasketMenuItem } from "@/components/basket/basket-menu-item";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -35,7 +36,7 @@ const label = (item: ContextItem) =>
 
 /**
  * Right-click menu on `trigger` (a table body, a header): "Ask the assistant" with the item as
- * context (once the assistant is on), and for instruments "Alert me" rules. `item` is read when
+ * context (once the assistant is on), and for instruments "Add to basket" and "Alert me" rules. `item` is read when
  * the menu opens; undefined, or nothing to offer, shows no menu.
  */
 export function AskMenu({
@@ -57,6 +58,12 @@ export function AskMenu({
         <ContextMenuContent className="w-64">
           {extra}
           {extra && forItem && <ContextMenuSeparator />}
+          {forItem && item.kind === "instrument" && (
+            <>
+              <BasketMenuItem item={item} />
+              {ask && <ContextMenuSeparator />}
+            </>
+          )}
           {forItem && ask && (
             <>
               <ContextMenuGroup>
@@ -82,7 +89,7 @@ export function AskMenu({
           )}
           {forItem && item.kind === "instrument" && (
             <>
-              {ask && <ContextMenuSeparator />}
+              <ContextMenuSeparator />
               <RuleMenuItems item={item} />
             </>
           )}

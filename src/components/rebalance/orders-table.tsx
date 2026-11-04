@@ -80,7 +80,13 @@ const columns = col.columns([
  * Step 3: the orders that reach the targets. Sells first, since they free the cash for the
  * buys; largest first within each side.
  */
-export function OrdersTable({ rows }: { rows: RebalanceRow[] }) {
+export function OrdersTable({
+  rows,
+  empty = "Nothing to trade: you're on target.",
+}: {
+  rows: RebalanceRow[];
+  empty?: string;
+}) {
   const orders = rows
     .filter((r): r is Row => r.order != null)
     .sort(
@@ -88,7 +94,6 @@ export function OrdersTable({ rows }: { rows: RebalanceRow[] }) {
         Number(a.order.side === OrderSide.Buy) - Number(b.order.side === OrderSide.Buy) ||
         Math.abs(b.order.amount) - Math.abs(a.order.amount),
     );
-  if (orders.length === 0)
-    return <p className="text-muted-foreground p-3">Nothing to trade: you're on target.</p>;
+  if (orders.length === 0) return <p className="text-muted-foreground p-3">{empty}</p>;
   return <DataTable columns={columns} data={orders} getRowId={(r) => r.key} />;
 }

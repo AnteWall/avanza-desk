@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AnalysisRouteImport } from './routes/analysis'
+import { Route as BasketRouteImport } from './routes/basket'
 import { Route as BriefingRouteImport } from './routes/briefing'
 import { Route as MarketsRouteImport } from './routes/markets'
 import { Route as NewsRouteImport } from './routes/news'
@@ -42,6 +43,11 @@ const AlertsRoute = AlertsRouteImport.update({
 const AnalysisRoute = AnalysisRouteImport.update({
   id: '/analysis',
   path: '/analysis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BasketRoute = BasketRouteImport.update({
+  id: '/basket',
+  path: '/basket',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BriefingRoute = BriefingRouteImport.update({
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
+  '/basket': typeof BasketRoute
   '/briefing': typeof BriefingRoute
   '/markets': typeof MarketsRoute
   '/news': typeof NewsRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
+  '/basket': typeof BasketRoute
   '/briefing': typeof BriefingRoute
   '/markets': typeof MarketsRoute
   '/news': typeof NewsRoute
@@ -171,6 +179,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
+  '/basket': typeof BasketRoute
   '/briefing': typeof BriefingRoute
   '/markets': typeof MarketsRoute
   '/news': typeof NewsRoute
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/analysis'
+    | '/basket'
     | '/briefing'
     | '/markets'
     | '/news'
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/analysis'
+    | '/basket'
     | '/briefing'
     | '/markets'
     | '/news'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/analysis'
+    | '/basket'
     | '/briefing'
     | '/markets'
     | '/news'
@@ -257,6 +269,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlertsRoute: typeof AlertsRoute
   AnalysisRoute: typeof AnalysisRoute
+  BasketRoute: typeof BasketRoute
   BriefingRoute: typeof BriefingRoute
   MarketsRoute: typeof MarketsRoute
   NewsRoute: typeof NewsRoute
@@ -289,6 +302,13 @@ declare module '@tanstack/react-router' {
       path: '/analysis'
       fullPath: '/analysis'
       preLoaderRoute: typeof AnalysisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/basket': {
+      id: '/basket'
+      path: '/basket'
+      fullPath: '/basket'
+      preLoaderRoute: typeof BasketRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/briefing': {
@@ -434,6 +454,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
   AnalysisRoute: AnalysisRoute,
+  BasketRoute: BasketRoute,
   BriefingRoute: BriefingRoute,
   MarketsRoute: MarketsRoute,
   NewsRoute: NewsRoute,

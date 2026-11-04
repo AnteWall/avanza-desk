@@ -9,6 +9,7 @@ import { InfoTip } from "@/components/common/info-tip";
 import { Segmented } from "@/components/common/segmented";
 import { GroupPicker } from "@/components/portfolio/holdings/group-picker";
 import { AddInstrument } from "@/components/rebalance/add-instrument";
+import { BuyingPowerMenu } from "@/components/rebalance/buying-power-menu";
 import { OrdersTable } from "@/components/rebalance/orders-table";
 import { PlanCheck } from "@/components/rebalance/plan-check";
 import { PlanField } from "@/components/rebalance/plan-field";
@@ -132,17 +133,24 @@ export function RebalancePlanner() {
             label="New money"
             tip="Cash you're adding, such as this month's savings. It's counted into the total before targets are applied and spent on what is below target. Leave it empty to rebalance what you already have."
           >
-            <UnitInput
-              unit="SEK"
-              aria-label="New money, SEK"
-              type="number"
-              min={0}
-              step={1000}
-              className={cn(plan.newMoney > 0 && "sensitive")}
-              value={plan.newMoney || ""}
-              placeholder="0"
-              onChange={(e) => plan.setNewMoney(Math.max(0, e.currentTarget.valueAsNumber || 0))}
-            />
+            <span className="flex gap-1">
+              <span className="min-w-0 flex-1">
+                <UnitInput
+                  unit="SEK"
+                  aria-label="New money, SEK"
+                  type="number"
+                  min={0}
+                  step={1000}
+                  className={cn(plan.newMoney > 0 && "sensitive")}
+                  value={plan.newMoney || ""}
+                  placeholder="0"
+                  onChange={(e) =>
+                    plan.setNewMoney(Math.max(0, e.currentTarget.valueAsNumber || 0))
+                  }
+                />
+              </span>
+              <BuyingPowerMenu onPick={plan.setNewMoney} />
+            </span>
           </PlanField>
           <PlanField
             label="Mode"
