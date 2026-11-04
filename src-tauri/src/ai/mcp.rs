@@ -22,7 +22,7 @@ const CALL_TIMEOUT: Duration = Duration::from_secs(30);
 /// Providers read our bearer token from this variable, so it isn't on any command line.
 pub const TOKEN_ENV: &str = "AVANZA_DESK_MCP_TOKEN";
 
-/// MCP server the AI provider (claude, codex) connects to. The tools run in the webview, where the avanza-ts
+/// MCP server the AI provider (claude, codex) connects to; the API provider calls it directly. The tools run in the webview, where the avanza-ts
 /// session and query cache live: each call is emitted as `mcp-call` and answered by `mcp_result`.
 pub struct Mcp {
     pub url: String,
@@ -65,7 +65,11 @@ impl ServerHandler for Handler {
         request: CallToolRequestParams,
         _context: RequestContext<RoleServer>,
     ) -> Result<CallToolResponse, ErrorData> {
-        let (ok, text) = self.0.call(request).await;
+        let args = request
+            .arguments
+            .map(serde_json::Value::Object)
+            .unwrap_or_default();
+        let (ok, text) = self.0.call(request.name.into_owned(), args).await;
         let content = vec![ContentBlock::text(text)];
         Ok(if ok {
             CallToolResult::success(content)
@@ -77,17 +81,30 @@ impl ServerHandler for Handler {
 }
 
 impl Mcp {
-    async fn call(&self, request: CallToolRequestParams) -> (bool, String) {
+    /// The webview's tools in the Messages API's shape, for the API provider (api.rs).
+    pub fn api_tools(&self) -> Vec<serde_json::Value> {
+        let tools = self.tools.read().unwrap();
+        tools
+            .iter()
+            .map(|t| {
+                serde_json::json!({
+                    "name": t.name,
+                    "description": t.description,
+                    "input_schema": t.input_schema,
+                })
+            })
+            .collect()
+    }
+
+    /// Runs a tool in the webview: (succeeded, result text).
+    pub async fn call(&self, name: String, args: serde_json::Value) -> (bool, String) {
         let id = uuid::Uuid::new_v4().to_string();
         let (tx, rx) = oneshot::channel();
         self.pending.lock().unwrap().insert(id.clone(), tx);
         let call = McpCall {
             id: id.clone(),
-            name: request.name.into_owned(),
-            args: request
-                .arguments
-                .map(serde_json::Value::Object)
-                .unwrap_or_default(),
+            name,
+            args,
         };
         if let Err(e) = self.app.emit("mcp-call", call) {
             self.pending.lock().unwrap().remove(&id);

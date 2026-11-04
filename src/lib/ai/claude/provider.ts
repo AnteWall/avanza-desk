@@ -75,6 +75,8 @@ export const claude: Provider = {
   name: "Claude",
   vendor: "Anthropic",
   logo,
+  billing:
+    "AvanzaDesk runs Claude Code on this computer and talks to Claude through it, so your questions use your Claude subscription (Pro or Max) and count toward its usage limits. No API key and no extra cost.",
   installUrl: "https://code.claude.com/docs/en/setup",
   guideUrl: "https://code.claude.com/docs/en/quickstart",
   plansUrl: "https://claude.com/pricing",

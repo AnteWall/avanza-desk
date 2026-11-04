@@ -1,8 +1,8 @@
 import type { ConnectConnectionAdapter } from "@tanstack/ai-react";
 
-// The contract every AI provider implements: Claude (through the local Claude Code CLI) and
-// Codex (through the local Codex CLI). Another provider adds a folder next to `claude/` and an
-// entry in providers.ts.
+// The contract every AI provider implements: Claude (through the local Claude Code CLI or the
+// Claude API with the user's key) and Codex (through the local Codex CLI). Another provider adds
+// a folder next to `claude/` and an entry in providers.ts.
 
 /** What the assistant is doing right now, for the chat's status line. */
 export type Phase = "starting" | "thinking" | "writing" | "tool";
@@ -90,6 +90,8 @@ export type Provider = {
   logo: string;
   /** The logo's variant for the dark theme, when the plain one doesn't show on dark. */
   logoDark?: string;
+  /** How it reaches the model and who pays: shown behind an ⓘ next to its name. */
+  billing: string;
   installUrl: string;
   /** Step-by-step install and sign-in guide. */
   guideUrl: string;
@@ -102,6 +104,11 @@ export type Provider = {
   probe: () => Promise<ProviderSetup>;
   /** Signs in from the app (opens the browser), when the program supports it. */
   signIn?: () => Promise<void>;
+  /**
+   * Set on a provider that runs in AvanzaDesk with the user's API key instead of a program on
+   * this computer: saves the key (null removes it).
+   */
+  setApiKey?: (key: string | null) => Promise<void>;
   /** Uses this binary (a file or its folder); null goes back to auto-detect. */
   setBinary: (path: string | null) => Promise<void>;
   /**

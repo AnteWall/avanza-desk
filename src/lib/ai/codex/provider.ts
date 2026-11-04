@@ -66,6 +66,8 @@ export const codex: Provider = {
   vendor: "OpenAI",
   logo,
   logoDark,
+  billing:
+    "AvanzaDesk runs the Codex CLI on this computer and talks to OpenAI through it, so your questions use your ChatGPT plan and its usage limits, or are billed to your OpenAI API account if Codex is signed in with an API key.",
   installUrl: "https://learn.chatgpt.com/docs/codex/cli",
   guideUrl: "https://learn.chatgpt.com/docs/quickstart",
   plansUrl: "https://chatgpt.com/pricing",

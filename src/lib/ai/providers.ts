@@ -1,11 +1,12 @@
 import { getSetting, saveSetting } from "@/lib/settings";
 
+import { claudeApi, openaiApi } from "./api/provider";
 import { claude } from "./claude/provider";
 import { codex } from "./codex/provider";
 import type { Provider } from "./types";
 
 /** Every AI provider, in menu order. Add new ones here. */
-export const providers: Provider[] = [claude, codex];
+export const providers: Provider[] = [claude, claudeApi, codex, openaiApi];
 
 export const getProvider = () =>
   providers.find((p) => p.id === getSetting("ai:provider", claude.id)) ?? claude;

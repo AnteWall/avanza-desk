@@ -33,5 +33,10 @@ export function useProviderSetup(provider: Provider) {
       await provider.setBinary(path);
       await queryClient.invalidateQueries({ queryKey: key(provider) });
     },
+    /** Saves the API key (null removes it) and checks it. */
+    async setApiKey(apiKey: string | null) {
+      await provider.setApiKey?.(apiKey);
+      await queryClient.invalidateQueries({ queryKey: key(provider) });
+    },
   };
 }

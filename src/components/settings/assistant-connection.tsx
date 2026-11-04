@@ -1,6 +1,8 @@
 import { open } from "@tauri-apps/plugin-dialog";
-import { Ellipsis, FolderSearch, RotateCcw, Unplug } from "lucide-react";
+import { Ellipsis, FolderSearch, KeyRound, RotateCcw, Unplug } from "lucide-react";
 
+import { ApiKeySetup } from "@/components/ai/api-key-setup";
+import { ProviderBillingTip } from "@/components/ai/provider-billing-tip";
 import { ProviderLogo } from "@/components/ai/provider-logo";
 import { ProviderSetup } from "@/components/ai/provider-setup";
 import { useProviderSetup } from "@/components/ai/use-provider-setup";
@@ -37,12 +39,16 @@ function Disconnect({ provider }: { provider: Provider }) {
 
 /** One quiet row once the provider is ready, program details in its menu; the setup checklist until then. */
 export function AssistantConnection({ provider }: { provider: Provider }) {
-  const { data: setup, setBinary } = useProviderSetup(provider);
+  const { data: setup, setBinary, setApiKey } = useProviderSetup(provider);
 
   if (setup?.state !== "ready") {
     return (
       <div className="flex flex-col gap-3 px-3 py-2">
-        <ProviderSetup provider={provider} />
+        {provider.setApiKey ? (
+          <ApiKeySetup provider={provider} />
+        ) : (
+          <ProviderSetup provider={provider} />
+        )}
         <span className="self-start">
           <Disconnect provider={provider} />
         </span>
@@ -63,7 +69,10 @@ export function AssistantConnection({ provider }: { provider: Provider }) {
       <div className="flex min-h-12 items-center gap-3 px-3 py-1.5">
         <ProviderLogo provider={provider} className="size-6" />
         <span className="flex min-w-0 flex-1 flex-col">
-          <span>{provider.name}</span>
+          <span className="flex items-center gap-1.5">
+            {provider.name}
+            <ProviderBillingTip provider={provider} />
+          </span>
           <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
             <span className="bg-brand size-1.5 shrink-0 rounded-full" aria-hidden />
             <span className="truncate">Connected{account && ` · ${account}`}</span>
@@ -85,35 +94,46 @@ export function AssistantConnection({ provider }: { provider: Provider }) {
             <Ellipsis />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-72">
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className="flex flex-col gap-0.5">
-                <span className="text-foreground">
-                  {provider.program} <span className="num">v{setup.version}</span>
-                </span>
-                <span className="num truncate" title={setup.bin}>
-                  {setup.bin}
-                </span>
-                <span>{setup.custom ? "Chosen by you" : "Auto-detected"}</span>
-              </DropdownMenuLabel>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => void locate()}>
-              <FolderSearch />
-              Change…
-            </DropdownMenuItem>
-            {setup.custom && (
-              <DropdownMenuItem onClick={() => void setBinary(null)}>
-                <RotateCcw />
-                Use auto-detect
-              </DropdownMenuItem>
+            {provider.setApiKey ? (
+              <>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>{setup.account.plan}</DropdownMenuLabel>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => void setApiKey(null)}>
+                  <KeyRound />
+                  Remove API key
+                </DropdownMenuItem>
+              </>
+            ) : (
+              <>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="flex flex-col gap-0.5">
+                    <span className="text-foreground">
+                      {provider.program} <span className="num">v{setup.version}</span>
+                    </span>
+                    <span className="num truncate" title={setup.bin}>
+                      {setup.bin}
+                    </span>
+                    <span>{setup.custom ? "Chosen by you" : "Auto-detected"}</span>
+                  </DropdownMenuLabel>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => void locate()}>
+                  <FolderSearch />
+                  Change…
+                </DropdownMenuItem>
+                {setup.custom && (
+                  <DropdownMenuItem onClick={() => void setBinary(null)}>
+                    <RotateCcw />
+                    Use auto-detect
+                  </DropdownMenuItem>
+                )}
+              </>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <p className="text-muted-foreground px-3 pb-2 text-xs">
-        Uses your own {provider.name} plan. AvanzaDesk never sees your credentials, and{" "}
-        {provider.name} can read your account but never trade.
-      </p>
     </>
   );
 }

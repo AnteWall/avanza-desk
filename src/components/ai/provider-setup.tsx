@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
+import { ProviderBillingTip } from "@/components/ai/provider-billing-tip";
 import { ProviderLogo } from "@/components/ai/provider-logo";
 import { useProviderSetup } from "@/components/ai/use-provider-setup";
 import { Button } from "@/components/ui/button";
@@ -60,7 +61,10 @@ export function ProviderSetup({ provider }: { provider: Provider }) {
       <div className="flex items-center gap-3">
         <ProviderLogo provider={provider} className="size-8" />
         <div className="flex flex-col">
-          <span className="font-semibold">{provider.name}</span>
+          <span className="flex items-center gap-1.5 font-semibold">
+            {provider.name}
+            <ProviderBillingTip provider={provider} />
+          </span>
           <span className="text-muted-foreground text-xs">
             by {provider.vendor}, through {provider.program} on this computer
           </span>
@@ -197,10 +201,6 @@ export function ProviderSetup({ provider }: { provider: Provider }) {
         </Step>
       </ol>
 
-      <p className="text-muted-foreground text-xs leading-relaxed">
-        Uses your own {provider.name} plan and its usage limits. AvanzaDesk never sees your{" "}
-        {provider.name} credentials, and {provider.name} can read your account but never trade.
-      </p>
       <Actions>
         <Button size="xs" variant="ghost" onClick={() => void openUrl(provider.guideUrl)}>
           <ExternalLink />

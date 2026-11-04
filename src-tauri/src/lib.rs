@@ -185,6 +185,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(client)
         .manage(Streams::default())
+        .manage(ai::api::ApiChat::default())
         .manage(ai::claude::Chat::default())
         .manage(ai::codex::Chat::default())
         .manage(ai::codex::Login::default())
@@ -206,6 +207,14 @@ pub fn run() {
             db::setting_save,
             snapshots::snapshot_save,
             snapshots::snapshot_series,
+            ai::api::api_key_set,
+            ai::api::api_probe,
+            ai::api::api_start,
+            ai::api::api_send,
+            ai::api::api_interrupt,
+            ai::api::api_set_model,
+            ai::api::api_set_effort,
+            ai::api::api_stop,
             ai::claude::claude_probe,
             ai::claude::chat_start,
             ai::claude::chat_send,

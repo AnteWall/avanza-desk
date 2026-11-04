@@ -20,6 +20,7 @@ import {
   useSyncExternalStore,
 } from "react";
 
+import { ApiKeySetup } from "@/components/ai/api-key-setup";
 import { AssistantOff } from "@/components/ai/assistant-off";
 import { Chat } from "@/components/ai/chat";
 import { ChatHistory } from "@/components/ai/chat-history";
@@ -263,7 +264,11 @@ export function AssistantPanel() {
           </p>
         ) : !ready ? (
           <div className="flex flex-col gap-3 p-3">
-            <ProviderSetup provider={provider} />
+            {provider.setApiKey ? (
+              <ApiKeySetup provider={provider} />
+            ) : (
+              <ProviderSetup provider={provider} />
+            )}
             {sources.map(({ provider: other }) => (
               <Button
                 key={other.id}
