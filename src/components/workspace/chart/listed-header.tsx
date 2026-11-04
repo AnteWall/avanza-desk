@@ -37,13 +37,19 @@ export function ListedHeader({ instrument }: { instrument: Instrument }) {
         stats={[
           { label: "High", value: price(quote.highest) },
           { label: "Low", value: price(quote.lowest) },
-          { label: "VWAP", value: price(quote.volumeWeightedAveragePrice) },
+          {
+            label: "Avg price",
+            value: price(quote.volumeWeightedAveragePrice),
+            tip: "The average price paid today, weighted by how many shares changed hands at each price (VWAP).",
+          },
           {
             label: "Volume",
+            tip: "How many shares changed hands today.",
             value: quote.totalVolumeTraded == null ? "–" : formatInteger(quote.totalVolumeTraded),
           },
           {
             label: "Turnover",
+            tip: "The value of all shares traded today.",
             value: quote.totalValueTraded == null ? "–" : formatCompact(quote.totalValueTraded),
           },
           ...(held

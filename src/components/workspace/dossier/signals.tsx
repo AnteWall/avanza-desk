@@ -9,7 +9,7 @@ import { Section } from "@/components/workspace/dossier/section";
 import { InstrumentType } from "@/lib/avanza/codes";
 import type { Instrument } from "@/lib/avanza/instrument";
 import { universeQuery } from "@/lib/avanza/queries";
-import { formatDate } from "@/lib/format";
+import { formatDay } from "@/lib/format";
 import { openRuleDialog } from "@/lib/rule-dialog";
 
 /**
@@ -59,7 +59,7 @@ export function Signals({ instrument }: { instrument: Instrument }) {
           <li key={`${s.kind}:${s.date}`} className="flex items-start gap-2">
             <SignalTone tone={s.tone} />
             <span className="min-w-0 flex-1">{s.text}</span>
-            <span className="num text-muted-foreground text-xs">{formatDate(s.date)}</span>
+            <span className="num text-muted-foreground text-xs">{formatDay(s.date)}</span>
           </li>
         ))}
       </ul>

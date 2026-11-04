@@ -4,6 +4,7 @@ import { Bell } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Change } from "@/components/common/change";
+import { InfoTip } from "@/components/common/info-tip";
 import { Button } from "@/components/ui/button";
 import { Section } from "@/components/workspace/dossier/section";
 import { InstrumentType } from "@/lib/avanza/codes";
@@ -17,7 +18,7 @@ import {
 import { insiderFlow, vsAverage } from "@/lib/avanza/stock-details";
 import {
   formatCompact,
-  formatDate,
+  formatDay,
   formatInteger,
   formatPercent,
   formatPrice,
@@ -27,7 +28,15 @@ import { openRuleDialog, type RuleDraft } from "@/lib/rule-dialog";
 
 // `text`: a word value (a rating), not set in the numeral font. `rule`: the alert its bell
 // button starts, for facts worth watching.
-type Fact = { label: string; value: ReactNode; note?: string; text?: boolean; rule?: RuleDraft };
+type Fact = {
+  label: string;
+  value: ReactNode;
+  note?: string;
+  text?: boolean;
+  rule?: RuleDraft;
+  /** A sentence on what the value means, behind an ⓘ. */
+  tip?: string;
+};
 
 const words = (code: string) => code.toLowerCase().replaceAll("_", " ");
 const DAY = 24 * 60 * 60_000;
@@ -88,7 +97,7 @@ export function Snapshot({ instrument }: { instrument: Instrument }) {
   if (ki.nextReport)
     facts.push({
       label: "Next report",
-      value: formatDate(ki.nextReport.date),
+      value: formatDay(ki.nextReport.date),
       rule: { kind: "signal", signalKind: "report", target, threshold: 1 },
       note: ki.nextReport.reportType
         ? `${words(ki.nextReport.reportType)} report, ${daysUntil(ki.nextReport.date)}`
@@ -102,9 +111,9 @@ export function Snapshot({ instrument }: { instrument: Instrument }) {
       label: "Dividend yield",
       value: ki.directYield != null ? formatShare(ki.directYield) : "–",
       note: upcoming
-        ? `Ex-date ${formatDate(upcoming.exDate)}: ${formatPrice(upcoming.amount)} ${upcoming.currencyCode}`
+        ? `Ex-date ${formatDay(upcoming.exDate)}: ${formatPrice(upcoming.amount)} ${upcoming.currencyCode}`
         : lastPaid
-          ? `Last ${formatPrice(lastPaid.amount)} ${lastPaid.currencyCode} on ${formatDate(lastPaid.exDate)}`
+          ? `Last ${formatPrice(lastPaid.amount)} ${lastPaid.currencyCode} on ${formatDay(lastPaid.exDate)}`
           : undefined,
     });
 
@@ -126,6 +135,7 @@ export function Snapshot({ instrument }: { instrument: Instrument }) {
     facts.push({
       label: "Short interest",
       value: formatShare(ki.shortSellingRatio),
+      tip: "Share of the company's stock that investors have borrowed and sold, betting the price will fall. A few percent is common; a high or rising number means many are pessimistic.",
       rule: { kind: "short", target },
     });
 
@@ -147,6 +157,7 @@ export function Snapshot({ instrument }: { instrument: Instrument }) {
           <div key={f.label} className="group min-w-0">
             <dt className="text-muted-foreground flex h-4 items-center gap-1 text-xs">
               {f.label}
+              {f.tip && <InfoTip label={f.label.toLowerCase()}>{f.tip}</InfoTip>}
               {f.rule && (
                 <Button
                   variant="ghost"
