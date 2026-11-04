@@ -9,8 +9,9 @@ import { articleItem } from "@/lib/ai/context";
 import { headline, newsTime } from "@/lib/news";
 
 /**
- * One headline: time, title and source on a single line. Clicking it unfolds the teaser and a
- * Read button (Avanza's articles open in the reader, others in the browser).
+ * One headline: time and title on a single line, the source on hover. Clicking it unfolds the
+ * teaser, the source and a Read button (Avanza's articles open in the reader, others in the
+ * browser).
  */
 export function NewsItem({
   item,
@@ -39,13 +40,16 @@ export function NewsItem({
             aria-expanded={expanded}
             onClick={onToggle}
             title={title}
-            className="hover:bg-muted/60 focus-visible:bg-muted flex h-8 w-full items-center gap-3 px-3 text-left transition-colors outline-none"
+            className="group hover:bg-muted/60 focus-visible:bg-muted h-row flex w-full items-center gap-3 px-3 text-left transition-colors outline-none"
           >
             <span className="num text-muted-foreground w-20 shrink-0 text-xs">
               {newsTime(item.publishDateTime, now)}
             </span>
-            <span className="min-w-0 flex-1 truncate">{title}</span>
-            <span className="text-muted-foreground shrink-0 text-xs">{item.source}</span>
+            <span className="min-w-0 flex-1 truncate font-medium">{title}</span>
+            {/* The headline is the content; where it's from is a detail for hover. */}
+            <span className="text-muted-foreground shrink-0 text-xs opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+              {item.source}
+            </span>
             <ChevronDown
               className={cn(
                 "text-muted-foreground size-3.5 shrink-0 transition-transform",
@@ -58,7 +62,10 @@ export function NewsItem({
       />
       {expanded && (
         <div className="flex flex-col items-start gap-2 pr-3 pb-3 pl-26">
-          <p className="font-medium whitespace-normal">{title}</p>
+          <p className="font-medium whitespace-normal">
+            {title}{" "}
+            <span className="text-muted-foreground text-xs font-normal">· {item.source}</span>
+          </p>
           {teaser && <p className="text-muted-foreground max-w-3xl leading-relaxed">{teaser}</p>}
           <Button variant="outline" size="xs" onClick={() => open(item.url, item.externalLink)}>
             {item.externalLink ? "Read on " + item.source : "Read"}
