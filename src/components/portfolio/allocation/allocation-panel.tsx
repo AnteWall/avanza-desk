@@ -1,10 +1,11 @@
-import { Building2, Coins, Factory, Globe, Shapes } from "lucide-react";
+import { Briefcase, Building2, Coins, Factory, Globe, Shapes } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { AsyncBoundary } from "@/components/common/async-boundary";
 import { TableSkeleton } from "@/components/common/table-skeleton";
 import { CountryAllocation } from "@/components/portfolio/allocation/country-allocation";
 import { CurrencyAllocation } from "@/components/portfolio/allocation/currency-allocation";
+import { HoldingAllocation } from "@/components/portfolio/allocation/holding-allocation";
 import { SectorAllocation } from "@/components/portfolio/allocation/sector-allocation";
 import { TypeAllocation } from "@/components/portfolio/allocation/type-allocation";
 import { UnderlyingAllocation } from "@/components/portfolio/allocation/underlying-allocation";
@@ -17,7 +18,7 @@ const body = (what: string, table: ReactNode) => (
 );
 
 /**
- * Where your money is, one way of slicing it at a time: industries, countries, asset types,
+ * Where your money is, one way of slicing it at a time: instruments, industries, countries, asset types,
  * currencies, and the companies inside your funds. Funds are looked through to what they hold.
  */
 export function AllocationPanel() {
@@ -25,6 +26,12 @@ export function AllocationPanel() {
     <TabbedPanel
       id="portfolio-allocation"
       tabs={[
+        {
+          value: "instrument",
+          label: "Instruments",
+          icon: Briefcase,
+          content: body("instruments", <HoldingAllocation />),
+        },
         {
           value: "sector",
           label: "Industries",
