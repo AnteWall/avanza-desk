@@ -6,6 +6,8 @@
 
 **A fast, keyboard-first trading terminal for your Avanza account.**
 
+**[Website](https://antewall.github.io/avanza-desk/)** · [Download](https://antewall.github.io/avanza-desk/#download) · [AI assistant](https://antewall.github.io/avanza-desk/assistant/) · [Changelog](https://antewall.github.io/avanza-desk/changelog/)
+
 [![CI](https://github.com/AnteWall/avanza-desk/actions/workflows/ci.yml/badge.svg)](https://github.com/AnteWall/avanza-desk/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/AnteWall/avanza-desk?color=00c281)](https://github.com/AnteWall/avanza-desk/releases/latest)
 ![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)
