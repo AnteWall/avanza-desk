@@ -20,7 +20,6 @@ import { loadInstrument } from "./instrument";
 import { loadLookThrough } from "./look-through";
 import { captureRaw } from "./loose-records";
 import type { StockDetails } from "./stock-details";
-import { tauriFetch } from "./tauri-fetch";
 import { buildUniverse } from "./universe";
 
 // Instrument types the workspace can show (see `loadInstrument`).
@@ -152,13 +151,7 @@ export const etfDetailsQuery = (orderbookId: string) =>
 export const totalFeeQuery = (orderbookId: string) =>
   queryOptions({
     queryKey: ["instrument", orderbookId, "total-fee"],
-    // shortcut: published avanza-ts 1.2.0 lacks funds.totalFee; switch to it after the next release.
-    queryFn: async (): Promise<number | null> => {
-      const res = await tauriFetch(
-        `https://www.avanza.se/_api/fund-guide/total-fee/${orderbookId}`,
-      );
-      return res.ok ? (JSON.parse(await res.text()) as number) : null;
-    },
+    queryFn: ({ signal }) => avanza.funds.totalFee(orderbookId, signal),
     staleTime: 24 * 60 * 60_000,
   });
 
