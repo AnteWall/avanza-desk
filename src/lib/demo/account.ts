@@ -4,6 +4,7 @@ import type {
   DividendsResponse,
   FundAnalysisResponse,
   InsightsReport,
+  KeyRatioHistoryResponse,
   KeyRatiosResponse,
   OrderbookPerformanceChart,
   PerformanceChartResponse,
@@ -16,6 +17,7 @@ import type {
 } from "avanza-ts";
 
 import { InstrumentType } from "@/lib/avanza/codes";
+import { historyStats } from "@/lib/rebalance-check";
 
 import {
   accountsOf,
@@ -365,6 +367,22 @@ function performanceChart(req: DemoRequest): PerformanceChartResponse {
     return chart(points, NOW, NOW, period);
   }
   return chartFromRange(ids, periodStart(period), DAYS.length - 1, period);
+}
+
+/** Weekly key ratios of the portfolio index: Sharpe and volatility over the trailing year, CAGR since the start. */
+function keyRatioHistory(): KeyRatioHistoryResponse {
+  const at = DAYS.map((_, i) => i).filter((i) => i >= 60 && (DAYS.length - 1 - i) % 5 === 0);
+  const stats = at.map((i) => historyStats(INDEX.slice(Math.max(0, i - 252), i + 1)));
+  const series = (f: (s: (typeof stats)[number], i: number) => number) =>
+    at.map((i, k) => ({ timestamp: DAYS[i], value: round(f(stats[k], i), 2) }));
+  return {
+    sharpeRatios: series((s) => s.sharpe),
+    standardDeviations: series((s) => s.vol * 100),
+    compoundAnnualGrowthRates: series(
+      (_, i) => ((INDEX[i] / INDEX[0]) ** ((365 * DAY) / (DAYS[i] - DAYS[0])) - 1) * 100,
+    ),
+    earliestAvailableDate: new Date(DAYS[0]).toISOString().slice(0, 10),
+  };
 }
 
 /** Relative development (percent units) over `from…to` for anything to compare with. */
@@ -797,6 +815,7 @@ export const accountRoutes: Route[] = [
     standardDeviation: percent(13.8),
     compoundAnnualGrowthRate: percent(11.9),
   })),
+  post(/^\/_api\/account-performance\/overview\/keyratios\/history$/, keyRatioHistory),
   post(/^\/_api\/insights-development\/insights$/, insights),
   post(
     /^\/_api\/account-performance-analysis\/avanza\/average$/,

@@ -125,6 +125,13 @@ export const keyRatiosQuery = queryOptions({
   staleTime: 60 * 60_000,
 });
 
+/** How Sharpe ratio, standard deviation and CAGR developed over time, over all accounts. */
+export const keyRatioHistoryQuery = queryOptions({
+  queryKey: ["portfolio", "key-ratio-history"],
+  queryFn: ({ signal }) => avanza.performance.keyRatioHistory({ accountIds: accountIds() }, signal),
+  staleTime: 60 * 60_000,
+});
+
 /** Look-through of all fund holdings: industry, country and currency exposure, fees. */
 export const fundAnalysisQuery = queryOptions({
   queryKey: ["portfolio", "fund-analysis"],
