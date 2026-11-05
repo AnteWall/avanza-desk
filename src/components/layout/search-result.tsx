@@ -44,7 +44,7 @@ export function SearchResult({ hit, active }: { hit: SearchHit; active: boolean 
               className={cn(
                 "num text-xs",
                 direction > 0 && "text-up",
-                direction < 0 && "text-down",
+                0 > direction && "text-down",
                 direction === 0 && "text-muted-foreground",
               )}
             >

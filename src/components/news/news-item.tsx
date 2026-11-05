@@ -6,6 +6,7 @@ import { AskMenu } from "@/components/ai/ask-menu";
 import { useOpenArticle } from "@/components/news/use-open-article";
 import { Button } from "@/components/ui/button";
 import { articleItem } from "@/lib/ai/context";
+import { m } from "@/lib/i18n";
 import { headline, newsTime } from "@/lib/news";
 
 /**
@@ -68,7 +69,7 @@ export function NewsItem({
           </p>
           {teaser && <p className="text-muted-foreground max-w-3xl leading-relaxed">{teaser}</p>}
           <Button variant="outline" size="xs" onClick={() => open(item.url, item.externalLink)}>
-            {item.externalLink ? "Read on " + item.source : "Read"}
+            {item.externalLink ? m.news.item.readOn(item.source) : m.news.item.read}
             {item.externalLink && <ArrowUpRight />}
           </Button>
         </div>

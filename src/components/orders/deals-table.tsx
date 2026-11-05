@@ -9,31 +9,35 @@ import { instrumentItem } from "@/lib/ai/context";
 import { toDealRow, type OrderRow } from "@/lib/avanza/loose-records";
 import { dealsQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatPrice, formatTime } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 const dash = "–";
 
 const col = dataTableColumns<OrderRow>();
 const columns = col.columns([
   col.accessor("time", {
-    header: "Time",
+    header: m.orders.columns.time,
     cell: (c) => (c.getValue() ? formatTime(c.getValue()!) : dash),
     meta: { className: "num text-muted-foreground" },
   }),
-  col.accessor("name", { header: "Instrument", meta: { className: "font-medium" } }),
-  col.accessor("side", { header: "Side", cell: (c) => <Side side={c.getValue()} /> }),
+  col.accessor("name", { header: m.common.instrument, meta: { className: "font-medium" } }),
+  col.accessor("side", {
+    header: m.orders.columns.side,
+    cell: (c) => <Side side={c.getValue()} />,
+  }),
   col.accessor("volume", {
-    header: "Qty",
+    header: m.common.quantity,
     cell: (c) => (c.getValue() == null ? dash : formatInteger(c.getValue()!)),
     meta: { align: "end", className: "sensitive num" },
   }),
   col.accessor("price", {
-    header: "Price",
+    header: m.common.price,
     cell: (c) => (c.getValue() == null ? dash : formatPrice(c.getValue()!)),
     meta: { align: "end", className: "num font-medium" },
   }),
   col.accessor((r) => (r.price != null && r.volume != null ? r.price * r.volume : null), {
     id: "amount",
-    header: "Amount",
+    header: m.orders.columns.amount,
     cell: (c) =>
       c.getValue() == null
         ? dash
@@ -41,7 +45,7 @@ const columns = col.columns([
     meta: { align: "end", className: "sensitive num" },
   }),
   col.accessor("account", {
-    header: "Account",
+    header: m.common.account,
     cell: (c) => c.getValue() ?? dash,
     meta: { className: "text-muted-foreground" },
   }),
@@ -58,7 +62,7 @@ export function DealsTable() {
     .filter((r) => !account || !r.accountId || r.accountId === account)
     .sort((a, b) => (b.time ?? "").localeCompare(a.time ?? ""));
 
-  if (rows.length === 0) return <Empty>No trades today.</Empty>;
+  if (rows.length === 0) return <Empty>{m.orders.empty.deals}</Empty>;
   return (
     <DataTable
       columns={columns}

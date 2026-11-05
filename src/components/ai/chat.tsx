@@ -21,6 +21,7 @@ import { type Ask, takeAsks } from "@/lib/ai/ask";
 import { type ContextItem, contextKey, withContext } from "@/lib/ai/context";
 import type { Attachment } from "@/lib/ai/images";
 import type { ChatSession, RateLimit } from "@/lib/ai/types";
+import { m } from "@/lib/i18n";
 
 /** While the usage limit is reached, the time it resets; sending would only fail until then. */
 function blockedUntil(limit: RateLimit | undefined) {
@@ -154,7 +155,7 @@ export function Chat({
                 <p className="text-destructive whitespace-pre-wrap">{error.message}</p>
                 <Button variant="outline" size="xs" onClick={() => void reload()}>
                   <RotateCcw />
-                  Try again
+                  {m.common.retry}
                 </Button>
               </div>
             )}
@@ -164,8 +165,8 @@ export function Chat({
           <Button
             variant="outline"
             size="icon-sm"
-            aria-label="Jump to latest"
-            title="Jump to latest"
+            aria-label={m.ai.message.jumpToLatest}
+            title={m.ai.message.jumpToLatest}
             onClick={scrollToBottom}
             className="bg-card absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full"
           >

@@ -15,24 +15,25 @@ import {
 } from "@/components/ui/context-menu";
 import { askAssistant } from "@/lib/ai/ask";
 import type { ContextItem } from "@/lib/ai/context";
+import { m } from "@/lib/i18n";
 
 /** Ready-made questions per kind of item; each one sends right away. */
 function presets(item: ContextItem): string[] {
   if (item.kind === "instrument") {
-    return [
-      `Why did ${item.name} move today?`,
-      `Summarize the latest news on ${item.name}`,
-      `How is ${item.name} valued? Key figures and analysts`,
-    ];
+    return [m.ai.ask.whyMoved(item.name), m.ai.ask.news(item.name), m.ai.ask.valued(item.name)];
   }
   if (item.kind === "article") {
-    return ["Summarize this article", "How does this affect my holdings?"];
+    return m.ai.ask.article;
   }
   return [];
 }
 
 const label = (item: ContextItem) =>
-  item.kind === "instrument" ? item.name : item.kind === "article" ? "this article" : item.label;
+  item.kind === "instrument"
+    ? item.name
+    : item.kind === "article"
+      ? m.ai.ask.thisArticle
+      : item.label;
 
 /**
  * Right-click menu on `trigger` (a table body, a header): "Ask the assistant" with the item as
@@ -69,11 +70,11 @@ export function AskMenu({
               <ContextMenuGroup>
                 <ContextMenuLabel className="text-muted-foreground flex items-center gap-1.5 text-xs">
                   <Sparkles className="size-3" aria-hidden />
-                  Ask the assistant
+                  {m.ai.ask.title}
                 </ContextMenuLabel>
                 <ContextMenuItem onClick={() => askAssistant({ items: [item] })}>
                   <MessageSquareText />
-                  <span className="truncate">Ask about {label(item)}…</span>
+                  <span className="truncate">{m.ai.ask.about(label(item))}</span>
                 </ContextMenuItem>
               </ContextMenuGroup>
               {presets(item).length > 0 && <ContextMenuSeparator />}

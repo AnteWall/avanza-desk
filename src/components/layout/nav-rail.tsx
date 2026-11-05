@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getDensity } from "@/lib/density";
+import { m } from "@/lib/i18n";
 import { getSetting, saveSetting } from "@/lib/settings";
 import { bindingKeys, getBinding } from "@/lib/shortcuts";
 
@@ -115,13 +116,13 @@ export function NavRail() {
       />
       <Button
         variant="ghost"
-        aria-label={labels ? "Hide page names" : "Show page names"}
-        title={labels ? "Hide page names" : "Show page names"}
+        aria-label={labels ? m.layout.nav.hideNames : m.layout.nav.showNames}
+        title={labels ? m.layout.nav.hideNames : m.layout.nav.showNames}
         onClick={toggle}
         className={itemClass}
       >
         {labels ? <PanelLeftClose /> : <PanelLeftOpen />}
-        <span className={labelClass}>Collapse</span>
+        <span className={labelClass}>{m.layout.nav.collapse}</span>
       </Button>
       <SettingsMenu
         className={itemClass}

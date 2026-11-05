@@ -5,12 +5,13 @@ import { SignedAmount } from "@/components/common/signed-amount";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { dayParts, type Activity } from "@/lib/briefing";
 import { formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 const kinds = {
-  buy: { icon: ArrowUpRight, verb: "Bought", tone: "text-up" },
-  sell: { icon: ArrowDownLeft, verb: "Sold", tone: "text-down" },
-  dividend: { icon: Coins, verb: "Dividend from", tone: "text-muted-foreground" },
-  alert: { icon: Bell, verb: "Alert on", tone: "text-muted-foreground" },
+  buy: { icon: ArrowUpRight, verb: m.briefing.timeline.bought, tone: "text-up" },
+  sell: { icon: ArrowDownLeft, verb: m.briefing.timeline.sold, tone: "text-down" },
+  dividend: { icon: Coins, verb: m.briefing.timeline.dividend, tone: "text-muted-foreground" },
+  alert: { icon: Bell, verb: m.briefing.timeline.alert, tone: "text-muted-foreground" },
 } as const;
 
 /** What happened while you were away, by day, newest first, on a vertical line. */
@@ -58,7 +59,7 @@ export function BriefingTimeline({ activity }: { activity: readonly Activity[] }
                         {a.kind === "alert"
                           ? a.level != null && (
                               <span className="num text-muted-foreground text-xs">
-                                at {formatPrice(a.level)}
+                                {m.briefing.timeline.at(formatPrice(a.level))}
                               </span>
                             )
                           : a.amount != null && (

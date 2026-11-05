@@ -1,3 +1,5 @@
+import { m } from "@/lib/i18n";
+
 export type Connection = { state: "live" | "stale" | "error"; label: string };
 
 // Something always polls (indices every 30s, positions every minute), so no success for this
@@ -14,12 +16,15 @@ export function connection(
   now: number,
   online: boolean,
 ): Connection {
-  if (!online) return { state: "error", label: "Offline" };
-  if (lastError > lastSuccess) return { state: "error", label: "Can't reach Avanza" };
-  if (!lastSuccess) return { state: "live", label: "Connecting…" };
+  if (!online) return { state: "error", label: m.layout.statusBar.offline };
+  if (lastError > lastSuccess) return { state: "error", label: m.layout.statusBar.unreachable };
+  if (!lastSuccess) return { state: "live", label: m.layout.statusBar.connecting };
   const age = Math.max(0, Math.round((now - lastSuccess) / 1000));
   return {
     state: now - lastSuccess > staleAfter ? "stale" : "live",
-    label: `Updated ${age < 60 ? `${age}s` : `${Math.round(age / 60)} min`} ago`,
+    label:
+      age < 60
+        ? m.layout.statusBar.updatedSeconds(age)
+        : m.layout.statusBar.updatedMinutes(Math.round(age / 60)),
   };
 }

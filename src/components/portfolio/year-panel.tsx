@@ -4,6 +4,7 @@ import { AsyncBoundary } from "@/components/common/async-boundary";
 import { Segmented } from "@/components/common/segmented";
 import { TableSkeleton } from "@/components/common/table-skeleton";
 import { YearSummary } from "@/components/portfolio/year-summary";
+import { m } from "@/lib/i18n";
 
 const thisYear = new Date().getFullYear();
 const years = [thisYear, thisYear - 1, thisYear - 2, thisYear - 3];
@@ -16,7 +17,7 @@ export function YearPanel() {
     <div className="flex flex-col">
       <div className="flex border-b px-3 py-1">
         <Segmented
-          label="Year"
+          label={m.common.year}
           numeric
           options={years.map((y) => ({ label: String(y), value: y }))}
           value={year}
@@ -24,7 +25,7 @@ export function YearPanel() {
         />
       </div>
       <AsyncBoundary
-        what={`the ${year} summary`}
+        what={m.portfolio.holdings.loading.year(year)}
         fallback={<TableSkeleton rows={4} columns={4} />}
         resetKey={`${year}`}
       >

@@ -2,6 +2,9 @@ import type { Transaction } from "avanza-ts";
 
 import { TransactionSide } from "@/lib/avanza/codes";
 import { formatCompact, formatDate, formatInteger, formatPercent, formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
+
+const t = m.analysis.profile;
 
 // Fewer samples than this and a "pattern" is mostly luck.
 const MIN_SAMPLE = 8;
@@ -62,18 +65,10 @@ export type Evidence = {
 export type Measure = { label: string; value: string; note?: string; sensitive?: boolean };
 
 export type Status = "found" | "clear" | "too-few";
-export const statusLabel: Record<Status, string> = {
-  found: "Pattern",
-  clear: "No pattern",
-  "too-few": "Too few trades",
-};
+export const statusLabel: Record<Status, string> = t.status;
 
 export type Tone = "change" | "watch" | "keep";
-export const toneLabel: Record<Tone, string> = {
-  change: "Worth changing",
-  watch: "Keep an eye on it",
-  keep: "Keep it up",
-};
+export const toneLabel: Record<Tone, string> = t.tone;
 /** What to do about a check's verdict. Amounts stay out of the text so privacy mode hides them. */
 export type Advice = { tone: Tone; text: string };
 
@@ -103,11 +98,7 @@ export type Period = {
 };
 
 export type Direction = "better" | "worse" | "steady";
-export const directionLabel: Record<Direction, string> = {
-  better: "Improving",
-  worse: "Getting worse",
-  steady: "Steady",
-};
+export const directionLabel: Record<Direction, string> = t.direction;
 
 /** The last 12 months against everything before. */
 export type Trend = {
@@ -167,7 +158,7 @@ const instrument = ({ name, orderbookId, type, isin, flagCode }: Trade) => ({
   flagCode,
 });
 const held = (lots: readonly Lot[]) => lots.map((l) => daysBetween(l.buyDay, l.sellDay));
-const days = (n: number) => `${formatInteger(n)} days`;
+const days = (n: number) => t.dayCount(n, formatInteger(n));
 const worstFirst = (rows: Evidence[]) => rows.sort((a, b) => a.result - b.result);
 const lotEvidence = (lots: readonly Lot[]) =>
   worstFirst(
@@ -276,77 +267,79 @@ function holdingAsymmetry({ lots }: Window): Check {
   const lose = losers.length ? median(held(losers)) : 0;
   // At least a day each, so same-day sells don't divide by zero or tie at 0 = 0 × 1,5.
   const ratio = Math.max(lose, 1) / Math.max(win, 1);
+  const h = t.holding;
+  const cutoffs = [formatPrice(HOLD_RATIO), formatPrice(1 / HOLD_RATIO)] as const;
   const base = {
     id: "holding",
-    rule: `Compares the median days you held positions sold at a gain with those sold at a loss. Flagged when one is ${formatPrice(HOLD_RATIO)} times the other or more, with at least ${MIN_SAMPLE / 2} of each.`,
+    rule: h.rule(formatPrice(HOLD_RATIO), MIN_SAMPLE / 2),
     measures: [
       {
-        label: "Winners sold",
+        label: h.winners,
         value: formatInteger(winners.length),
-        note: `median ${days(win)} held`,
+        note: h.medianHeld(days(win)),
       },
       {
-        label: "Losers sold",
+        label: h.losers,
         value: formatInteger(losers.length),
-        note: `median ${days(lose)} held`,
+        note: h.medianHeld(days(lose)),
       },
       {
-        label: "Losers vs winners",
+        label: h.ratio,
         value: `${formatPrice(ratio)}×`,
-        note: `flagged from ${formatPrice(HOLD_RATIO)}× or below ${formatPrice(1 / HOLD_RATIO)}×`,
+        note: h.flaggedFrom(...cutoffs),
       },
     ],
     sample: winners.length + losers.length,
     evidence: lotEvidence([...winners, ...losers]),
     metric: {
-      label: "Losers vs winners",
+      label: h.ratio,
       value: winners.length < MIN_SAMPLE / 2 || losers.length < MIN_SAMPLE / 2 ? null : ratio,
       text: `${formatPrice(ratio)}×`,
       better: "lower" as const,
       step: 0.5,
       cutoffs: [HOLD_RATIO, 1 / HOLD_RATIO],
-      cutoffText: `from ${formatPrice(HOLD_RATIO)}× or below ${formatPrice(1 / HOLD_RATIO)}×`,
+      cutoffText: h.cutoff(...cutoffs),
     },
   };
   const loss = losers.length ? median(losers.map(lotReturn)) : 0;
-  const said = `You sell winners after a median of ${days(win)} and losers after ${days(lose)}.`;
+  const said = h.said(days(win), days(lose));
   if (winners.length < MIN_SAMPLE / 2 || losers.length < MIN_SAMPLE / 2)
     return {
       ...base,
       status: "too-few",
-      title: "Hold time: too few closed trades",
-      detail: `It needs at least ${MIN_SAMPLE / 2} winning and ${MIN_SAMPLE / 2} losing sells; you have ${winners.length} and ${losers.length}.`,
+      title: h.tooFewTitle,
+      detail: h.tooFewDetail(MIN_SAMPLE / 2, winners.length, losers.length),
     };
   if (ratio >= HOLD_RATIO)
     return {
       ...base,
       status: "found",
-      title: "You hold losers longer than winners",
-      detail: `${said} Cutting winners early and riding losers is the most common costly habit (the disposition effect).`,
+      title: h.longerTitle,
+      detail: h.longerDetail(said),
       advice: {
         tone: "change",
-        text: `Your losing sells ended at a median ${formatPercent(loss)} after ${days(lose)}. Decide what would make you sell when you buy, for example −15 %, and set it as a stop loss in Avanza, so the decision is made before you are in the red.`,
+        text: h.longerAdvice(formatPercent(loss), days(lose)),
       },
     };
   if (ratio <= 1 / HOLD_RATIO)
     return {
       ...base,
       status: "found",
-      title: "You let winners run and cut losers",
-      detail: `${said} That is the opposite of the most common mistake.`,
+      title: h.runTitle,
+      detail: h.runDetail(said),
       advice: {
         tone: "keep",
-        text: `Letting winners run and cutting losers is what most investors fail to do. Keep the exit rules you use on losers, and apply them to new positions too.`,
+        text: h.runAdvice,
       },
     };
   return {
     ...base,
     status: "clear",
-    title: "You hold winners and losers about as long",
-    detail: `${said} Neither side is held ${formatPrice(HOLD_RATIO)} times longer, so there is no sign of the disposition effect.`,
+    title: h.evenTitle,
+    detail: h.evenDetail(said, formatPrice(HOLD_RATIO)),
     advice: {
       tone: "keep",
-      text: "Neither side lingers. Keep judging winners and losers on the same terms.",
+      text: h.evenAdvice,
     },
   };
 }
@@ -356,65 +349,64 @@ function profitTaking({ lots }: Window): Check {
   const gains = winners.map(lotReturn).sort((a, b) => a - b);
   const q1 = gains.length ? quantile(gains, 0.25) : 0;
   const q3 = gains.length ? quantile(gains, 0.75) : 0;
-  const spread = `${formatInteger((q3 - q1) * 100)} percentage points`;
+  const p = t.profitTaking;
+  const pp = formatInteger((q3 - q1) * 100);
+  const cutoff = formatInteger(EXIT_SPREAD * 100);
+  const spread = p.spread(pp);
   const base = {
     id: "profit-taking",
-    rule: `Looks at the gain on each position you sold at a profit. Flagged when the middle half of those gains sit within ${formatInteger(EXIT_SPREAD * 100)} percentage points, with at least ${MIN_SAMPLE} winning sells.`,
+    rule: p.rule(cutoff, MIN_SAMPLE),
     measures: gains.length
       ? [
           {
-            label: "Winning sells",
+            label: p.winningSells,
             value: formatInteger(gains.length),
-            note: `needs ${MIN_SAMPLE}`,
+            note: p.needs(MIN_SAMPLE),
           },
-          { label: "Median gain", value: formatPercent(quantile(gains, 0.5)) },
-          { label: "Middle half", value: `${formatPercent(q1)} to ${formatPercent(q3)}` },
-          {
-            label: "Spread",
-            value: `${formatInteger((q3 - q1) * 100)} pp`,
-            note: `flagged at ${formatInteger(EXIT_SPREAD * 100)} pp or less`,
-          },
+          { label: p.medianGain, value: formatPercent(quantile(gains, 0.5)) },
+          { label: p.middleHalf, value: p.range(formatPercent(q1), formatPercent(q3)) },
+          { label: p.spreadLabel, value: p.pp(pp), note: p.flaggedAt(cutoff) },
         ]
-      : [{ label: "Winning sells", value: "0", note: `needs ${MIN_SAMPLE}` }],
+      : [{ label: p.winningSells, value: "0", note: p.needs(MIN_SAMPLE) }],
     sample: gains.length,
     evidence: lotEvidence(winners),
     metric: {
-      label: "Spread of winning sells",
+      label: p.metric,
       // Percentage points, so the value reads like its text.
       value: gains.length < MIN_SAMPLE ? null : (q3 - q1) * 100,
-      text: `${formatInteger((q3 - q1) * 100)} pp`,
+      text: p.pp(pp),
       better: "higher" as const,
       step: 10,
       cutoffs: [EXIT_SPREAD * 100],
-      cutoffText: `at ${formatInteger(EXIT_SPREAD * 100)} pp or less`,
+      cutoffText: p.cutoff(cutoff),
     },
   };
   if (gains.length < MIN_SAMPLE)
     return {
       ...base,
       status: "too-few",
-      title: "Profit-taking: too few winning sells",
-      detail: `It needs at least ${MIN_SAMPLE} winning sells; you have ${gains.length}.`,
+      title: p.tooFewTitle,
+      detail: p.tooFewDetail(MIN_SAMPLE, gains.length),
     };
   if (q3 - q1 <= EXIT_SPREAD)
     return {
       ...base,
       status: "found",
-      title: `You take profits around ${formatPercent(quantile(gains, 0.5))}`,
-      detail: `Half your winning sells land between ${formatPercent(q1)} and ${formatPercent(q3)}, a spread of ${spread}. A fixed exit caps your winners; check whether those stocks kept rising.`,
+      title: p.foundTitle(formatPercent(quantile(gains, 0.5))),
+      detail: p.foundDetail(formatPercent(q1), formatPercent(q3), spread),
       advice: {
         tone: "watch",
-        text: `A fixed target means your best stocks get sold as early as your average ones. Next time a stock reaches about ${formatPercent(quantile(gains, 0.5))}, ask whether you would buy it today. If so, sell half and let the rest run.`,
+        text: p.foundAdvice(formatPercent(quantile(gains, 0.5))),
       },
     };
   return {
     ...base,
     status: "clear",
-    title: "Your profit-taking varies",
-    detail: `The middle half of your winning sells spans ${spread}, so there is no fixed exit level.`,
+    title: p.clearTitle,
+    detail: p.clearDetail(spread),
     advice: {
       tone: "keep",
-      text: "You exit at different levels, which suggests you sell on the story rather than on a number. Keep it that way.",
+      text: p.clearAdvice,
     },
   };
 }
@@ -449,22 +441,23 @@ function roundTrips({ trades, years }: Window): Check {
   }
   const count = evidence.length;
   const higher = evidence.filter((e) => e.change > 0).length;
+  const r = t.roundTrips;
   const base = {
     id: "round-trips",
-    rule: `Pairs each sell with a buy of the same stock 1 to ${ROUND_TRIP_DAYS} days later. Flagged at ${ROUND_TRIPS} or more buy-backs.`,
+    rule: r.rule(ROUND_TRIP_DAYS, ROUND_TRIPS),
     measures: [
-      { label: "Buy-backs", value: formatInteger(count), note: `flagged at ${ROUND_TRIPS}` },
+      { label: r.buyBacks, value: formatInteger(count), note: r.flaggedAt(ROUND_TRIPS) },
       ...(count
         ? [
             {
-              label: "Days apart",
+              label: r.daysApart,
               value: formatInteger(median(evidence.map((e) => e.days))),
-              note: "median",
+              note: r.median,
             },
             {
-              label: "Bought back higher",
-              value: `${higher} of ${count}`,
-              note: "paid more than you sold for",
+              label: r.higher,
+              value: t.of(higher, count),
+              note: r.higherNote,
             },
           ]
         : []),
@@ -472,44 +465,42 @@ function roundTrips({ trades, years }: Window): Check {
     sample: count,
     evidence: worstFirst(evidence),
     metric: {
-      label: "Buy-backs a year",
+      label: r.metric,
       value: trades.length < MIN_SAMPLE ? null : count / years,
       text: formatCompact(count / years),
       better: "lower" as const,
       step: 1,
       cutoffs: [ROUND_TRIPS],
-      cutoffText: `at ${ROUND_TRIPS} a year`,
+      cutoffText: t.aYear(ROUND_TRIPS),
     },
   };
   if (count < ROUND_TRIPS)
     return {
       ...base,
       status: "clear",
-      title: count ? "Few buy-backs" : "You don't buy back what you sell",
-      detail: `${count} buy-back${count === 1 ? "" : "s"} within ${ROUND_TRIP_DAYS} days, below the ${ROUND_TRIPS} needed to call it a habit.`,
+      title: count ? r.fewTitle : r.noneTitle,
+      detail: r.clearDetail(count, ROUND_TRIP_DAYS, ROUND_TRIPS),
       advice: {
         tone: "keep",
-        text: count
-          ? "Rare enough to be normal. Your sells look like firm decisions."
-          : "You don't second-guess your sells. Keep it up.",
+        text: count ? r.fewAdvice : r.noneAdvice,
       },
     };
   const impact = evidence.reduce((sum, e) => sum + e.result, 0);
   return {
     ...base,
     status: "found",
-    title: `You bought back ${count} stocks you had just sold`,
-    detail: `${count} times you sold a stock and bought it back within ${ROUND_TRIP_DAYS} days, ${higher} of them at a higher price. The amount is what buying back cost (−) or saved (+), fees included.`,
+    title: r.foundTitle(count),
+    detail: r.foundDetail(count, ROUND_TRIP_DAYS, higher),
     impact,
     advice:
       impact < 0
         ? {
             tone: "change",
-            text: `${higher} of ${count} buy-backs cost more than you sold for. Before you sell, ask whether you would still want the stock in a month. If you might, keep it or sell only part.`,
+            text: r.costAdvice(higher, count),
           }
         : {
             tone: "watch",
-            text: `Your buy-backs came out ahead, but ${count} quick reversals suggest the sells weren't firm decisions. Write down why before each sale.`,
+            text: r.aheadAdvice(count),
           },
   };
 }
@@ -530,31 +521,29 @@ function bursts({ trades, lots, years }: Window): Check {
   const hot = hotLots.map(lotReturn);
   const calm = lots.filter((l) => !busy.has(weekOf(l.buyDay))).map(lotReturn);
   const compared = hot.length >= MIN_SAMPLE / 2 && calm.length >= MIN_SAMPLE / 2;
+  const b = t.bursts;
   const base = {
     id: "bursts",
-    rule: `Counts calendar weeks with ${BUSY_WEEK_TRADES} or more trades. Flagged at ${BUSY_WEEKS} or more such weeks.`,
+    rule: b.rule(BUSY_WEEK_TRADES, BUSY_WEEKS),
     measures: [
       {
-        label: "Busy weeks",
+        label: b.busyWeeks,
         value: formatInteger(busy.size),
-        note: `${BUSY_WEEK_TRADES}+ trades, flagged at ${BUSY_WEEKS}`,
+        note: b.busyNote(BUSY_WEEK_TRADES, BUSY_WEEKS),
       },
       {
-        label: "Busiest week",
-        value: `${formatInteger(peak.length)} trades`,
-        note: peakWeek ? `week of ${formatDate(peakWeek)}` : undefined,
+        label: b.busiest,
+        value: b.trades(formatInteger(peak.length)),
+        note: peakWeek ? b.weekOf(formatDate(peakWeek)) : undefined,
       },
-      {
-        label: "Trades in busy weeks",
-        value: `${busyTrades.length} of ${trades.length}`,
-      },
-      { label: "Courtage in busy weeks", value: formatInteger(fees), note: "SEK", sensitive: true },
+      { label: b.inBusy, value: t.of(busyTrades.length, trades.length) },
+      { label: b.courtage, value: formatInteger(fees), note: "SEK", sensitive: true },
       ...(compared
         ? [
             {
-              label: "Bought then vs rest",
-              value: `${formatPercent(median(hot))} vs ${formatPercent(median(calm))}`,
-              note: "median return, closed positions",
+              label: b.boughtThen,
+              value: b.vs(formatPercent(median(hot)), formatPercent(median(calm))),
+              note: b.medianReturn,
             },
           ]
         : []),
@@ -563,45 +552,40 @@ function bursts({ trades, lots, years }: Window): Check {
     // Closed lots only: trades from those weeks you still hold aren't listed.
     evidence: lotEvidence(hotLots),
     metric: {
-      label: "Busy weeks a year",
+      label: b.metric,
       value: trades.length < MIN_SAMPLE ? null : busy.size / years,
       text: formatCompact(busy.size / years),
       better: "lower" as const,
       step: 1,
       cutoffs: [BUSY_WEEKS],
-      cutoffText: `at ${BUSY_WEEKS} a year`,
+      cutoffText: t.aYear(BUSY_WEEKS),
     },
   };
   if (busy.size < BUSY_WEEKS)
     return {
       ...base,
       status: "clear",
-      title: "No trading bursts",
-      detail: busy.size
-        ? `Only one week had ${BUSY_WEEK_TRADES} or more trades.`
-        : `No week had ${BUSY_WEEK_TRADES} or more trades.`,
-      advice: { tone: "keep", text: "Your trading is spread out. Keep it up." },
+      title: b.clearTitle,
+      detail: busy.size ? b.oneWeek(BUSY_WEEK_TRADES) : b.noWeek(BUSY_WEEK_TRADES),
+      advice: { tone: "keep", text: b.clearAdvice },
     };
-  let detail = `${busy.size} weeks had ${BUSY_WEEK_TRADES} or more trades, ${busyTrades.length} trades in all. The amount is the courtage paid in those weeks.`;
-  if (compared)
-    detail += ` Stocks bought in those weeks returned a median ${formatPercent(median(hot))}, against ${formatPercent(median(calm))} for the rest.`;
+  let detail = b.detail(busy.size, BUSY_WEEK_TRADES, busyTrades.length);
+  if (compared) detail += b.compared(formatPercent(median(hot)), formatPercent(median(calm)));
   const worse = compared && median(hot) < median(calm);
   return {
     ...base,
     status: "found",
-    title: "You trade in bursts",
+    title: b.foundTitle,
     detail,
     impact: -fees,
     advice: worse
       ? {
           tone: "change",
-          text: `Stocks bought in busy weeks did worse than the rest (${formatPercent(median(hot))} against ${formatPercent(median(calm))}). When a week gets busy, wait a day before each new buy and write down why you want it.`,
+          text: b.worseAdvice(formatPercent(median(hot)), formatPercent(median(calm))),
         }
       : {
           tone: "watch",
-          text: compared
-            ? "Stocks bought in busy weeks did as well as the rest, so the cost is the courtage. Fewer, larger trades would pay less of it."
-            : "Too few of those trades are closed to tell whether they did worse. The courtage is the cost you know of.",
+          text: compared ? b.courtageAdvice : b.unclearAdvice,
         },
   };
 }

@@ -17,6 +17,7 @@ import type { RuleScope, RuleTarget } from "@/lib/alert-rules";
 import { InstrumentType } from "@/lib/avanza/codes";
 import { aggregateHoldings } from "@/lib/avanza/portfolio";
 import { allPositionsQuery, universeQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 
 type Option = RuleTarget & { isin?: string };
 
@@ -44,7 +45,7 @@ export function RuleTargetPicker({
     scope === "holdings"
       ? [
           {
-            label: "Your holdings",
+            label: m.alerts.targets.yourHoldings,
             options: positions
               ? aggregateHoldings(positions).map((h) => ({
                   id: h.orderbookId ?? h.key,
@@ -55,10 +56,10 @@ export function RuleTargetPicker({
               : [],
           },
         ]
-      : (["Held", "Watched"] as const).map((label) => ({
-          label,
+      : [true, false].map((held) => ({
+          label: held ? m.alerts.targets.held : m.alerts.targets.watched,
           options: universe
-            .filter((s) => (label === "Held" ? s.held : !s.held))
+            .filter((s) => !!s.held === held)
             .map((s) => ({
               id: s.orderbookId,
               name: s.name,

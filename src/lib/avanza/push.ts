@@ -13,6 +13,8 @@ import {
 } from "avanza-ts";
 import { toast } from "sonner";
 
+import { m } from "@/lib/i18n";
+
 import { isUnauthorized } from "./client";
 import { errorMessage } from "./error-message";
 
@@ -43,7 +45,7 @@ export function follow<T>(
       // The REST read still shows the data, so no toast.
       if (error instanceof AvanzaHttpError && error.status === 403) return;
       // One toast per kind of stream, however many instruments it covered.
-      toast.error(`Live ${name} stopped`, {
+      toast.error(m.errors.liveStopped(name), {
         id: `push-${name}`,
         description: errorMessage(error),
         duration: Infinity,

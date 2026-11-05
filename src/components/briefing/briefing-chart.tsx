@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { PriceChart } from "@/components/common/price-chart";
 import { portfolioRangeQuery } from "@/lib/avanza/queries";
 import { formatPercent } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 // The return series is in percent units.
 const formatReturn = (v: number) => formatPercent(v / 100);
@@ -20,7 +21,7 @@ export function BriefingChart({ from, to }: { from: string; to: string }) {
         }))}
         intraday={false}
         formatValue={formatReturn}
-        valueLabel="Return"
+        valueLabel={m.common.return}
         previousClose={0}
       />
     </div>

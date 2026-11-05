@@ -5,6 +5,7 @@ import { StatList } from "@/components/analysis/stat-list";
 import { Input } from "@/components/ui/input";
 import { accountsQuery, portfolioRangeQuery, transactionFilterQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { iskTax, iskYear, quarterStarts } from "@/lib/isk-tax";
 import { getSetting, saveSetting } from "@/lib/settings";
 import { stockholmDay } from "@/lib/snapshots";
@@ -16,7 +17,7 @@ const isIsk = (type: string) => /^(INVESTERINGSSPARKONTO|ISK)$/i.test(type);
 export function IskTaxYear({ year }: { year: number }) {
   const { data: accounts } = useSuspenseQuery(accountsQuery);
   const ids = accounts.filter((a) => isIsk(a.info.type)).map((a) => a.info.id);
-  if (ids.length === 0) return <p className="text-muted-foreground">No ISK accounts.</p>;
+  if (ids.length === 0) return <p className="text-muted-foreground">{m.analysis.tax.noIsk}</p>;
   return <IskTaxFor year={year} ids={ids} />;
 }
 
@@ -56,28 +57,28 @@ function IskTaxFor({ year, ids }: { year: number; ids: string[] }) {
       <StatList
         stats={[
           ...quarters.map((q, i) => ({
-            label: `Q${i + 1} start`,
+            label: m.analysis.tax.quarter(i + 1),
             value: formatInteger(q.value),
-            note: q.estimate ? "estimate: today's value" : q.day,
+            note: q.estimate ? m.analysis.tax.estimateToday : q.day,
             sensitive: true,
           })),
           {
-            label: "Deposits",
+            label: m.analysis.tax.deposits,
             value: formatInteger(deposited),
-            note: year === Number(today.slice(0, 4)) ? "so far this year" : undefined,
+            note: year === Number(today.slice(0, 4)) ? m.analysis.tax.soFar : undefined,
             sensitive: true,
           },
-          { label: "Capital base", value: formatInteger(tax.base), sensitive: true },
+          { label: m.analysis.tax.base, value: formatInteger(tax.base), sensitive: true },
           {
-            label: "Tax-free amount",
+            label: m.analysis.tax.allowance,
             value: formatInteger(known.allowance),
-            note: "per person, shared with KF",
+            note: m.analysis.tax.allowanceNote,
           },
-          { label: "Estimated tax", value: formatInteger(tax.tax), sensitive: true },
+          { label: m.analysis.tax.estimatedTax, value: formatInteger(tax.tax), sensitive: true },
         ]}
       />
       <label className="text-muted-foreground flex items-center gap-2 text-xs">
-        Rate (bond rate 30 Nov {year - 1} + 1 pp, min 1,25 %)
+        {m.analysis.tax.rate(year - 1)}
         <Input
           type="number"
           step={0.01}
@@ -91,12 +92,9 @@ function IskTaxFor({ year, ids }: { year: number; ids: string[] }) {
             void saveSetting(`isk-rate:${year}`, v / 100);
           }}
         />
-        % · verify at skatteverket.se
+        {m.analysis.tax.verify}
       </label>
-      <p className="text-muted-foreground text-xs">
-        Deposits count cash deposits only; securities moved in also count for tax. Values are your
-        ISK accounts at Avanza; ISK or KF elsewhere share the tax-free amount.
-      </p>
+      <p className="text-muted-foreground text-xs">{m.analysis.tax.footnote}</p>
     </div>
   );
 }

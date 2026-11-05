@@ -14,6 +14,7 @@ import {
   tradingRulesQuery,
 } from "@/lib/avanza/queries";
 import { formatInteger, formatPercent, formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 /**
  * What a market order of `quantity` would cost against the live book, in SEK too for foreign
@@ -49,15 +50,18 @@ export function PreTradeEstimate({
 
   const rows: { label: string; value: string; className?: string }[] = [
     {
-      label: "Est. avg price",
+      label: m.workspace.preTrade.avgPrice,
       value: fill.averagePrice == null ? "–" : formatPrice(fill.averagePrice),
     },
     {
-      label: "Slippage vs best",
-      value: slippage == null ? "–" : `${formatPercent(slippage)} · ${fill.levels} lvl`,
+      label: m.workspace.preTrade.slippage,
+      value:
+        slippage == null
+          ? "–"
+          : m.workspace.preTrade.slippageValue(formatPercent(slippage), fill.levels),
     },
     {
-      label: `Total (${instrument.currency})`,
+      label: m.workspace.preTrade.total(instrument.currency),
       value: formatPrice(fill.cost),
       className: "font-medium",
     },
@@ -66,22 +70,27 @@ export function PreTradeEstimate({
   const rate = rates?.find((r) => r.currency === instrument.currency);
   const sek =
     rate && Number((side === OrderSide.Buy ? rate.buyPrice : rate.sellPrice).replace(",", "."));
-  if (foreign && sek) rows.push({ label: "Total (SEK)", value: formatPrice(fill.cost * sek) });
+  if (foreign && sek)
+    rows.push({ label: m.workspace.preTrade.total("SEK"), value: formatPrice(fill.cost * sek) });
   const tick = best != null && rules ? tickAt(rules.tickSizeList.tickSizeEntries, best) : undefined;
-  if (tick != null) rows.push({ label: "Tick size", value: formatPrice(tick) });
+  if (tick != null) rows.push({ label: m.workspace.preTrade.tickSize, value: formatPrice(tick) });
   if (rules && rules.tradingUnit > 1)
-    rows.push({ label: "Trading unit", value: formatInteger(rules.tradingUnit) });
+    rows.push({ label: m.workspace.preTrade.tradingUnit, value: formatInteger(rules.tradingUnit) });
   if (held)
-    rows.unshift({ label: "You own", value: formatInteger(held.volume), className: "sensitive" });
+    rows.unshift({
+      label: m.workspace.chart.youOwn,
+      value: formatInteger(held.volume),
+      className: "sensitive",
+    });
   if (fill.filled < quantity)
     rows.push({
-      label: "Visible depth",
-      value: `only ${formatInteger(fill.filled)}`,
+      label: m.workspace.preTrade.visibleDepth,
+      value: m.workspace.preTrade.only(formatInteger(fill.filled)),
       className: "text-down",
     });
   if (pnl != null)
     rows.push({
-      label: "Realized P&L",
+      label: m.workspace.preTrade.realized,
       value: formatPrice(pnl),
       className: cn("sensitive", pnl >= 0 ? "text-up" : "text-down"),
     });

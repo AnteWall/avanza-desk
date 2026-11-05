@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Settings, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { m } from "@/lib/i18n";
 
 /** A tiny assistant conversation drawn in tokens: a question, an answer with a rising chart. */
 function ChatIllustration() {
@@ -36,14 +37,12 @@ export function AssistantOff() {
     <div className="flex h-full flex-col items-center justify-center gap-5 p-6 text-center">
       <ChatIllustration />
       <div className="flex max-w-64 flex-col gap-1.5">
-        <span className="font-semibold">Ask about your portfolio</span>
-        <span className="text-muted-foreground text-xs leading-relaxed">
-          An AI assistant that reads your holdings, news and prices and answers in plain language.
-        </span>
+        <span className="font-semibold">{m.ai.off.title}</span>
+        <span className="text-muted-foreground text-xs leading-relaxed">{m.ai.off.body}</span>
       </div>
       <Button render={<Link to="/settings/assistant" />}>
         <Settings />
-        Set up assistant
+        {m.ai.off.setUp}
       </Button>
     </div>
   );

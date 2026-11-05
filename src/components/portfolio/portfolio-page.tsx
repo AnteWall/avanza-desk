@@ -7,6 +7,7 @@ import { PerformancePanel } from "@/components/portfolio/performance-panel";
 import { PortfolioOverview } from "@/components/portfolio/portfolio-overview";
 import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 import { gutter } from "@/components/workspace/workspace";
+import { m } from "@/lib/i18n";
 
 const overviewSkeleton = (
   <div className="bg-card flex h-14 items-center gap-10 rounded-md border px-4">
@@ -23,7 +24,7 @@ const overviewSkeleton = (
 export function PortfolioPage() {
   return (
     <div className="flex h-full min-h-0 flex-col gap-1">
-      <AsyncBoundary what="your portfolio" fallback={overviewSkeleton}>
+      <AsyncBoundary what={m.portfolio.page.loading} fallback={overviewSkeleton}>
         <PortfolioOverview />
       </AsyncBoundary>
       <div className="min-h-0 flex-1">

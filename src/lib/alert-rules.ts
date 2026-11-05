@@ -3,6 +3,7 @@ import type { CreditInfo } from "avanza-ts";
 import { InstrumentType } from "@/lib/avanza/codes";
 import type { Holding } from "@/lib/avanza/portfolio";
 import { formatPercent, formatPrice, formatShare, formatSignedShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { getSetting, onRemoteSetting, saveSetting } from "@/lib/settings";
 import type { Signal, SignalKind } from "@/lib/signals";
 
@@ -52,65 +53,65 @@ type KindInfo = {
 
 export const ruleKinds: Record<RuleKind, KindInfo> = {
   price: {
-    label: "Price level",
-    explain: "The price rises to or falls to a level you pick, e.g. a breakout or a stop.",
+    label: m.alerts.kinds.price.label,
+    explain: m.alerts.kinds.price.explain,
     scope: "stocks",
     unit: "price",
     // Offsets from the current price; the form turns them into levels.
     presets: [-10, -5, 5, 10],
   },
   "day-move": {
-    label: "Big day move",
-    explain: "A stock or holding moves sharply up or down during the day.",
+    label: m.alerts.kinds["day-move"].label,
+    explain: m.alerts.kinds["day-move"].explain,
     scope: "stocks",
     unit: "%",
     presets: [3, 5, 10],
   },
   signal: {
-    label: "New signal",
-    explain: "Insider trades, short interest, owner or analyst changes, upcoming reports.",
+    label: m.alerts.kinds.signal.label,
+    explain: m.alerts.kinds.signal.explain,
     scope: "stocks",
     unit: "score",
     presets: [1, 2, 3],
   },
   short: {
-    label: "Short interest",
-    explain: "The share of a stock that is sold short goes above a level.",
+    label: m.alerts.kinds.short.label,
+    explain: m.alerts.kinds.short.explain,
     scope: "stocks",
     unit: "%",
     presets: [3, 5, 10],
   },
   upside: {
-    label: "Analyst upside",
-    explain: "The average analyst price target is far enough above the price.",
+    label: m.alerts.kinds.upside.label,
+    explain: m.alerts.kinds.upside.explain,
     scope: "stocks",
     unit: "%",
     presets: [15, 25, 40],
   },
   loss: {
-    label: "Loss from cost",
-    explain: "A holding is down from what you paid for it.",
+    label: m.alerts.kinds.loss.label,
+    explain: m.alerts.kinds.loss.explain,
     scope: "holdings",
     unit: "%",
     presets: [10, 20, 30],
   },
   weight: {
-    label: "Too large a share",
-    explain: "A holding grows past a share of your portfolio.",
+    label: m.alerts.kinds.weight.label,
+    explain: m.alerts.kinds.weight.explain,
     scope: "holdings",
     unit: "%",
     presets: [10, 15, 25],
   },
   drift: {
-    label: "Rebalance drift",
-    explain: "A holding drifts from its target weight on the Rebalance page.",
+    label: m.alerts.kinds.drift.label,
+    explain: m.alerts.kinds.drift.explain,
     scope: "holdings",
     unit: "%",
     presets: [2, 5, 10],
   },
   ltv: {
-    label: "Loan-to-value",
-    explain: "Borrowing on a credit account gets close to the margin limit.",
+    label: m.alerts.kinds.ltv.label,
+    explain: m.alerts.kinds.ltv.explain,
     scope: "accounts",
     unit: "%",
     presets: [30, 40, 50],
@@ -118,14 +119,7 @@ export const ruleKinds: Record<RuleKind, KindInfo> = {
 };
 
 /** Labels for the signal kinds a signal rule can narrow to. */
-export const signalKindLabels: Record<SignalKind, string> = {
-  insider: "Insider trades",
-  short: "Short interest",
-  owners: "Avanza owners",
-  target: "Price target",
-  consensus: "Analyst consensus",
-  report: "Upcoming report",
-};
+export const signalKindLabels: Record<SignalKind, string> = m.alerts.signalKinds;
 
 const num = (n: number) => String(n).replace(".", ",");
 
@@ -135,27 +129,26 @@ export function describeRule(
 ) {
   const t = num(r.threshold);
   const name = r.target?.name;
+  const d = m.alerts.describe;
   switch (r.kind) {
     case "price":
-      return `${name ?? "The stock"} ${r.direction === "below" ? "falls to" : "rises to"} ${formatPrice(r.threshold)} or ${r.direction === "below" ? "lower" : "higher"}`;
+      return d.price(name, r.direction === "below", formatPrice(r.threshold));
     case "day-move":
-      return `${name ?? "Any holding"} moves ${t} % or more in a day`;
+      return d.dayMove(name, t);
     case "loss":
-      return `${name ?? "Any holding"} is down ${t} % or more from what you paid`;
+      return d.loss(name, t);
     case "weight":
-      return `${name ?? "Any holding"} grows past ${t} % of your portfolio`;
+      return d.weight(name, t);
     case "drift":
-      return `${name ?? "Any holding"} drifts ${t} % or more from its rebalance target`;
+      return d.drift(name, t);
     case "ltv":
-      return `Loan-to-value on a credit account goes over ${t} %`;
+      return d.ltv(t);
     case "short":
-      return `Short interest in ${name ?? "a held stock"} goes over ${t} %`;
+      return d.short(name, t);
     case "upside":
-      return `Analysts see ${t} % or more upside in ${name ?? "a held stock"}`;
-    case "signal": {
-      const what = r.signalKind ? signalKindLabels[r.signalKind].toLowerCase() : "any";
-      return `${name ?? "A held stock"} gets a signal (${what}) scoring ${t} or more`;
-    }
+      return d.upside(name, t);
+    case "signal":
+      return d.signal(name, r.signalKind && signalKindLabels[r.signalKind].toLowerCase(), t);
   }
 }
 
@@ -216,47 +209,47 @@ export function measure(r: AlertRule, s: RuleState): Measure[] {
   const stocks = [...s.stocks].filter(([id, f]) => (r.target ? r.target.id === id : f.held));
 
   // Day changes are the last trading day's; only a session running today can notify.
-  const live = s.session === "Today";
-  const when = live ? "today" : s.session === "Yesterday" ? "yesterday" : `on ${s.session}`;
+  const live = s.session === m.common.today;
+  const t9n = m.alerts.measure;
+  const when = (change: string) =>
+    live
+      ? t9n.today(change)
+      : s.session === m.common.yesterday
+        ? t9n.yesterday(change)
+        : t9n.on(change, s.session);
 
   switch (r.kind) {
     case "price":
       for (const [id, f] of stocks)
         if (f.last != null) {
           const hit = r.direction === "below" ? f.last <= t : f.last >= t;
-          push(id, f.name, f.last, hit, `Last ${formatPrice(f.last)}`);
+          push(id, f.name, f.last, hit, t9n.last(formatPrice(f.last)));
         }
       break;
     case "day-move":
       if (r.target && s.stocks.get(r.target.id)?.dayChange != null) {
         const v = s.stocks.get(r.target.id)!.dayChange!;
-        push(
-          r.target.id,
-          r.target.name,
-          v,
-          live && Math.abs(v) >= t,
-          `${formatPercent(v)} ${when}`,
-        );
+        push(r.target.id, r.target.name, v, live && Math.abs(v) >= t, when(formatPercent(v)));
       } else
         for (const h of holdings) {
           const yesterday = h.value - h.today;
           if (yesterday <= 0) continue;
           const v = h.today / yesterday;
-          push(h.key, h.name, v, live && Math.abs(v) >= t, `${formatPercent(v)} ${when}`);
+          push(h.key, h.name, v, live && Math.abs(v) >= t, when(formatPercent(v)));
         }
       break;
     case "loss":
       for (const h of holdings)
         if (h.cost > 0) {
           const v = h.profit / h.cost;
-          push(h.key, h.name, v, -v >= t, `${formatPercent(v)} from cost`);
+          push(h.key, h.name, v, -v >= t, t9n.fromCost(formatPercent(v)));
         }
       break;
     case "weight":
       for (const h of holdings)
         if (total > 0) {
           const v = h.value / total;
-          push(h.key, h.name, v, v > t, `${formatShare(v)} of the portfolio`);
+          push(h.key, h.name, v, v > t, t9n.ofPortfolio(formatShare(v)));
         }
       break;
     case "drift":
@@ -264,28 +257,22 @@ export function measure(r: AlertRule, s: RuleState): Measure[] {
         const target = s.targets[h.key];
         if (target == null || total <= 0) continue;
         const v = h.value / total - target;
-        push(h.key, h.name, v, Math.abs(v) >= t, `${formatSignedShare(v)} from target`);
+        push(h.key, h.name, v, Math.abs(v) >= t, t9n.fromTarget(formatSignedShare(v)));
       }
       break;
     case "ltv":
       for (const c of s.ltv)
-        push(
-          c.accountId,
-          "Credit account",
-          c.value,
-          c.value > t,
-          `Loan-to-value ${formatShare(c.value)}`,
-        );
+        push(c.accountId, t9n.creditAccount, c.value, c.value > t, t9n.ltv(formatShare(c.value)));
       break;
     case "short":
       for (const [id, f] of stocks)
         if (f.short != null)
-          push(id, f.name, f.short, f.short > t, `Short interest ${formatShare(f.short)}`);
+          push(id, f.name, f.short, f.short > t, t9n.short(formatShare(f.short)));
       break;
     case "upside":
       for (const [id, f] of stocks)
         if (f.upside != null)
-          push(id, f.name, f.upside, f.upside >= t, `${formatPercent(f.upside)} to target`);
+          push(id, f.name, f.upside, f.upside >= t, t9n.toTarget(formatPercent(f.upside)));
       break;
     case "signal":
       for (const sig of s.signals) {
@@ -318,11 +305,11 @@ export type Firing = {
 export function evaluateRules(rules: readonly AlertRule[], state: RuleState): Firing[] {
   return rules.flatMap((r) =>
     measure(r, state)
-      .filter((m) => m.fires)
-      .map((m) => ({
-        key: m.key,
+      .filter((x) => x.fires)
+      .map((x) => ({
+        key: x.key,
         once: r.kind === "signal",
-        title: `${m.name}: ${m.text}`,
+        title: `${x.name}: ${x.text}`,
         body: describeRule(r),
       })),
   );

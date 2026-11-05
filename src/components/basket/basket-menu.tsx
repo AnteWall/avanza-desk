@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { instrumentItem } from "@/lib/ai/context";
 import { addToBasketItems, setBasket, useBasketItems } from "@/lib/basket";
+import { m } from "@/lib/i18n";
 
 /**
  * The basket button at the bottom of the nav rail, with its item count. Opens a list of what's
@@ -36,8 +37,8 @@ export function BasketMenu({
         render={
           <Button
             variant="ghost"
-            aria-label={`Basket, ${items.length} items`}
-            title="Basket"
+            aria-label={m.basket.menu.aria(items.length)}
+            title={m.basket.title}
             data-active={active}
             className={cn("mt-auto", className)}
           />
@@ -50,20 +51,18 @@ export function BasketMenu({
             {items.length}
           </span>
         )}
-        <span className={labelClassName}>Basket</span>
+        <span className={labelClassName}>{m.basket.title}</span>
       </PopoverTrigger>
       <PopoverContent side="right" align="end" className="w-80 gap-0 p-0">
         <header className="flex items-center gap-2 border-b p-2 pl-3">
-          <span className="font-semibold">Basket</span>
+          <span className="font-semibold">{m.basket.title}</span>
           <span className="num text-muted-foreground text-xs">{items.length}</span>
           <span className="ml-auto">
             <AddFromWatchlist onAdd={addToBasketItems} />
           </span>
         </header>
         {items.length === 0 ? (
-          <p className="text-muted-foreground p-3">
-            Empty. Add what you want to buy from a watchlist, or search on the Basket page.
-          </p>
+          <p className="text-muted-foreground p-3">{m.basket.menu.empty}</p>
         ) : (
           <ul className="flex max-h-80 flex-col overflow-auto py-1">
             {items.map((it) => (
@@ -78,8 +77,8 @@ export function BasketMenu({
                       variant="ghost"
                       size="icon-xs"
                       className="ml-auto"
-                      aria-label={`Remove ${it.name} from the basket`}
-                      title="Remove from the basket"
+                      aria-label={m.basket.table.remove(it.name)}
+                      title={m.basket.table.removeTitle}
                       onClick={() => setBasket(items.filter((x) => x !== it))}
                     >
                       <X />
@@ -99,7 +98,7 @@ export function BasketMenu({
               void navigate({ to: "/basket" });
             }}
           >
-            {items.length ? "Split the money" : "Open the basket"}
+            {items.length ? m.basket.menu.split : m.basket.menu.open}
             <ArrowRight data-icon="inline-end" />
           </Button>
         </footer>

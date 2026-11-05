@@ -8,29 +8,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { instrumentItem } from "@/lib/ai/context";
 import { formatDecimal, formatShare, parseDecimal } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 const col = dataTableColumns<BasketRow>();
 const columns = col.columns([
   col.accessor("name", {
-    header: "Instrument",
+    header: m.common.instrument,
     cell: (c) => (
       <span className="flex items-center gap-1.5">
         <InstrumentLogo isin={c.row.original.isin} name={c.getValue()} />
         <span className="max-w-56 truncate font-medium">{c.getValue()}</span>
-        {c.row.original.owned && <span className="text-muted-foreground text-xs">Owned</span>}
+        {c.row.original.owned && (
+          <span className="text-muted-foreground text-xs">{m.basket.table.owned}</span>
+        )}
       </span>
     ),
   }),
   col.accessor((r) => r.item.weight, {
     id: "weight",
-    header: infoHeader(
-      "Weight",
-      "How much of the money it gets compared to the others: 2 gets twice as much as 1, 0 gets nothing. Saved as you type.",
-    ),
+    header: infoHeader(m.basket.table.weight, m.basket.table.weightTip),
     cell: (c) => (
       <Input
         inputMode="decimal"
-        aria-label={`Weight for ${c.row.original.name}`}
+        aria-label={m.basket.table.weightAria(c.row.original.name)}
         className="num ml-auto h-6 w-16 text-right"
         // Uncontrolled: a controlled input fights half-typed values like "1,".
         defaultValue={formatDecimal(c.getValue())}
@@ -43,7 +43,7 @@ const columns = col.columns([
     meta: { align: "end" },
   }),
   col.accessor("target", {
-    header: infoHeader("Share", "Its share of the money: its weight over all weights."),
+    header: infoHeader(m.basket.table.share, m.basket.table.shareTip),
     cell: (c) => formatShare(c.getValue()),
     meta: { align: "end", className: "num" },
   }),
@@ -54,8 +54,8 @@ const columns = col.columns([
       <Button
         variant="ghost"
         size="icon-xs"
-        aria-label={`Remove ${c.row.original.name} from the basket`}
-        title="Remove from the basket"
+        aria-label={m.basket.table.remove(c.row.original.name)}
+        title={m.basket.table.removeTitle}
         onClick={c.row.original.remove}
       >
         <X />

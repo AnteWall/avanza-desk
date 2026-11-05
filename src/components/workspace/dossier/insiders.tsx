@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Section } from "@/components/workspace/dossier/section";
 import { InsiderTradesTable } from "@/components/workspace/fundamentals/insider-trades-table";
 import { fundamentalsQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 
 const SHOWN = 6;
 
@@ -14,7 +15,7 @@ export function Insiders({ orderbookId }: { orderbookId: string }) {
     .slice(0, SHOWN);
   if (trades.length === 0) return null;
   return (
-    <Section title="Insider trades" aside="latest" flush>
+    <Section title={m.workspace.insiders.title} aside={m.workspace.insiders.latest} flush>
       <InsiderTradesTable trades={trades} />
     </Section>
   );

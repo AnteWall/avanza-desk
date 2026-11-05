@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { disconnect } from "@/lib/ai/connected";
 import type { Provider } from "@/lib/ai/types";
+import { m } from "@/lib/i18n";
 
 /**
  * Disconnecting stops the provider's program and drops it from the chat; the last one turns the
@@ -28,11 +29,11 @@ function Disconnect({ provider }: { provider: Provider }) {
     <Button
       variant="outline"
       size="xs"
-      title={`Stop using ${provider.name}. Your chats and preferences stay.`}
+      title={m.settings.assistant.disconnectHint(provider.name)}
       onClick={() => disconnect(provider.id)}
     >
       <Unplug />
-      Disconnect
+      {m.settings.assistant.disconnect}
     </Button>
   );
 }
@@ -57,7 +58,10 @@ export function AssistantConnection({ provider }: { provider: Provider }) {
   }
 
   const locate = async () => {
-    const path = await open({ title: `Locate ${provider.program}`, multiple: false });
+    const path = await open({
+      title: m.settings.assistant.locate(provider.program),
+      multiple: false,
+    });
     if (typeof path === "string") await setBinary(path);
   };
   const account = [setup.account.email, setup.account.plan ?? setup.account.organization]
@@ -75,7 +79,10 @@ export function AssistantConnection({ provider }: { provider: Provider }) {
           </span>
           <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
             <span className="bg-brand size-1.5 shrink-0 rounded-full" aria-hidden />
-            <span className="truncate">Connected{account && ` · ${account}`}</span>
+            <span className="truncate">
+              {m.settings.assistant.connected}
+              {account && ` · ${account}`}
+            </span>
           </span>
         </span>
         <Disconnect provider={provider} />
@@ -85,8 +92,8 @@ export function AssistantConnection({ provider }: { provider: Provider }) {
               <Button
                 variant="ghost"
                 size="icon-sm"
-                aria-label={`${provider.program} details`}
-                title={`${provider.program} details`}
+                aria-label={m.settings.assistant.details(provider.program)}
+                title={m.settings.assistant.details(provider.program)}
                 className="text-muted-foreground"
               />
             }
@@ -102,7 +109,7 @@ export function AssistantConnection({ provider }: { provider: Provider }) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => void setApiKey(null)}>
                   <KeyRound />
-                  Remove API key
+                  {m.settings.assistant.removeKey}
                 </DropdownMenuItem>
               </>
             ) : (
@@ -115,18 +122,22 @@ export function AssistantConnection({ provider }: { provider: Provider }) {
                     <span className="num truncate" title={setup.bin}>
                       {setup.bin}
                     </span>
-                    <span>{setup.custom ? "Chosen by you" : "Auto-detected"}</span>
+                    <span>
+                      {setup.custom
+                        ? m.settings.assistant.chosenByYou
+                        : m.settings.assistant.autoDetected}
+                    </span>
                   </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => void locate()}>
                   <FolderSearch />
-                  Change…
+                  {m.settings.assistant.change}
                 </DropdownMenuItem>
                 {setup.custom && (
                   <DropdownMenuItem onClick={() => void setBinary(null)}>
                     <RotateCcw />
-                    Use auto-detect
+                    {m.settings.assistant.useAutoDetect}
                   </DropdownMenuItem>
                 )}
               </>

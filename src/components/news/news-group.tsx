@@ -6,6 +6,7 @@ import { InstrumentLogo } from "@/components/common/instrument-logo";
 import { NewsItem } from "@/components/news/news-item";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { instrumentItem } from "@/lib/ai/context";
+import { m } from "@/lib/i18n";
 import type { NewsGroup as Group } from "@/lib/news";
 
 const SHOWN = 3;
@@ -43,16 +44,18 @@ export function NewsGroup({
           <button
             type="button"
             onClick={() => focus(ob.id, ob.instrumentType)}
-            title="Open in the workspace"
+            title={m.news.openInWorkspace}
             className="hover:bg-muted/60 focus-visible:bg-muted flex h-8 w-full items-center gap-2 px-3 text-left transition-colors outline-none"
           >
             <InstrumentLogo isin={isin} name={ob.name} />
             <span className="text-muted-foreground truncate text-xs font-medium">{ob.name}</span>
-            {held && <span className="bg-brand size-1.5 rounded-full" title="In your portfolio" />}
+            {held && (
+              <span className="bg-brand size-1.5 rounded-full" title={m.news.group.inPortfolio} />
+            )}
             {/* Avanza sends percent units; Change takes a ratio. */}
             <Change ratio={ob.dailyPerformance / 100} className="ml-auto" />
             <span className="text-muted-foreground num w-16 text-right text-xs">
-              {items.length > 1 && `${items.length} stories`}
+              {items.length > 1 && m.news.group.stories(items.length)}
             </span>
           </button>
         }
@@ -75,7 +78,7 @@ export function NewsGroup({
           onClick={() => setAll(!all)}
           className="text-muted-foreground hover:text-foreground focus-visible:text-foreground h-7 pl-26 text-xs transition-colors outline-none"
         >
-          {all ? "Show fewer" : `+ ${items.length - SHOWN} more`}
+          {all ? m.news.group.showFewer : m.news.group.more(items.length - SHOWN)}
         </button>
       )}
     </section>

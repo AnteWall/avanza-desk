@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { allPositionsQuery, watchlistRowsQuery, watchlistsQuery } from "@/lib/avanza/queries";
 import { fromWatchlistRow, type BasketItem } from "@/lib/basket";
+import { m } from "@/lib/i18n";
 
 /** "From watchlist": add a whole Avanza watchlist to the basket, or only what you don't own. */
 export function AddFromWatchlist({ onAdd }: { onAdd: (items: BasketItem[]) => number }) {
@@ -30,7 +31,7 @@ export function AddFromWatchlist({ onAdd }: { onAdd: (items: BasketItem[]) => nu
       const picked = rows.filter((r) => r.buyable && !(notOwned && owned.has(r.id)));
       const n = onAdd(picked.map(fromWatchlistRow));
       toast.success(
-        n ? `Added ${n} from ${list.name}` : `Everything from ${list.name} is already in`,
+        n ? m.basket.watchlist.added(n, list.name) : m.basket.watchlist.allIn(list.name),
       );
     } catch (e) {
       toast.error(`${list.name}: ${String(e)}`);
@@ -43,7 +44,7 @@ export function AddFromWatchlist({ onAdd }: { onAdd: (items: BasketItem[]) => nu
         render={<Button variant="outline" size="xs" disabled={lists.length === 0} />}
       >
         <ListPlus />
-        From watchlist
+        {m.basket.watchlist.label}
         <ChevronDown />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-h-96 w-64">
@@ -52,11 +53,11 @@ export function AddFromWatchlist({ onAdd }: { onAdd: (items: BasketItem[]) => nu
             {i > 0 && <DropdownMenuSeparator />}
             <DropdownMenuLabel>{list.name}</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => void add(list, false)}>
-              Add all
+              {m.basket.watchlist.addAll}
               <span className="num text-muted-foreground ml-auto">{list.orderbookIds.length}</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => void add(list, true)}>
-              Add the ones you don't own
+              {m.basket.watchlist.addNotOwned}
             </DropdownMenuItem>
           </DropdownMenuGroup>
         ))}

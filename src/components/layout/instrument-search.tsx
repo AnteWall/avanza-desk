@@ -14,12 +14,13 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { searchQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 import { openRuleDialog } from "@/lib/rule-dialog";
 import { bindingKeys, getBinding } from "@/lib/shortcuts";
 import { useDebounced } from "@/lib/use-debounced";
 
 // Things to do, matched like page names: any word of the label starting with what is typed.
-const actions = [{ icon: Bell, label: "New alert rule", run: () => openRuleDialog() }];
+const actions = [{ icon: Bell, label: m.layout.search.newAlertRule, run: () => openRuleDialog() }];
 
 /**
  * Top bar search button and the Ctrl K palette: type, arrow to a hit, Enter focuses it. Page
@@ -54,7 +55,7 @@ export function InstrumentSearch() {
           .map((p) => ({
             key: p.to,
             icon: p.icon,
-            label: `Go to ${p.label}`,
+            label: m.layout.search.goTo(p.label),
             hint: bindingKeys(getBinding(`page:${p.to}`)).join(" ") || undefined,
             run: () => void navigate({ to: p.to }),
           })),
@@ -95,7 +96,7 @@ export function InstrumentSearch() {
         onClick={() => setOpen(true)}
       >
         <Search />
-        Search instruments…
+        {m.layout.search.button}
         <kbd className="num ml-auto text-xs">{bindingKeys(getBinding("search")).join(" ")}</kbd>
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -103,12 +104,12 @@ export function InstrumentSearch() {
           showCloseButton={false}
           className="top-24 translate-y-0 gap-2 p-2 sm:max-w-lg"
         >
-          <DialogTitle className="sr-only">Search instruments</DialogTitle>
+          <DialogTitle className="sr-only">{m.layout.search.title}</DialogTitle>
           <div className="relative">
             <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
             <Input
               autoFocus
-              placeholder="Search stocks, funds, ETFs…"
+              placeholder={m.layout.search.placeholder}
               value={query}
               className="h-9 pl-8"
               onChange={(e) => {
@@ -127,7 +128,7 @@ export function InstrumentSearch() {
           {query && count > 0 && (
             <ul
               role="listbox"
-              aria-label="Results"
+              aria-label={m.layout.search.results}
               className="flex max-h-96 flex-col overflow-auto"
             >
               {commands.map((command, i) => (
@@ -167,23 +168,23 @@ export function InstrumentSearch() {
             </ul>
           )}
           {error && !isFetching && (
-            <LoadError what="search results" error={error} onRetry={() => void refetch()} />
+            <LoadError what={m.layout.search.what} error={error} onRetry={() => void refetch()} />
           )}
           {query && debounced === query && !isFetching && !error && count === 0 && (
             <p className="text-muted-foreground flex items-center gap-2 px-2 py-3">
               <SearchX className="size-4" />
-              Nothing matches “{query}”.
+              {m.layout.search.nothing(query)}
             </p>
           )}
           <p className="text-muted-foreground flex gap-3 border-t px-2 pt-2 text-xs">
             <span>
-              <kbd className="num">↑↓</kbd> navigate
+              <kbd className="num">↑↓</kbd> {m.layout.search.navigate}
             </span>
             <span>
-              <kbd className="num">Enter</kbd> open
+              <kbd className="num">{"Enter"}</kbd> {m.layout.search.open}
             </span>
             <span>
-              <kbd className="num">Esc</kbd> close
+              <kbd className="num">{"Esc"}</kbd> {m.layout.search.close}
             </span>
           </p>
         </DialogContent>

@@ -8,6 +8,7 @@ import {
 } from "@/components/portfolio/allocation/allocation-donut";
 import type { Slice } from "@/lib/avanza/portfolio";
 import { formatInteger, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 /**
  * `scale`: share relative to the largest slice, so the biggest bar spans the column. `color`: its
@@ -24,7 +25,7 @@ const wide = "@max-[19rem]:hidden";
 const col = dataTableColumns<Row>();
 const columns = col.columns([
   col.accessor("name", {
-    header: "Name",
+    header: m.common.name,
     // A depth-bar tint behind the name (like the order book) keeps rows on one line.
     cell: (c) => (
       <>
@@ -58,7 +59,7 @@ const columns = col.columns([
     meta: { className: "relative w-full max-w-0" },
   }),
   col.accessor("share", {
-    header: "Share",
+    header: m.portfolio.allocation.share,
     cell: (c) => formatShare(c.getValue()),
     meta: { align: "end", className: "num font-medium" },
   }),
@@ -89,7 +90,8 @@ export function AllocationTable({
   restNote?: string;
   limit?: number;
 }) {
-  if (slices.length === 0) return <p className="text-muted-foreground p-3">Nothing invested.</p>;
+  if (slices.length === 0)
+    return <p className="text-muted-foreground p-3">{m.portfolio.allocation.empty}</p>;
   const max = Math.max(...slices.map((s) => s.share));
   const rows: Row[] = slices
     .filter((s) => s.key !== rest)
@@ -100,7 +102,14 @@ export function AllocationTable({
   if (tail.length) {
     const value = tail.reduce((s, r) => s + r.value, 0);
     const share = tail.reduce((s, r) => s + r.share, 0);
-    shown.push({ key: "~tail", name: `${tail.length} more`, value, share, rest: true, scale: 0 });
+    shown.push({
+      key: "~tail",
+      name: m.portfolio.allocation.more(tail.length),
+      value,
+      share,
+      rest: true,
+      scale: 0,
+    });
   }
   if (gap) shown.push({ ...gap, rest: true, scale: gap.share / max });
   const colored = rows.filter((r): r is DonutSlice & Row => !!r.color);
@@ -110,7 +119,8 @@ export function AllocationTable({
         ...colored,
         {
           key: "~other",
-          name: others.length === 1 ? others[0]!.name : `${others.length} others`,
+          name:
+            others.length === 1 ? others[0]!.name : m.portfolio.allocation.others(others.length),
           value: others.reduce((sum, s) => sum + s.value, 0),
           share: others.reduce((sum, s) => sum + s.share, 0),
           color: other,
@@ -125,7 +135,7 @@ export function AllocationTable({
       <DataTable columns={columns} data={shown} getRowId={(r) => r.key} />
       {rest && (
         <p className="text-muted-foreground p-3 text-xs">
-          {formatShare(1 - (gap?.share ?? 0))} sorted, counting what's inside your funds
+          {m.portfolio.allocation.sorted(formatShare(1 - (gap?.share ?? 0)))}
           {gap && restNote && ` · ${gap.name}: ${restNote}`}
         </p>
       )}

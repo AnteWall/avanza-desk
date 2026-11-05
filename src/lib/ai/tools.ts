@@ -42,6 +42,7 @@ import {
   totalValuesQuery,
 } from "@/lib/avanza/queries";
 import { getGroupId, getGroups, inGroup } from "@/lib/groups";
+import { m } from "@/lib/i18n";
 import { addedKey, targetsKey, type AddedInstrument } from "@/lib/rebalance";
 import { getSetting } from "@/lib/settings";
 
@@ -59,7 +60,7 @@ export type AiTool = {
     required?: readonly string[];
   };
   /** What the chat shows while the call runs, and after: ["Reading …", "Read your holdings"]. */
-  activity: (args: Args) => [running: string, done: string];
+  activity: (args: Args) => string[];
   run: (queryClient: QueryClient, args: Args) => Promise<unknown>;
 };
 
@@ -90,7 +91,7 @@ const daysAgo = (days: number) =>
 export const tools: AiTool[] = [
   {
     name: "get_holdings",
-    activity: () => ["Reading your holdings", "Read your holdings"],
+    activity: () => m.ai.activity.holdings,
     description:
       "The user's holdings summed over accounts, largest first: volume, value, profit, cost and " +
       "today's change in SEK. Follows the account picked in the app (all accounts if none).",
@@ -99,24 +100,21 @@ export const tools: AiTool[] = [
   },
   {
     name: "get_accounts",
-    activity: () => ["Reading your accounts", "Read your accounts"],
+    activity: () => m.ai.activity.accounts,
     description: "The user's accounts with their total values.",
     inputSchema: none,
     run: (qc) => qc.fetchQuery(accountsQuery),
   },
   {
     name: "get_total_values",
-    activity: () => ["Reading your account totals", "Read your account totals"],
+    activity: () => m.ai.activity.totalValues,
     description: "Total value, cash, buying power and development per period, for all accounts.",
     inputSchema: none,
     run: (qc) => qc.fetchQuery(totalValuesQuery),
   },
   {
     name: "search_instrument",
-    activity: (args) => [
-      `Searching for “${String(args.query ?? "")}”`,
-      `Searched for “${String(args.query ?? "")}”`,
-    ],
+    activity: (args) => m.ai.activity.search(String(args.query ?? "")),
     description: "Find stocks, funds, ETFs, certificates and warrants by name or ticker.",
     inputSchema: {
       type: "object",
@@ -127,49 +125,49 @@ export const tools: AiTool[] = [
   },
   {
     name: "get_quote",
-    activity: () => ["Fetching the latest quote", "Fetched the latest quote"],
+    activity: () => m.ai.activity.quote,
     description: "Latest price, change, bid/ask and volume for a listed instrument.",
     inputSchema: orderbookId,
     run: (qc, args) => qc.fetchQuery(quoteQuery(id(args))),
   },
   {
     name: "get_instrument",
-    activity: () => ["Looking up the instrument", "Looked up the instrument"],
+    activity: () => m.ai.activity.instrument,
     description: "Name, type, ISIN, currency and listing of an instrument.",
     inputSchema: orderbookId,
     run: (qc, args) => qc.fetchQuery(instrumentQuery(id(args))),
   },
   {
     name: "get_instrument_news",
-    activity: () => ["Reading the instrument's news", "Read the instrument's news"],
+    activity: () => m.ai.activity.instrumentNews,
     description: "Recent news for one instrument.",
     inputSchema: orderbookId,
     run: (qc, args) => qc.fetchQuery(instrumentNewsQuery(id(args))),
   },
   {
     name: "get_orders",
-    activity: () => ["Reading your open orders", "Read your open orders"],
+    activity: () => m.ai.activity.orders,
     description: "The user's open orders.",
     inputSchema: none,
     run: (qc) => qc.fetchQuery(ordersQuery),
   },
   {
     name: "get_deals",
-    activity: () => ["Reading today's deals", "Read today's deals"],
+    activity: () => m.ai.activity.deals,
     description: "The user's executed deals today.",
     inputSchema: none,
     run: (qc) => qc.fetchQuery(dealsQuery),
   },
   {
     name: "get_news_feed",
-    activity: () => ["Reading your news feed", "Read your news feed"],
+    activity: () => m.ai.activity.newsFeed,
     description: "Latest news for the user's held and watched instruments, newest first.",
     inputSchema: none,
     run: (qc) => qc.fetchQuery(newsFeedQuery),
   },
   {
     name: "get_watchlists",
-    activity: () => ["Reading your watchlists", "Read your watchlists"],
+    activity: () => m.ai.activity.watchlists,
     description: "The user's watchlists with each instrument's latest price and change.",
     inputSchema: none,
     run: async (qc) => {
@@ -184,7 +182,7 @@ export const tools: AiTool[] = [
   },
   {
     name: "get_price_history",
-    activity: () => ["Reading the price history", "Read the price history"],
+    activity: () => m.ai.activity.priceHistory,
     description:
       "An instrument's closing prices over a period, summarized: start, end, change (ratio), " +
       "high, low and about 30 evenly spaced points.",
@@ -197,7 +195,7 @@ export const tools: AiTool[] = [
   },
   {
     name: "get_portfolio_performance",
-    activity: () => ["Reading your portfolio's performance", "Read your portfolio's performance"],
+    activity: () => m.ai.activity.performance,
     description:
       "The user's portfolio value and return (percent) over a period, summarized like " +
       "get_price_history. Follows the account picked in the app.",
@@ -212,21 +210,21 @@ export const tools: AiTool[] = [
   },
   {
     name: "get_portfolio_key_ratios",
-    activity: () => ["Reading your key ratios", "Read your key ratios"],
+    activity: () => m.ai.activity.keyRatios,
     description: "The portfolio's CAGR, Sharpe ratio and standard deviation.",
     inputSchema: none,
     run: (qc) => qc.fetchQuery(keyRatiosQuery),
   },
   {
     name: "get_portfolio_exposure",
-    activity: () => ["Reading your exposure", "Read your exposure"],
+    activity: () => m.ai.activity.exposure,
     description: "Look-through of the user's funds: industry, country and currency exposure, fees.",
     inputSchema: none,
     run: (qc) => qc.fetchQuery(fundAnalysisQuery),
   },
   {
     name: "get_instrument_exposure",
-    activity: () => ["Looking through the holdings", "Looked through the holdings"],
+    activity: () => m.ai.activity.lookThrough,
     description:
       "What one stock, fund or ETF is exposed to: countries, sectors and underlying holdings.",
     inputSchema: withProps(
@@ -240,7 +238,7 @@ export const tools: AiTool[] = [
   },
   {
     name: "get_fundamentals",
-    activity: () => ["Reading the fundamentals", "Read the fundamentals"],
+    activity: () => m.ai.activity.fundamentals,
     description:
       "A stock's analyst view, ownership, short interest, insider trades and report dates.",
     inputSchema: orderbookId,
@@ -248,7 +246,7 @@ export const tools: AiTool[] = [
   },
   {
     name: "get_company_events",
-    activity: () => ["Reading company events", "Read company events"],
+    activity: () => m.ai.activity.companyEvents,
     description: "Reports, dividends and other company events for an instrument over a period.",
     inputSchema: withProps({ orderbookId: idProp, period: chartPeriod }, ["orderbookId"]),
     run: (qc, args) =>
@@ -258,28 +256,28 @@ export const tools: AiTool[] = [
   },
   {
     name: "get_order_depth",
-    activity: () => ["Reading the order book", "Read the order book"],
+    activity: () => m.ai.activity.orderDepth,
     description: "Current bid and ask levels for a listed instrument.",
     inputSchema: orderbookId,
     run: (qc, args) => qc.fetchQuery(orderDepthQuery(id(args))),
   },
   {
     name: "get_dividend_outlook",
-    activity: () => ["Reading dividend yields", "Read dividend yields"],
+    activity: () => m.ai.activity.dividendOutlook,
     description: "Dividend yield and next dividend for each stock the user holds.",
     inputSchema: none,
     run: (qc) => qc.fetchQuery(stockKeyRatiosQuery),
   },
   {
     name: "get_paid_dividends",
-    activity: () => ["Reading your dividends", "Read your dividends"],
+    activity: () => m.ai.activity.paidDividends,
     description: "Dividends the user has received.",
     inputSchema: none,
     run: (qc) => qc.fetchQuery(paidDividendsQuery),
   },
   {
     name: "get_transactions",
-    activity: () => ["Reading your transactions", "Read your transactions"],
+    activity: () => m.ai.activity.transactions,
     description: "The user's transactions (trades, deposits, dividends, fees) since a date.",
     inputSchema: withProps({
       from: { type: "string", description: "yyyy-MM-dd; default 90 days ago" },
@@ -291,24 +289,21 @@ export const tools: AiTool[] = [
   },
   {
     name: "get_year_summary",
-    activity: (args) => [
-      `Reading ${String(args.year ?? "the year")}`,
-      `Read ${String(args.year ?? "the year")}`,
-    ],
+    activity: (args) => m.ai.activity.yearSummary(String(args.year ?? m.ai.activity.theYear)),
     description: "The user's results for a calendar year: return, dividends, fees, deposits.",
     inputSchema: withProps({ year: { type: "integer" } }, ["year"]),
     run: (qc, args) => qc.fetchQuery(yearSummaryQuery(Number(args.year))),
   },
   {
     name: "get_stop_losses",
-    activity: () => ["Reading your stop losses", "Read your stop losses"],
+    activity: () => m.ai.activity.stopLosses,
     description: "The user's active stop-loss orders on every account.",
     inputSchema: none,
     run: (qc) => qc.fetchQuery(stopLossesQuery),
   },
   {
     name: "get_alerts",
-    activity: () => ["Reading your alerts", "Read your alerts"],
+    activity: () => m.ai.activity.alerts,
     description: "The user's price, percent and news alerts, and the ones that triggered recently.",
     inputSchema: none,
     run: async (qc) => {
@@ -323,7 +318,7 @@ export const tools: AiTool[] = [
   },
   {
     name: "get_market_movers",
-    activity: () => ["Reading today's movers", "Read today's movers"],
+    activity: () => m.ai.activity.movers,
     description:
       "Today's biggest gainers and losers on the Stockholm exchange. Change fields are ratios, " +
       "not percents: 0.0389 means +3.89 %.",
@@ -332,7 +327,7 @@ export const tools: AiTool[] = [
   },
   {
     name: "get_index_constituents",
-    activity: () => ["Reading the index members", "Read the index members"],
+    activity: () => m.ai.activity.indexMembers,
     description:
       "The stocks in an index (e.g. OMXS30) with today's change. changePercent is a ratio, " +
       "not a percent: 0.0389 means +3.89 %.",
@@ -341,7 +336,7 @@ export const tools: AiTool[] = [
   },
   {
     name: "screen_stocks",
-    activity: () => ["Screening stocks", "Screened stocks"],
+    activity: () => m.ai.activity.screen,
     description:
       "Stocks with key figures (P/E, yield, owners…), most owned first; filter by name or leave " +
       "empty for the most owned overall. Changes and yield are ratios, not percents: 0.0274 " +
@@ -351,14 +346,14 @@ export const tools: AiTool[] = [
   },
   {
     name: "get_news_calendar",
-    activity: () => ["Reading the calendar", "Read the calendar"],
+    activity: () => m.ai.activity.calendar,
     description: "Upcoming reports and dividends for the user's holdings, by month.",
     inputSchema: none,
     run: (qc) => qc.fetchQuery(newsCalendarQuery),
   },
   {
     name: "read_article",
-    activity: () => ["Reading the article", "Read the article"],
+    activity: () => m.ai.activity.article,
     description:
       "The full text of a news article, by the url from get_news_feed or get_instrument_news. " +
       "External articles (externalLink true) are fetched from their site; paywalled ones may " +
@@ -380,7 +375,7 @@ export const tools: AiTool[] = [
   },
   {
     name: "get_rebalance_plan",
-    activity: () => ["Reading your rebalance plan", "Read your rebalance plan"],
+    activity: () => m.ai.activity.rebalancePlan,
     description:
       "The Rebalance page's plan: the group it covers (all holdings if none), each holding's " +
       "weight now and its target (shares 0…1; a target not set is today's weight), and " +
@@ -411,7 +406,7 @@ export const tools: AiTool[] = [
   },
   {
     name: "get_exchange_rates",
-    activity: () => ["Reading exchange rates", "Read exchange rates"],
+    activity: () => m.ai.activity.exchangeRates,
     description: "Current currency exchange rates against SEK.",
     inputSchema: none,
     run: (qc) => qc.fetchQuery(exchangeRatesQuery),
@@ -433,8 +428,8 @@ async function isExternalArticle(qc: QueryClient, url: string) {
 }
 
 /** Claude Code's own tools we turn on, labeled like ours. */
-const builtIn: Record<string, (args: Args) => [string, string]> = {
-  WebSearch: (args) => [`Searching the web for “${String(args.query ?? "")}”`, "Searched the web"],
+const builtIn: Record<string, (args: Args) => string[]> = {
+  WebSearch: (args) => m.ai.activity.webSearch(String(args.query ?? "")),
 };
 
 /** The activity label for a call, or the tool's name for tools we don't know. */

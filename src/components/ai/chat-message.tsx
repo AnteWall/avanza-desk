@@ -8,6 +8,7 @@ import { ContextChip } from "@/components/ai/context-chip";
 import { ToolCall } from "@/components/ai/tool-call";
 import { Button } from "@/components/ui/button";
 import { contextKey, splitContext } from "@/lib/ai/context";
+import { m } from "@/lib/i18n";
 
 const textOf = (message: UIMessage) =>
   message.parts.map((p) => (p.type === "text" ? p.content : "")).join("\n\n");
@@ -37,7 +38,7 @@ export function ChatMessage({
     return (
       <div className="flex max-w-[85%] flex-col items-end gap-1 self-end">
         {items.length > 0 && (
-          <div className="flex flex-wrap justify-end gap-1" aria-label="Asked with">
+          <div className="flex flex-wrap justify-end gap-1" aria-label={m.ai.message.askedWith}>
             {items.map((item) => (
               <ContextChip key={contextKey(item)} item={item} />
             ))}
@@ -49,7 +50,7 @@ export function ChatMessage({
               <img
                 key={i}
                 src={src}
-                alt="Attached image"
+                alt={m.ai.message.image}
                 className="max-h-40 max-w-full rounded-lg border object-contain"
               />
             ))}
@@ -105,8 +106,8 @@ export function ChatMessage({
           <Button
             variant="ghost"
             size="icon-xs"
-            aria-label={copied ? "Copied" : "Copy answer"}
-            title={copied ? "Copied" : "Copy answer"}
+            aria-label={copied ? m.common.copied : m.ai.message.copy}
+            title={copied ? m.common.copied : m.ai.message.copy}
             onClick={copy}
             className="text-muted-foreground"
           >

@@ -7,14 +7,9 @@ import { useBankIdLogin } from "@/components/auth/use-bankid-login";
 import { SignedOutFrame } from "@/components/layout/window/window-frame";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { m } from "@/lib/i18n";
 
 const SUCCESS_HOLD_MS = 1400;
-
-const failures = {
-  denied: "Sign-in was cancelled in BankID.",
-  expired: "The QR code expired. Start again to get a new one.",
-  error: "Couldn't reach Avanza. Check your connection and try again.",
-};
 
 /** Fullscreen BankID sign-in that slides up over the app and slides away once signed in. */
 export function SignInOverlay({ open, expired }: { open: boolean; expired: boolean }) {
@@ -46,22 +41,18 @@ export function SignInOverlay({ open, expired }: { open: boolean; expired: boole
             <>
               <span className="bg-brand size-4 rotate-45 rounded-xs" aria-hidden />
               <div className="flex flex-col gap-2">
-                <DialogTitle className="text-xl font-semibold">Sign in to AvanzaDesk</DialogTitle>
-                <DialogDescription>
-                  {expired
-                    ? "Your session has expired. Sign in again to continue."
-                    : "Sign in with BankID to see your accounts and trade."}
-                </DialogDescription>
+                <DialogTitle className="text-xl font-semibold">{m.auth.title}</DialogTitle>
+                <DialogDescription>{expired ? m.auth.expired : m.auth.intro}</DialogDescription>
               </div>
               <Button size="lg" className="w-full" onClick={() => void start()}>
-                Sign in with BankID
+                {m.auth.start}
               </Button>
             </>
           )}
 
           {state.step === "qr" && (
             <>
-              <DialogTitle className="text-xl font-semibold">Scan with BankID</DialogTitle>
+              <DialogTitle className="text-xl font-semibold">{m.auth.scan}</DialogTitle>
               <div className="flex flex-col items-center gap-3">
                 <BankIdQr payload={state.challenge.qrPayload} />
                 {/* Time left on the 120s BankID attempt. */}
@@ -72,20 +63,18 @@ export function SignInOverlay({ open, expired }: { open: boolean; expired: boole
                   />
                 </div>
               </div>
-              <DialogDescription>
-                Open the BankID app on your phone, tap the QR icon and point the camera here.
-              </DialogDescription>
+              <DialogDescription>{m.auth.scanHint}</DialogDescription>
               <div className="flex w-full flex-col gap-1">
                 {state.challenge.autostartUrl && (
                   <Button
                     variant="outline"
                     onClick={() => void openUrl(state.challenge.autostartUrl!)}
                   >
-                    Open BankID on this computer
+                    {m.auth.openHere}
                   </Button>
                 )}
                 <Button variant="ghost" className="text-muted-foreground" onClick={cancel}>
-                  Cancel
+                  {m.common.cancel}
                 </Button>
               </div>
             </>
@@ -96,9 +85,9 @@ export function SignInOverlay({ open, expired }: { open: boolean; expired: boole
               <SuccessCheck />
               <div className="animate-rise flex flex-col gap-2 motion-reduce:animate-none">
                 <DialogTitle className="text-xl font-semibold">
-                  Welcome, {state.user.greetingName}
+                  {m.auth.welcome(state.user.greetingName)}
                 </DialogTitle>
-                <DialogDescription>You're signed in.</DialogDescription>
+                <DialogDescription>{m.auth.signedIn}</DialogDescription>
               </div>
             </>
           )}
@@ -107,13 +96,13 @@ export function SignInOverlay({ open, expired }: { open: boolean; expired: boole
             <>
               <span className="bg-brand size-4 rotate-45 rounded-xs" aria-hidden />
               <div className="flex flex-col gap-2">
-                <DialogTitle className="text-xl font-semibold">Sign in to AvanzaDesk</DialogTitle>
+                <DialogTitle className="text-xl font-semibold">{m.auth.title}</DialogTitle>
                 <DialogDescription className="text-destructive">
-                  {failures[state.reason]}
+                  {m.auth.failures[state.reason]}
                 </DialogDescription>
               </div>
               <Button size="lg" className="w-full" onClick={() => void start()}>
-                Try again
+                {m.common.retry}
               </Button>
             </>
           )}

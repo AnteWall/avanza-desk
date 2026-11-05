@@ -2,6 +2,7 @@ import { CountryFlag } from "@/components/common/country-flag";
 import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 /** One line of a fund's or ETF's breakdown; `weight` is a fraction (0.05 = 5 %). */
 export type ExposureRow = {
@@ -25,14 +26,14 @@ const weightColumns = (header: string) =>
       ),
     }),
     col.accessor("weight", {
-      header: "Weight",
+      header: m.common.weight,
       cell: (c) => formatShare(c.getValue()),
       meta: { align: "end", className: "num font-medium" },
     }),
   ]);
-const holdingColumns = weightColumns("Holdings");
-const countryColumns = weightColumns("Countries");
-const sectorColumns = weightColumns("Sectors");
+const holdingColumns = weightColumns(m.common.holdings);
+const countryColumns = weightColumns(m.workspace.fund.countries);
+const sectorColumns = weightColumns(m.workspace.fund.sectors);
 
 const byWeight = (rows: readonly ExposureRow[]) => [...rows].sort((a, b) => b.weight - a.weight);
 

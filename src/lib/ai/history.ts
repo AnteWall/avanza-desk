@@ -2,6 +2,8 @@ import type { UIMessage } from "@tanstack/ai-react";
 import { queryOptions } from "@tanstack/react-query";
 import { invoke } from "@tauri-apps/api/core";
 
+import { m } from "@/lib/i18n";
+
 import { splitContext } from "./context";
 
 // Saved assistant conversations (src-tauri/src/ai/history.rs).
@@ -57,12 +59,12 @@ export const exportChat = (path: string, markdown: string) =>
  * links become plain names, since they mean nothing outside the app.
  */
 export function chatMarkdown(title: string, messages: readonly UIMessage[]) {
-  const text = (m: UIMessage) =>
-    m.parts.map((p) => (p.type === "text" ? p.content : "")).join("\n\n");
-  const turns = messages.map((m) =>
-    m.role === "user"
-      ? `**You:** ${splitContext(text(m)).question.trim()}`
-      : text(m)
+  const text = (message: UIMessage) =>
+    message.parts.map((p) => (p.type === "text" ? p.content : "")).join("\n\n");
+  const turns = messages.map((message) =>
+    message.role === "user"
+      ? `**${m.ai.history.you}:** ${splitContext(text(message)).question.trim()}`
+      : text(message)
           .trim()
           .replace(/\[([^\]]+)\]\(avanza:[^)]*\)/g, "$1"),
   );
@@ -76,7 +78,7 @@ export function chatTitle(messages: readonly UIMessage[]) {
   const first = messages.find((m) => m.role === "user");
   const text = first?.parts.map((p) => (p.type === "text" ? p.content : "")).join(" ") ?? "";
   const line = splitContext(text).question.trim().split("\n")[0].replace(/\s+/g, " ");
-  if (!line) return "New chat";
+  if (!line) return m.ai.panel.newChat;
   return line.length > TITLE_LENGTH ? `${line.slice(0, TITLE_LENGTH - 1).trimEnd()}…` : line;
 }
 
@@ -88,19 +90,20 @@ const DAY = 86_400_000;
  */
 export function groupChats(chats: readonly ChatSummary[], now = Date.now()) {
   const midnight = new Date(now).setHours(0, 0, 0, 0);
+  const g = m.ai.history.groups;
   const bucket = (t: number) =>
     t >= midnight
-      ? "Today"
+      ? g.today
       : t >= midnight - DAY
-        ? "Yesterday"
+        ? g.yesterday
         : t >= midnight - 7 * DAY
-          ? "Previous 7 days"
+          ? g.week
           : t >= midnight - 30 * DAY
-            ? "Previous 30 days"
-            : "Older";
+            ? g.month
+            : g.older;
   const groups: { label: string; chats: ChatSummary[] }[] = [];
   for (const chat of chats) {
-    const label = chat.pinned ? "Pinned" : bucket(chat.updatedAt);
+    const label = chat.pinned ? g.pinned : bucket(chat.updatedAt);
     const group = groups.at(-1);
     if (group?.label === label) group.chats.push(chat);
     else groups.push({ label, chats: [chat] });

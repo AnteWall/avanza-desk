@@ -16,6 +16,7 @@ import { toDealRow } from "@/lib/avanza/loose-records";
 import { dealsQuery, headerIndicesQuery, priceChartQuery } from "@/lib/avanza/queries";
 import type { ReturnPoint } from "@/lib/benchmark";
 import { formatClock, formatPercent } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { sinceClose, stockholmTime, weightedLine } from "@/lib/intraday";
 import { getSetting, saveSetting } from "@/lib/settings";
 
@@ -149,7 +150,12 @@ export function IntradayChart() {
           1.5,
         ),
         line(
-          { key: "portfolio", label: "Portfolio", points: portfolio, stroke: "var(--foreground)" },
+          {
+            key: "portfolio",
+            label: m.portfolio.intraday.portfolio,
+            points: portfolio,
+            stroke: "var(--foreground)",
+          },
           2.5,
         ),
         // Last, so the guide and its labels draw over the axes (earlier marks put it under).
@@ -199,7 +205,8 @@ export function IntradayChart() {
   }, [series, index, portfolio, session, hovered, omxLabel]);
 
   if (pending || dealsPending) return <Skeleton className="m-3 h-48 rounded-md opacity-60" />;
-  if (!portfolio.length) return <p className="text-muted-foreground p-3">No trades today yet.</p>;
+  if (!portfolio.length)
+    return <p className="text-muted-foreground p-3">{m.portfolio.intraday.noTrades}</p>;
 
   const strokeOf = new Map(series.map((s) => [s.key, s.stroke]));
   const movers = lines
@@ -210,7 +217,7 @@ export function IntradayChart() {
       <div className="min-w-0 flex-1 p-3">
         <Chart
           definition={definition}
-          ariaLabel="Holdings today since yesterday's close"
+          ariaLabel={m.portfolio.intraday.ariaLabel}
           className="num text-muted-foreground text-xs"
           style={{ height: "100%" }}
         />
@@ -224,7 +231,7 @@ export function IntradayChart() {
         />
         <ul className="min-h-0 flex-1 overflow-auto py-1 text-xs">
           <Row
-            label="Portfolio"
+            label={m.portfolio.intraday.portfolio}
             swatch="var(--foreground)"
             value={last({ points: portfolio })}
             strong

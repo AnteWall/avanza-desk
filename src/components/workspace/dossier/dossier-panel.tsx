@@ -12,16 +12,17 @@ import { Dossier } from "@/components/workspace/dossier/dossier";
 import { Panel } from "@/components/workspace/panel";
 import { useFocusedInstrument } from "@/components/workspace/use-focused-instrument";
 import { instrumentQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 import { isTyping } from "@/lib/keys";
 import { openPopout } from "@/lib/popout";
 
 const ranges: { label: string; period: ChartPeriod }[] = [
-  { label: "1D", period: "today" },
-  { label: "1W", period: "one_week" },
-  { label: "1M", period: "one_month" },
-  { label: "YTD", period: "this_year" },
-  { label: "1Y", period: "one_year" },
-  { label: "5Y", period: "five_years" },
+  { label: m.workspace.periods.d1, period: "today" },
+  { label: m.workspace.periods.w1, period: "one_week" },
+  { label: m.workspace.periods.m1, period: "one_month" },
+  { label: m.workspace.periods.ytd, period: "this_year" },
+  { label: m.workspace.periods.y1, period: "one_year" },
+  { label: m.workspace.periods.y5, period: "five_years" },
 ];
 
 // Funds are priced once a day, so they have no 1D chart.
@@ -54,12 +55,12 @@ export function DossierPanel() {
 
   return (
     <Panel
-      title="Overview"
+      title={m.workspace.dossier.title}
       icon={FileText}
       actions={
         <>
           <Segmented
-            label="Chart range"
+            label={m.workspace.dossier.range}
             numeric
             options={shown.map((r, i) => ({
               label: r.label,
@@ -74,10 +75,10 @@ export function DossierPanel() {
               variant="ghost"
               size="icon-xs"
               className="text-muted-foreground"
-              aria-label="Open in a new window"
-              title="Open in a new window"
+              aria-label={m.workspace.dossier.popout}
+              title={m.workspace.dossier.popout}
               onClick={() =>
-                void openPopout(focus.id, instrument?.shortName ?? "Instrument", focus.type)
+                void openPopout(focus.id, instrument?.shortName ?? m.common.instrument, focus.type)
               }
             >
               <PictureInPicture2 />
@@ -88,7 +89,7 @@ export function DossierPanel() {
     >
       {focus ? (
         <AsyncBoundary
-          what="this instrument"
+          what={m.workspace.dossier.what.instrument}
           fallback={<div className="p-3">{headerSkeleton}</div>}
           resetKey={focus.id}
         >
@@ -98,9 +99,7 @@ export function DossierPanel() {
           </div>
         </AsyncBoundary>
       ) : (
-        <p className="text-muted-foreground p-3">
-          Pick an instrument from your watchlist or Ctrl K.
-        </p>
+        <p className="text-muted-foreground p-3">{m.workspace.dossier.pick}</p>
       )}
     </Panel>
   );

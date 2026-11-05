@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { describeRule, ruleKinds, saveRule, type AlertRule } from "@/lib/alert-rules";
+import { m } from "@/lib/i18n";
 import {
   closeRuleDialog,
   getRuleDraft,
@@ -36,9 +37,12 @@ export function RuleDialog() {
   const save = (rule: AlertRule) => {
     saveRule(rule);
     closeRuleDialog();
-    toast(editing ? "Rule saved" : "Alert rule created", {
+    toast(editing ? m.alerts.dialog.saved : m.alerts.dialog.created, {
       description: describeRule(rule),
-      action: { label: "All rules", onClick: () => openTab("/alerts", "alerts", "rules") },
+      action: {
+        label: m.alerts.dialog.allRules,
+        onClick: () => openTab("/alerts", "alerts", "rules"),
+      },
     });
   };
 
@@ -58,11 +62,11 @@ export function RuleDialog() {
     <Dialog open={!!draft} onOpenChange={(open) => !open && closeRuleDialog()}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{editing ? "Edit alert rule" : "New alert rule"}</DialogTitle>
+          <DialogTitle>
+            {editing ? m.alerts.dialog.editTitle : m.alerts.dialog.newTitle}
+          </DialogTitle>
           <DialogDescription>
-            {rule
-              ? "AvanzaDesk checks this while it runs and sends a desktop notification, at most once a day per instrument."
-              : `What should AvanzaDesk watch${draft?.target ? ` for ${draft.target.name}` : ""}?`}
+            {rule ? m.alerts.dialog.checks : m.alerts.dialog.whatToWatch(draft?.target?.name)}
           </DialogDescription>
         </DialogHeader>
         {rule ? (
@@ -79,7 +83,7 @@ export function RuleDialog() {
             <RuleKindPicker onPick={(k) => openRuleDialog({ ...draft, kind: k })} />
             <div className="flex justify-end">
               <Button variant="ghost" onClick={closeRuleDialog}>
-                Cancel
+                {m.common.cancel}
               </Button>
             </div>
           </>

@@ -1,6 +1,8 @@
 import { TZDate } from "@date-fns/tz";
 import { format, type Locale } from "date-fns";
 
+import { dateLocale, lang, m } from "@/lib/i18n";
+
 // Swedish formatting everywhere (decimal comma, thin-space grouping), like Avanza.
 const price = new Intl.NumberFormat("sv-SE", {
   minimumFractionDigits: 2,
@@ -26,7 +28,8 @@ const signedShare = new Intl.NumberFormat("sv-SE", {
   signDisplay: "exceptZero",
 });
 const decimal = new Intl.NumberFormat("sv-SE", { maximumFractionDigits: 2, useGrouping: false });
-const regions = new Intl.DisplayNames(["en"], { type: "region" });
+// Built on first use: the language is only known once settings have loaded.
+let regions: Intl.DisplayNames | undefined;
 
 export const formatPrice = (value: number) => price.format(value);
 export const formatInteger = (value: number) => integer.format(value);
@@ -46,6 +49,7 @@ export const parseDecimal = (text: string) =>
 /** "SE" → "Sweden"; codes Intl doesn't know come back as given. */
 export const formatCountry = (code: string) => {
   try {
+    regions ??= new Intl.DisplayNames([lang], { type: "region" });
     return regions.of(code.toUpperCase()) ?? code;
   } catch {
     return code;
@@ -68,8 +72,11 @@ export function inStockholm(value: number | string | Date) {
 }
 
 /** Any date-fns pattern on Stockholm's wall clock: `formatAs(at, "EEE HH:mm")`. */
-export const formatAs = (value: number | string | Date, pattern: string, locale?: Locale) =>
-  format(inStockholm(value), pattern, { locale });
+export const formatAs = (
+  value: number | string | Date,
+  pattern: string,
+  locale: Locale = dateLocale,
+) => format(inStockholm(value), pattern, { locale });
 
 /** Stockholm wall-clock time: "09:00:05". Takes epoch ms or an ISO string. */
 export const formatTime = (value: number | string | Date) => formatAs(value, "HH:mm:ss");
@@ -91,8 +98,9 @@ export const formatDateTime = (value: number | string | Date) =>
 /** A countdown: "2h 05m", "45m", "<1m". */
 export function formatDuration(ms: number) {
   const minutes = Math.floor(ms / 60_000);
-  if (minutes < 1) return "<1m";
+  const d = m.common.duration;
+  if (minutes < 1) return d.underMinute;
   const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m`;
+  const min = minutes % 60;
+  return h ? d.hours(h, String(min).padStart(2, "0")) : d.minutes(String(min));
 }

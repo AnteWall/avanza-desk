@@ -3,6 +3,7 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 
 import logoDark from "@/assets/providers/openai-dark.svg";
 import logo from "@/assets/providers/openai.svg";
+import { m } from "@/lib/i18n";
 import { saveSetting } from "@/lib/settings";
 
 import type { ModelOption, Provider, ProviderSetup } from "../types";
@@ -35,7 +36,7 @@ export function toSetup(probe: CodexProbe): ProviderSetup {
       bin,
       custom,
       version: version ?? undefined,
-      error: error ?? "Codex didn't start.",
+      error: error ?? m.ai.provider.errors.codexDidntStart,
     };
   if (!probe.loggedIn) return { state: "signed-out", bin, custom, version };
   const listed = probe.models.filter((m) => !m.hidden);
@@ -53,7 +54,7 @@ export function toSetup(probe: CodexProbe): ProviderSetup {
     version,
     account: {
       email: account.email,
-      plan: account.type === "apiKey" ? "API key" : account.planType,
+      plan: account.type === "apiKey" ? m.ai.provider.apiKey : account.planType,
     },
     models,
     defaultModel: listed.find((m) => m.isDefault)?.id,
@@ -66,8 +67,7 @@ export const codex: Provider = {
   vendor: "OpenAI",
   logo,
   logoDark,
-  billing:
-    "AvanzaDesk runs the Codex CLI on this computer and talks to OpenAI through it, so your questions use your ChatGPT plan and its usage limits, or are billed to your OpenAI API account if Codex is signed in with an API key.",
+  billing: m.ai.provider.billing.codex,
   installUrl: "https://learn.chatgpt.com/docs/codex/cli",
   guideUrl: "https://learn.chatgpt.com/docs/quickstart",
   plansUrl: "https://chatgpt.com/pricing",

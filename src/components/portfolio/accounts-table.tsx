@@ -7,6 +7,7 @@ import { SignedAmount } from "@/components/common/signed-amount";
 import { positionsQuery, totalValuesQuery } from "@/lib/avanza/queries";
 import { sessionLabel } from "@/lib/exchanges";
 import { formatInteger, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 type Row = {
   id: string;
@@ -23,7 +24,7 @@ type Row = {
 const col = dataTableColumns<Row>();
 const columns = col.columns([
   col.accessor("name", {
-    header: "Account",
+    header: m.common.account,
     cell: (c) => (
       <span className="flex items-baseline gap-1.5">
         <span className="max-w-40 truncate font-medium">{c.getValue()}</span>
@@ -32,12 +33,12 @@ const columns = col.columns([
     ),
   }),
   col.accessor("value", {
-    header: "Value",
+    header: m.common.value,
     cell: (c) => formatInteger(c.getValue()),
     meta: { align: "end", className: "sensitive num font-medium" },
   }),
   col.accessor("share", {
-    header: "Share",
+    header: m.portfolio.accounts.share,
     cell: (c) => formatShare(c.getValue()),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
@@ -53,12 +54,12 @@ const columns = col.columns([
     meta: { align: "end", className: "sensitive" },
   }),
   col.accessor("cash", {
-    header: "Cash",
+    header: m.common.cash,
     cell: (c) => formatInteger(c.getValue()),
     meta: { align: "end", className: "sensitive num text-muted-foreground" },
   }),
   col.accessor("buyingPower", {
-    header: "Buying power",
+    header: m.portfolio.accounts.buyingPower,
     cell: (c) => formatInteger(c.getValue()),
     meta: { align: "end", className: "sensitive num text-muted-foreground" },
   }),
@@ -94,6 +95,7 @@ export function AccountsTable() {
     .map((a) => toRow(a, total, todayByAccount.get(a.info.id) ?? { value: 0, change: 0 }))
     .sort((a, b) => b.value - a.value);
 
-  if (rows.length === 0) return <p className="text-muted-foreground p-3">No accounts.</p>;
+  if (rows.length === 0)
+    return <p className="text-muted-foreground p-3">{m.portfolio.accounts.empty}</p>;
   return <DataTable columns={columns} data={rows} getRowId={(r) => r.id} />;
 }

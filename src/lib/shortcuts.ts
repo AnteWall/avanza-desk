@@ -1,4 +1,5 @@
 import { pageDigit, pages } from "@/components/layout/pages";
+import { m } from "@/lib/i18n";
 
 import { isTyping } from "./keys";
 import { getSetting, saveSetting } from "./settings";
@@ -22,15 +23,15 @@ export const shortcutActions: {
   {
     action: "search",
     group: "general",
-    label: "Search",
-    hint: "Find an instrument or page from anywhere.",
+    label: m.settings.shortcuts.actions.search.label,
+    hint: m.settings.shortcuts.actions.search.hint,
     fallback: { code: "KeyK", mod: true },
   },
   {
     action: "assistant",
     group: "general",
-    label: "Assistant",
-    hint: "Open or close the assistant panel.",
+    label: m.settings.shortcuts.actions.assistant.label,
+    hint: m.settings.shortcuts.actions.assistant.hint,
     fallback: { code: "KeyJ", mod: true },
   },
   ...pages.map((p, i) => ({

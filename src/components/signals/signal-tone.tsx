@@ -1,12 +1,20 @@
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 
+import { m } from "@/lib/i18n";
 import type { Signal } from "@/lib/signals";
 
 /** A signal's direction as a small up/down/flat arrow in the up/down colors. */
 export function SignalTone({ tone }: { tone: Signal["tone"] }) {
   if (tone === "up")
-    return <ArrowUpRight className="text-up size-3.5 shrink-0" aria-label="Positive" />;
+    return <ArrowUpRight className="text-up size-3.5 shrink-0" aria-label={m.signals.tone.up} />;
   if (tone === "down")
-    return <ArrowDownRight className="text-down size-3.5 shrink-0" aria-label="Negative" />;
-  return <Minus className="text-muted-foreground size-3.5 shrink-0" aria-label="Neutral" />;
+    return (
+      <ArrowDownRight className="text-down size-3.5 shrink-0" aria-label={m.signals.tone.down} />
+    );
+  return (
+    <Minus
+      className="text-muted-foreground size-3.5 shrink-0"
+      aria-label={m.signals.tone.neutral}
+    />
+  );
 }

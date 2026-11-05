@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { m } from "@/lib/i18n";
 import { getSetting, saveSetting } from "@/lib/settings";
 
 type Preset = { name: string; keys: string[] };
@@ -41,13 +42,13 @@ export function LinePresets({
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-1 border-b px-2 py-1">
       <Button variant="outline" size="xs" onClick={() => onPick(null)}>
-        Top {top}
+        {m.portfolio.intraday.top(top)}
       </Button>
       <Button variant="outline" size="xs" onClick={() => onPick(movers)}>
-        Movers
+        {m.portfolio.intraday.movers}
       </Button>
       <Button variant="outline" size="xs" onClick={() => onPick([])}>
-        None
+        {m.common.none}
       </Button>
       {presets.map((p) => (
         <span key={p.name} className="group relative">
@@ -56,7 +57,7 @@ export function LinePresets({
           </Button>
           <button
             type="button"
-            aria-label={`Delete ${p.name}`}
+            aria-label={m.portfolio.intraday.deletePreset(p.name)}
             onClick={() => save(presets.filter((q) => q !== p))}
             className="bg-card text-muted-foreground hover:text-foreground absolute -top-1 -right-1 hidden rounded-full border group-hover:block focus-visible:block"
           >
@@ -66,12 +67,16 @@ export function LinePresets({
       ))}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
-          render={<Button variant="outline" size="xs" aria-label="Save these lines as a preset" />}
+          render={
+            <Button variant="outline" size="xs" aria-label={m.portfolio.intraday.savePreset} />
+          }
         >
-          <Plus className="size-3" /> Save
+          <Plus className="size-3" /> {m.common.save}
         </PopoverTrigger>
         <PopoverContent align="end" className="w-56 gap-2 p-2">
-          <p className="text-muted-foreground text-xs">Save the {shown.length} lines shown as:</p>
+          <p className="text-muted-foreground text-xs">
+            {m.portfolio.intraday.saveAs(shown.length)}
+          </p>
           <form
             className="flex gap-1"
             onSubmit={(e) => {
@@ -83,12 +88,12 @@ export function LinePresets({
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Name, e.g. Tech"
-              aria-label="Preset name"
+              placeholder={m.portfolio.intraday.presetPlaceholder}
+              aria-label={m.portfolio.intraday.presetName}
               className="placeholder:text-muted-foreground focus-visible:border-ring h-6 min-w-0 flex-1 rounded-sm border bg-transparent px-2 text-xs outline-none"
             />
             <Button type="submit" size="xs" disabled={!name.trim()}>
-              Save
+              {m.common.save}
             </Button>
           </form>
         </PopoverContent>

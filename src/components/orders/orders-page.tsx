@@ -7,6 +7,7 @@ import { DealsTable } from "@/components/orders/deals-table";
 import { OrdersTable } from "@/components/orders/orders-table";
 import { StopLossesTable } from "@/components/orders/stop-losses-table";
 import { TabbedPanel } from "@/components/workspace/tabbed-panel";
+import { m } from "@/lib/i18n";
 
 const skeleton = <TableSkeleton rows={6} columns={8} />;
 
@@ -16,54 +17,54 @@ export function OrdersPage() {
   return (
     <TabbedPanel
       id="orders"
-      aside={`${account.label} · manage orders in Avanza`}
+      aside={m.orders.page.aside(account.label)}
       tabs={[
         {
           value: "open",
-          label: "Open",
+          label: m.orders.page.tabs.open,
           icon: ListOrdered,
           content: (
-            <AsyncBoundary what="your orders" fallback={skeleton}>
+            <AsyncBoundary what={m.orders.page.what.orders} fallback={skeleton}>
               <OrdersTable list="orders" />
             </AsyncBoundary>
           ),
         },
         {
           value: "deals",
-          label: "Today's trades",
+          label: m.orders.page.tabs.deals,
           icon: ArrowLeftRight,
           content: (
-            <AsyncBoundary what="today's trades" fallback={skeleton}>
+            <AsyncBoundary what={m.orders.page.what.deals} fallback={skeleton}>
               <DealsTable />
             </AsyncBoundary>
           ),
         },
         {
           value: "stop-loss",
-          label: "Stop-loss",
+          label: m.orders.page.tabs.stopLoss,
           icon: ShieldAlert,
           content: (
-            <AsyncBoundary what="stop-loss orders" fallback={skeleton}>
+            <AsyncBoundary what={m.orders.page.what.stopLoss} fallback={skeleton}>
               <StopLossesTable />
             </AsyncBoundary>
           ),
         },
         {
           value: "fund",
-          label: "Fund orders",
+          label: m.orders.page.tabs.fund,
           icon: Landmark,
           content: (
-            <AsyncBoundary what="fund orders" fallback={skeleton}>
+            <AsyncBoundary what={m.orders.page.what.fund} fallback={skeleton}>
               <OrdersTable list="fundOrders" />
             </AsyncBoundary>
           ),
         },
         {
           value: "cancelled",
-          label: "Cancelled",
+          label: m.orders.page.tabs.cancelled,
           icon: Ban,
           content: (
-            <AsyncBoundary what="cancelled orders" fallback={skeleton}>
+            <AsyncBoundary what={m.orders.page.what.cancelled} fallback={skeleton}>
               <OrdersTable list="cancelledOrders" />
             </AsyncBoundary>
           ),

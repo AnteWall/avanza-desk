@@ -10,6 +10,7 @@ import { InstrumentType } from "@/lib/avanza/codes";
 import type { Instrument } from "@/lib/avanza/instrument";
 import { universeQuery } from "@/lib/avanza/queries";
 import { formatDay } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { openRuleDialog } from "@/lib/rule-dialog";
 
 /**
@@ -37,7 +38,7 @@ export function Signals({ instrument }: { instrument: Instrument }) {
   if (signals.length === 0) return null;
   return (
     <Section
-      title="Signals"
+      title={m.workspace.signals.title}
       aside={
         <Button
           variant="outline"
@@ -50,7 +51,7 @@ export function Signals({ instrument }: { instrument: Instrument }) {
           }
         >
           <Bell />
-          Alert me on new ones
+          {m.workspace.signals.alertNew}
         </Button>
       }
     >

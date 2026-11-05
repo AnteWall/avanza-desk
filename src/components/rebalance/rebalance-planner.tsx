@@ -35,13 +35,17 @@ import {
   formatShare,
   parseDecimal,
 } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { loadParetoPortfolio } from "@/lib/pareto";
 import { subscribeSuggestedTargets, takeSuggestedTargets } from "@/lib/rebalance";
 import { openRuleDialog } from "@/lib/rule-dialog";
 
+// A product name: the same in every language.
+const PARETO = "Pareto månadsportfölj";
+
 const modes = [
-  { label: "Buy and sell", value: "full" },
-  { label: "Buy only", value: "buy" },
+  { label: m.rebalance.modes.full, value: "full" },
+  { label: m.rebalance.modes.buy, value: "buy" },
 ] as const;
 
 /**
@@ -81,11 +85,8 @@ export function RebalancePlanner() {
     <>
       <header className="flex items-end gap-3">
         <div className="flex flex-col gap-1">
-          <h1 className="text-lg font-semibold">Rebalance</h1>
-          <p className="text-muted-foreground">
-            Choose how much of your portfolio each instrument should be. AvanzaDesk works out the
-            orders; you place them in Avanza.
-          </p>
+          <h1 className="text-lg font-semibold">{m.rebalance.title}</h1>
+          <p className="text-muted-foreground">{m.rebalance.intro}</p>
         </div>
         {assistant && (
           <Button
@@ -95,13 +96,12 @@ export function RebalancePlanner() {
             onClick={() =>
               askAssistant({
                 items: [],
-                prompt:
-                  "Suggest target weights for my rebalance plan. What I want from my portfolio: ",
+                prompt: m.rebalance.askPrompt,
               })
             }
           >
             <Sparkles />
-            Ask the assistant
+            {m.rebalance.ask}
           </Button>
         )}
         {!plan.group && (
@@ -112,32 +112,26 @@ export function RebalancePlanner() {
             onClick={() => openRuleDialog({ kind: "drift" })}
           >
             <Bell />
-            Alert on drift
+            {m.rebalance.alertOnDrift}
           </Button>
         )}
       </header>
 
       <PlanStep
         step={1}
-        title="What to rebalance"
-        description="Which holdings, how much new money, and how closely to follow the targets."
+        title={m.rebalance.setup.title}
+        description={m.rebalance.setup.description}
       >
         <div className="grid grid-cols-5 gap-4 p-3">
-          <PlanField
-            label="Holdings"
-            tip="Rebalance everything, or only one of your groups (make groups by right-clicking rows below or on the Portfolio page). Each group keeps its own targets."
-          >
+          <PlanField label={m.rebalance.setup.holdings} tip={m.rebalance.setup.holdingsTip}>
             <GroupPicker />
           </PlanField>
-          <PlanField
-            label="New money"
-            tip="Cash you're adding, such as this month's savings. It's counted into the total before targets are applied and spent on what is below target. Leave it empty to rebalance what you already have."
-          >
+          <PlanField label={m.rebalance.setup.newMoney} tip={m.rebalance.setup.newMoneyTip}>
             <span className="flex gap-1">
               <span className="min-w-0 flex-1">
                 <UnitInput
                   unit="SEK"
-                  aria-label="New money, SEK"
+                  aria-label={m.rebalance.setup.newMoneyAria}
                   type="number"
                   min={0}
                   step={1000}
@@ -153,36 +147,38 @@ export function RebalancePlanner() {
             </span>
           </PlanField>
           <PlanField
-            label="Mode"
+            label={m.rebalance.setup.mode}
             tip={
               <>
                 <p>
-                  <span className="font-medium">Buy and sell</span> sells what is above its target
-                  to pay for what is below.
+                  {m.rebalance.setup.fullTip(
+                    <span key="mode" className="font-medium">
+                      {m.rebalance.modes.full}
+                    </span>,
+                  )}
                 </p>
                 <p>
-                  <span className="font-medium">Buy only</span> never sells: only the new money is
-                  invested, split by how far below target each instrument is. Avoids tax and
-                  courtage on sales.
+                  {m.rebalance.setup.buyTip(
+                    <span key="mode" className="font-medium">
+                      {m.rebalance.modes.buy}
+                    </span>,
+                  )}
                 </p>
               </>
             }
           >
             <Segmented
-              label="Mode"
+              label={m.rebalance.setup.mode}
               className="h-7 self-start"
               options={modes}
               value={plan.buyOnly ? "buy" : "full"}
-              onChange={(m) => plan.setBuyOnly(m === "buy")}
+              onChange={(mode) => plan.setBuyOnly(mode === "buy")}
             />
           </PlanField>
-          <PlanField
-            label="Tolerance"
-            tip="How far an instrument may drift from its target, in either direction, before it gets an order. With 2 and a 10 % target, anything from 8 % to 12 % is left alone. 0 trades every drift."
-          >
+          <PlanField label={m.rebalance.setup.tolerance} tip={m.rebalance.setup.toleranceTip}>
             <UnitInput
               unit="%"
-              aria-label="Tolerance, percent"
+              aria-label={m.rebalance.setup.toleranceAria}
               inputMode="decimal"
               defaultValue={formatDecimal(plan.band * 100)}
               onChange={(e) => {
@@ -192,13 +188,10 @@ export function RebalancePlanner() {
               }}
             />
           </PlanField>
-          <PlanField
-            label="Minimum order"
-            tip="Orders smaller than this are skipped: they cost more in courtage than they fix. 0 keeps every order."
-          >
+          <PlanField label={m.rebalance.setup.minOrder} tip={m.rebalance.setup.minOrderTip}>
             <UnitInput
               unit="SEK"
-              aria-label="Minimum order, SEK"
+              aria-label={m.rebalance.setup.minOrderAria}
               inputMode="numeric"
               defaultValue={formatDecimal(plan.minOrder)}
               onChange={(e) => {
@@ -212,34 +205,33 @@ export function RebalancePlanner() {
 
       <PlanStep
         step={2}
-        title="Set your targets"
-        description="Targets start at today's weights. Add instruments you want to buy into."
+        title={m.rebalance.targets.title}
+        description={m.rebalance.targets.description}
         actions={
           <>
             <AddInstrument inPlan={plan.inPlan} onAdd={plan.add} />
             <DropdownMenu>
               <DropdownMenuTrigger render={<Button variant="outline" size="xs" />}>
                 <RotateCcw />
-                Set targets
+                {m.rebalance.targets.menu}
                 <ChevronDown />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64">
                 <DropdownMenuGroup>
-                  <DropdownMenuLabel>Reset</DropdownMenuLabel>
+                  <DropdownMenuLabel>{m.rebalance.targets.reset}</DropdownMenuLabel>
                   <DropdownMenuItem onClick={() => replaceTargets(() => plan.setTargets({}))}>
-                    To current weights
+                    {m.rebalance.targets.toCurrent}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => replaceTargets(plan.equalTargets)}>
-                    To equal weights
+                    {m.rebalance.targets.toEqual}
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="flex items-center gap-1">
-                    Model portfolios
-                    <InfoTip label="model portfolios">
-                      Copy a portfolio picked by analysts: its stocks get equal targets, everything
-                      else goes to 0 %. Pick a group first so the rest of your holdings stay put.
+                    {m.rebalance.targets.models}
+                    <InfoTip label={m.rebalance.targets.modelsLabel}>
+                      {m.rebalance.targets.modelsTip}
                     </InfoTip>
                   </DropdownMenuLabel>
                   <DropdownMenuItem
@@ -247,12 +239,14 @@ export function RebalancePlanner() {
                     onClick={() =>
                       void loadParetoPortfolio(queryClient).then(
                         (preset) => replaceTargets(() => plan.applyPreset(preset)),
-                        (e: unknown) => toast.error(`Pareto månadsportfölj: ${String(e)}`),
+                        (e: unknown) => toast.error(`${PARETO}: ${String(e)}`),
                       )
                     }
                   >
-                    Pareto månadsportfölj
-                    <span className="text-muted-foreground text-xs">10 stocks · monthly</span>
+                    {PARETO}
+                    <span className="text-muted-foreground text-xs">
+                      {m.rebalance.targets.paretoMeta}
+                    </span>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
@@ -261,21 +255,17 @@ export function RebalancePlanner() {
         }
         footer={
           <span className={cn("num flex items-center gap-2", off && "text-warning")}>
-            Targets add up to {formatShare(plan.targetSum)}
-            <InfoTip label="the target total">
-              The targets should add up to 100 %. Above that there isn't money for every buy, so all
-              buys shrink by the same share; below it, the rest stays as cash. Scale to 100 % keeps
-              their proportions.
-            </InfoTip>
+            {m.rebalance.targets.sum(formatShare(plan.targetSum))}
+            <InfoTip label={m.rebalance.targets.sumLabel}>{m.rebalance.targets.sumTip}</InfoTip>
             {off && (
               <>
-                {` (${formatPercent(plan.targetSum - 1)} off)`}
+                {m.rebalance.targets.off(formatPercent(plan.targetSum - 1))}
                 <Button
                   variant="outline"
                   size="xs"
                   onClick={() => replaceTargets(plan.normalizeTargets)}
                 >
-                  Scale to 100 %
+                  {m.rebalance.targets.scale}
                 </Button>
               </>
             )}
@@ -283,9 +273,7 @@ export function RebalancePlanner() {
         }
       >
         {plan.rows.length === 0 ? (
-          <p className="text-muted-foreground p-3">
-            {`No holdings${plan.group ? ` in ${plan.group.name}` : ""} yet. Add an instrument and new money to plan a buy.`}
-          </p>
+          <p className="text-muted-foreground p-3">{m.rebalance.targets.empty(plan.group?.name)}</p>
         ) : (
           <TargetsTable key={version} rows={plan.rows} />
         )}
@@ -293,30 +281,29 @@ export function RebalancePlanner() {
 
       <PlanStep
         step={3}
-        title="Place the orders"
-        description="Sell first to free the cash, then buy. Each order opens in Avanza with the amount filled in."
+        title={m.rebalance.orders.title}
+        description={m.rebalance.orders.description}
         actions={
           <span className="text-muted-foreground flex flex-wrap items-center justify-end gap-x-4 text-xs">
             <span className="num">
-              {sold.length} sells · {orders.length - sold.length} buys
+              {m.rebalance.orders.counts(sold.length, orders.length - sold.length)}
             </span>
             <span className="sensitive num">
-              Sell <span className="text-foreground">{formatInteger(sells)}</span>
+              {m.common.sell} <span className="text-foreground">{formatInteger(sells)}</span>
             </span>
             <span className="sensitive num">
-              Buy <span className="text-foreground">{formatInteger(buys)}</span>
+              {m.common.buy} <span className="text-foreground">{formatInteger(buys)}</span>
             </span>
             <span className="flex items-center gap-1.5">
               <span className={cn("sensitive num", cashLeft < 0 && "text-warning")}>
-                Cash left{" "}
-                <span className={cn(cashLeft >= 0 && "text-foreground")}>
-                  {formatInteger(cashLeft)}
-                </span>{" "}
-                SEK
+                {m.rebalance.orders.cashLeft(
+                  <span key="amount" className={cn(cashLeft >= 0 && "text-foreground")}>
+                    {formatInteger(cashLeft)}
+                  </span>,
+                )}
               </span>
-              <InfoTip label="cash left">
-                New money plus what the sells bring in, minus what the buys cost. What's left comes
-                from rounding to whole shares, the tolerance and the minimum order.
+              <InfoTip label={m.rebalance.orders.cashLeftLabel}>
+                {m.rebalance.orders.cashLeftTip}
               </InfoTip>
             </span>
           </span>

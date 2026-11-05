@@ -11,6 +11,7 @@ import {
   Sigma,
 } from "lucide-react";
 
+import { m } from "@/lib/i18n";
 import type { FileRoutesByTo } from "@/routeTree.gen";
 
 /** The app's pages in nav-rail order; Alt+1…9, then Alt+0, open them in this order too. */
@@ -23,64 +24,63 @@ export const pages: {
 }[] = [
   {
     icon: House,
-    label: "Home",
+    label: m.layout.pages.home.label,
     to: "/briefing",
-    description:
-      "How your portfolio is doing: today, or what changed while you were away, and what's next.",
+    description: m.layout.pages.home.description,
   },
   {
     icon: LayoutGrid,
-    label: "Workspace",
+    label: m.layout.pages.workspace.label,
     to: "/",
-    description: "Watchlists, charts, order book and a full dossier on the instrument in focus.",
+    description: m.layout.pages.workspace.description,
   },
   {
     icon: Briefcase,
-    label: "Portfolio",
+    label: m.layout.pages.portfolio.label,
     to: "/portfolio",
-    description: "Your holdings, accounts, performance, dividends and transactions.",
+    description: m.layout.pages.portfolio.description,
   },
   {
     icon: ChartLine,
-    label: "Markets",
+    label: m.layout.pages.markets.label,
     to: "/markets",
-    description: "Indices, today's gainers and losers, and a stock screener.",
+    description: m.layout.pages.markets.description,
   },
   {
     icon: ListOrdered,
-    label: "Orders",
+    label: m.layout.pages.orders.label,
     to: "/orders",
-    description: "Open orders, today's trades, stop-losses and fund orders.",
+    description: m.layout.pages.orders.description,
   },
   {
     icon: Newspaper,
-    label: "News",
+    label: m.layout.pages.news.label,
     to: "/news",
-    description: "News on what you hold and watch, with upcoming reports and dividends.",
+    description: m.layout.pages.news.description,
   },
   {
     icon: Bell,
-    label: "Alerts",
+    label: m.layout.pages.alerts.label,
     to: "/alerts",
-    description: "Your Avanza price and news alerts, and AvanzaDesk's own rules.",
+    description: m.layout.pages.alerts.description,
   },
   {
     icon: Radar,
-    label: "Signals",
+    label: m.layout.pages.signals.label,
     to: "/signals",
-    description: "Insider trades, short interest, owners and analyst changes in your stocks.",
+    description: m.layout.pages.signals.description,
   },
   {
     icon: Sigma,
-    label: "Analysis",
+    label: m.layout.pages.analysis.label,
     to: "/analysis",
-    description: "Benchmark, income, tax and fees, fund overlap and your trading habits.",
+    description: m.layout.pages.analysis.description,
   },
   {
     icon: Scale,
-    label: "Rebalance",
+    label: m.layout.pages.rebalance.label,
     to: "/rebalance",
-    description: "Set target weights and get the orders that reach them.",
+    description: m.layout.pages.rebalance.description,
   },
 ];
 

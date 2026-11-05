@@ -8,6 +8,7 @@ import type { Instrument } from "@/lib/avanza/instrument";
 import { holding } from "@/lib/avanza/portfolio";
 import { positionsQuery, quoteQuery } from "@/lib/avanza/queries";
 import { formatCompact, formatInteger, formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 const price = (v: number | null | undefined) => (v == null ? "–" : formatPrice(v));
 
@@ -26,36 +27,38 @@ export function ListedHeader({ instrument }: { instrument: Instrument }) {
         </Flash>
         {/* Avanza sends percent units; Change takes a ratio. */}
         {quote.changePercent != null && <Change ratio={quote.changePercent / 100} badge />}
-        {!quote.isRealTime && <span className="text-muted-foreground text-xs">Delayed</span>}
+        {!quote.isRealTime && (
+          <span className="text-muted-foreground text-xs">{m.workspace.chart.delayed}</span>
+        )}
         {yourReturn != null && (
           <span className="text-muted-foreground flex items-center gap-1 text-xs">
-            Your return <Change ratio={yourReturn} />
+            {m.workspace.chart.yourReturn} <Change ratio={yourReturn} />
           </span>
         )}
       </InstrumentTitle>
       <StatList
         stats={[
-          { label: "High", value: price(quote.highest) },
-          { label: "Low", value: price(quote.lowest) },
+          { label: m.common.high, value: price(quote.highest) },
+          { label: m.common.low, value: price(quote.lowest) },
           {
-            label: "Avg price",
+            label: m.workspace.chart.avgPrice,
             value: price(quote.volumeWeightedAveragePrice),
-            tip: "The average price paid today, weighted by how many shares changed hands at each price (VWAP).",
+            tip: m.workspace.chart.avgPriceTip,
           },
           {
-            label: "Volume",
-            tip: "How many shares changed hands today.",
+            label: m.common.volume,
+            tip: m.workspace.chart.volumeTip,
             value: quote.totalVolumeTraded == null ? "–" : formatInteger(quote.totalVolumeTraded),
           },
           {
-            label: "Turnover",
-            tip: "The value of all shares traded today.",
+            label: m.common.turnover,
+            tip: m.workspace.chart.turnoverTip,
             value: quote.totalValueTraded == null ? "–" : formatCompact(quote.totalValueTraded),
           },
           ...(held
             ? [
-                { label: "You own", value: formatInteger(held.volume) },
-                { label: "Your avg", value: formatPrice(held.averagePrice) },
+                { label: m.workspace.chart.youOwn, value: formatInteger(held.volume) },
+                { label: m.workspace.chart.yourAvg, value: formatPrice(held.averagePrice) },
               ]
             : []),
         ]}

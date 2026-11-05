@@ -16,11 +16,11 @@ export function Change({
     <span
       className={cn(
         "num",
-        ratio > 0 && "text-up",
+        0 < ratio && "text-up",
         ratio < 0 && "text-down",
         ratio === 0 && "text-muted-foreground",
         badge && "rounded-sm px-1.5 py-0.5 font-medium",
-        badge && ratio > 0 && "bg-up/15",
+        badge && 0 < ratio && "bg-up/15",
         badge && ratio < 0 && "bg-down/15",
         badge && ratio === 0 && "bg-muted",
         className,

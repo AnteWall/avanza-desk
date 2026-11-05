@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { ReleaseNotesDialog } from "@/components/common/release-notes-dialog";
 import { releases, unseenReleases } from "@/lib/changelog";
+import { m } from "@/lib/i18n";
 import { getSetting, saveSetting, settingKeys } from "@/lib/settings";
 
 const KEY = "whatsNew:lastSeen";
@@ -45,7 +46,9 @@ export function WhatsNew() {
       onClose={close}
       releases={unseen}
       description={
-        unseen.length > 1 ? `${unseen.length} updates since v${lastSeen}` : `Version ${version}`
+        unseen.length > 1
+          ? m.layout.whatsNew.since(unseen.length, lastSeen ?? "")
+          : m.common.version(version ?? "")
       }
     />
   );

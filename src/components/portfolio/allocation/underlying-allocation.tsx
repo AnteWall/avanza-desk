@@ -2,8 +2,9 @@ import { TableSkeleton } from "@/components/common/table-skeleton";
 import { AllocationTable } from "@/components/portfolio/allocation/allocation-table";
 import { useLookThroughs } from "@/components/portfolio/use-holdings";
 import { lookThrough } from "@/lib/avanza/portfolio";
+import { m } from "@/lib/i18n";
 
-const rest = "Undisclosed";
+const rest = m.portfolio.allocation.undisclosed;
 
 /**
  * Companies you actually own: direct stocks plus each fund's and ETF's disclosed holdings, merged,
@@ -22,7 +23,7 @@ export function UnderlyingAllocation() {
     <AllocationTable
       slices={slices}
       rest={rest}
-      restNote="funds only publish their largest holdings"
+      restNote={m.portfolio.allocation.underlyingNote}
       limit={40}
     />
   );

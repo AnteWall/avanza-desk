@@ -3,6 +3,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { InstrumentLogo } from "@/components/common/instrument-logo";
 import { formatPercent } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { squarify, type Rect } from "@/lib/treemap";
 
 export type HeatTile = {
@@ -71,9 +72,9 @@ export function Heatmap({
   const sectors = useMemo(() => {
     const groups = new Map<string, HeatTile[]>();
     for (const t of tiles) {
-      const group = groups.get(t.sector ?? "Other") ?? [];
+      const group = groups.get(t.sector ?? m.common.other) ?? [];
       group.push(t);
-      groups.set(t.sector ?? "Other", group);
+      groups.set(t.sector ?? m.common.other, group);
     }
     const labelled = groups.size > 1;
     const blocks = [...groups].map(([name, members]) => ({

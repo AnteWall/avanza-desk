@@ -8,6 +8,7 @@ import type { AnswerBlock } from "@/lib/ai/blocks";
 import { InstrumentType } from "@/lib/avanza/codes";
 import { instrumentQuery } from "@/lib/avanza/queries";
 import { formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { suggestTargets } from "@/lib/rebalance";
 
 /**
@@ -50,10 +51,12 @@ export function TargetsCard({ block }: { block: Extract<AnswerBlock, { kind: "ta
         ))}
       </ul>
       <div className="bg-muted/40 flex items-center gap-2 border-t px-3 py-1.5">
-        <span className="text-muted-foreground num text-xs">Total {formatShare(sum)}</span>
+        <span className="text-muted-foreground num text-xs">
+          {m.common.total} {formatShare(sum)}
+        </span>
         <Button size="xs" className="ml-auto" onClick={apply}>
           <Scale />
-          Use as rebalance targets
+          {m.ai.block.useTargets}
         </Button>
       </div>
     </div>

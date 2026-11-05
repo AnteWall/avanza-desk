@@ -7,6 +7,7 @@ import { OpenOrderButton } from "@/components/rebalance/open-order-button";
 import type { RebalanceRow } from "@/components/rebalance/use-rebalance-plan";
 import { OrderSide } from "@/lib/avanza/codes";
 import { formatInteger } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import type { Order } from "@/lib/rebalance";
 
 type Row = RebalanceRow & { order: Order };
@@ -15,18 +16,18 @@ const col = dataTableColumns<Row>();
 const columns = col.columns([
   col.accessor((r) => r.order.side, {
     id: "side",
-    header: "Order",
+    header: m.rebalance.orders.columns.order,
     cell: (c) => {
       const buy = c.getValue() === OrderSide.Buy;
       return (
         <span className={cn("font-medium", buy ? "text-up" : "text-down")}>
-          {buy ? "Buy" : "Sell"}
+          {buy ? m.common.buy : m.common.sell}
         </span>
       );
     },
   }),
   col.accessor("name", {
-    header: "Instrument",
+    header: m.common.instrument,
     cell: (c) => (
       <span className="flex items-center gap-1.5">
         <InstrumentLogo isin={c.row.original.isin} name={c.getValue()} />
@@ -36,26 +37,22 @@ const columns = col.columns([
   }),
   col.accessor((r) => r.accounts.join(", "), {
     id: "accounts",
-    header: infoHeader(
-      "Account",
-      "Where you hold it. When it's in several, pick the account in Avanza: selling in an AF account is taxed, in an ISK it isn't.",
-    ),
+    header: infoHeader(m.common.account, m.rebalance.orders.columns.accountTip),
     // Holdings are summed over accounts, but a sell comes from one: AF is taxed, ISK isn't.
     cell: (c) => (
-      <span className="block max-w-40 truncate">{c.getValue() || "Pick in Avanza"}</span>
+      <span className="block max-w-40 truncate">
+        {c.getValue() || m.rebalance.orders.columns.pickInAvanza}
+      </span>
     ),
     meta: { className: "text-muted-foreground" },
   }),
   col.accessor((r) => r.order.shares, {
     id: "shares",
-    header: infoHeader(
-      "Shares",
-      "Whole shares, rounded down so a buy never costs more than planned. Funds trade in SEK, so they have no share count.",
-    ),
+    header: infoHeader(m.common.shares, m.rebalance.orders.columns.sharesTip),
     cell: (c) => {
       const shares = c.getValue();
       return shares == null ? (
-        <span className="text-muted-foreground">in SEK</span>
+        <span className="text-muted-foreground">{m.rebalance.orders.columns.inSek}</span>
       ) : (
         formatInteger(Math.abs(shares))
       );
@@ -64,7 +61,7 @@ const columns = col.columns([
   }),
   col.accessor((r) => r.order.amount, {
     id: "amount",
-    header: "Amount SEK",
+    header: m.rebalance.orders.columns.amount,
     cell: (c) => formatInteger(Math.abs(c.getValue())),
     meta: { align: "end", className: "sensitive num font-medium" },
   }),
@@ -82,7 +79,7 @@ const columns = col.columns([
  */
 export function OrdersTable({
   rows,
-  empty = "Nothing to trade: you're on target.",
+  empty = m.rebalance.orders.empty,
 }: {
   rows: RebalanceRow[];
   empty?: string;

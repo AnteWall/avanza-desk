@@ -2,6 +2,7 @@ import { cn } from "cn";
 
 import { exchanges, exchangeStatus, getShownExchanges } from "@/lib/exchanges";
 import { formatAs, formatClock, formatDate, formatDuration } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 /** The exchanges picked in Settings: open dot, and when it next opens or closes, in Stockholm time. */
 export function ExchangeStrip({ now }: { now: Date }) {
@@ -19,7 +20,12 @@ export function ExchangeStrip({ now }: { now: Date }) {
             <span
               key={ex.short}
               className="flex items-center gap-1"
-              title={`${ex.name} ${open ? "open · closes" : "closed · opens"} ${when} (in ${formatDuration(next.getTime() - now.getTime())}). Regular hours; holidays not included.`}
+              title={m.layout.exchange(
+                ex.name,
+                open,
+                when,
+                formatDuration(next.getTime() - now.getTime()),
+              )}
             >
               <span
                 className={cn("size-1.5 rounded-full", open ? "bg-brand" : "bg-muted-foreground")}

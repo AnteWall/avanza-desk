@@ -14,20 +14,21 @@ import { KeyRatioChart, keyRatios, type KeyRatio } from "@/components/portfolio/
 import { PortfolioChart, type ChartMode } from "@/components/portfolio/portfolio-chart";
 import { TabbedPanel } from "@/components/workspace/tabbed-panel";
 import { totalValuesQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 
 const ranges: { label: string; period: PerformancePeriod }[] = [
-  { label: "1M", period: "ONE_MONTH" },
-  { label: "3M", period: "THREE_MONTHS" },
-  { label: "YTD", period: "THIS_YEAR" },
-  { label: "1Y", period: "ONE_YEAR" },
-  { label: "3Y", period: "THREE_YEARS" },
-  { label: "5Y", period: "FIVE_YEARS" },
-  { label: "All", period: "ALL_TIME" },
+  { label: m.portfolio.periods.oneMonth, period: "ONE_MONTH" },
+  { label: m.portfolio.periods.threeMonths, period: "THREE_MONTHS" },
+  { label: m.portfolio.periods.thisYear, period: "THIS_YEAR" },
+  { label: m.portfolio.periods.oneYear, period: "ONE_YEAR" },
+  { label: m.portfolio.periods.threeYears, period: "THREE_YEARS" },
+  { label: m.portfolio.periods.fiveYears, period: "FIVE_YEARS" },
+  { label: m.portfolio.periods.all, period: "ALL_TIME" },
 ];
 
 const modes: { label: string; mode: ChartMode }[] = [
-  { label: "Return", mode: "return" },
-  { label: "Value", mode: "value" },
+  { label: m.common.return, mode: "return" },
+  { label: m.common.value, mode: "value" },
 ];
 
 const tabsId = "portfolio-performance";
@@ -59,18 +60,23 @@ export function PerformancePanel() {
         tab === "today" ? (
           result(today)
         ) : tab === "ratios" ? (
-          <Segmented label="Key ratio" options={keyRatios} value={ratio} onChange={setRatio} />
+          <Segmented
+            label={m.portfolio.performance.keyRatio}
+            options={keyRatios}
+            value={ratio}
+            onChange={setRatio}
+          />
         ) : (
           <>
             {result(dev)}
             <Segmented
-              label="Chart"
-              options={modes.map((m) => ({ label: m.label, value: m.mode }))}
+              label={m.portfolio.performance.chart}
+              options={modes.map((x) => ({ label: x.label, value: x.mode }))}
               value={mode}
               onChange={setMode}
             />
             <Segmented
-              label="Range"
+              label={m.portfolio.performance.range}
               numeric
               options={ranges.map((r) => ({ label: r.label, value: r.period }))}
               value={period}
@@ -82,11 +88,15 @@ export function PerformancePanel() {
       tabs={[
         {
           value: "performance",
-          label: "Performance",
+          label: m.portfolio.performance.tabs.performance,
           icon: ChartLine,
           content: (
             <div className="h-full p-3">
-              <AsyncBoundary what="your performance" fallback={skeleton} resetKey={period}>
+              <AsyncBoundary
+                what={m.portfolio.performance.loading.performance}
+                fallback={skeleton}
+                resetKey={period}
+              >
                 <PortfolioChart period={period} mode={mode} />
               </AsyncBoundary>
             </div>
@@ -94,21 +104,21 @@ export function PerformancePanel() {
         },
         {
           value: "today",
-          label: "Today",
+          label: m.portfolio.performance.tabs.today,
           icon: Activity,
           content: (
-            <AsyncBoundary what="today's development" fallback={skeleton}>
+            <AsyncBoundary what={m.portfolio.performance.loading.today} fallback={skeleton}>
               <IntradayChart />
             </AsyncBoundary>
           ),
         },
         {
           value: "ratios",
-          label: "Key ratios",
+          label: m.portfolio.performance.tabs.ratios,
           icon: Gauge,
           content: (
             <div className="h-full p-3">
-              <AsyncBoundary what="your key ratios" fallback={skeleton}>
+              <AsyncBoundary what={m.portfolio.performance.loading.ratios} fallback={skeleton}>
                 <KeyRatioChart ratio={ratio} />
               </AsyncBoundary>
             </div>

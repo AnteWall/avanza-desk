@@ -3,18 +3,28 @@ import { Chart } from "@tanstack/charts/react";
 import { scaleBand } from "@tanstack/charts/scales/band";
 import { scaleLinear } from "@tanstack/charts/scales/linear";
 import { tooltip } from "@tanstack/charts/tooltip";
-import { sv } from "date-fns/locale";
 import { useMemo } from "react";
 
 import { formatAs, formatCompact, formatInteger } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import type { IncomeMonth } from "@/lib/income";
 
 const series = [
-  { key: "announced", label: "Announced", fill: "var(--chart-1)", dot: "bg-chart-1" },
-  { key: "estimated", label: "Estimated", fill: "var(--chart-2)", dot: "bg-chart-2" },
+  {
+    key: "announced",
+    label: m.analysis.income.announced,
+    fill: "var(--chart-1)",
+    dot: "bg-chart-1",
+  },
+  {
+    key: "estimated",
+    label: m.analysis.income.estimated,
+    fill: "var(--chart-2)",
+    dot: "bg-chart-2",
+  },
 ] as const;
 
-const label = (month: string) => formatAs(`${month}-01`, "MMM", sv);
+const label = (month: string) => formatAs(`${month}-01`, "MMM");
 
 /** Expected dividends per month, announced stacked under estimated. */
 export function IncomeChart({ months }: { months: readonly IncomeMonth[] }) {
@@ -60,7 +70,7 @@ export function IncomeChart({ months }: { months: readonly IncomeMonth[] }) {
           const ym = (points[0]!.datum as (typeof bars)[number]).ym;
           return {
             title: `${formatAs(`${ym}-01`, "MMMM yyyy")} · SEK`,
-            rows: [...rows, { label: "Total", value: formatInteger(total), active: true }],
+            rows: [...rows, { label: m.common.total, value: formatInteger(total), active: true }],
           };
         },
       },
@@ -80,7 +90,7 @@ export function IncomeChart({ months }: { months: readonly IncomeMonth[] }) {
       <div className="h-48">
         <Chart
           definition={definition}
-          ariaLabel="Dividend income per month"
+          ariaLabel={m.analysis.income.chart}
           className="num text-muted-foreground text-xs"
           style={{ height: "100%" }}
         />

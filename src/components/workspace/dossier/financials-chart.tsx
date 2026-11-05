@@ -9,12 +9,18 @@ import { useMemo } from "react";
 import { Section } from "@/components/workspace/dossier/section";
 import { stockAnalysisQuery } from "@/lib/avanza/queries";
 import { formatCompact, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 type Bar = { year: string; metric: string; value: number };
 
 const series = [
-  { key: "sales", label: "Sales", fill: "var(--chart-1)", dot: "bg-chart-1" },
-  { key: "netProfit", label: "Net profit", fill: "var(--chart-2)", dot: "bg-chart-2" },
+  { key: "sales", label: m.workspace.financials.sales, fill: "var(--chart-1)", dot: "bg-chart-1" },
+  {
+    key: "netProfit",
+    label: m.workspace.financials.netProfit,
+    fill: "var(--chart-2)",
+    dot: "bg-chart-2",
+  },
 ];
 const YEARS = 8;
 
@@ -58,10 +64,10 @@ export function FinancialsChart({ orderbookId }: { orderbookId: string }) {
             content: (points) => {
               const bars = points.map((p) => p.datum as Bar);
               const value = (label: string) => bars.find((b) => b.metric === label)?.value;
-              const sales = value("Sales");
-              const profit = value("Net profit");
+              const sales = value(m.workspace.financials.sales);
+              const profit = value(m.workspace.financials.netProfit);
               return {
-                title: `Financial year ${bars[0]!.year}`,
+                title: m.workspace.financials.year(bars[0]!.year),
                 rows: [
                   ...bars.map((b) => ({
                     label: b.metric,
@@ -69,7 +75,12 @@ export function FinancialsChart({ orderbookId }: { orderbookId: string }) {
                     color: series.find((s) => s.label === b.metric)!.fill,
                   })),
                   ...(sales && profit != null
-                    ? [{ label: "Net margin", value: formatShare(profit / sales) }]
+                    ? [
+                        {
+                          label: m.workspace.financials.netMargin,
+                          value: formatShare(profit / sales),
+                        },
+                      ]
                     : []),
                 ],
               };
@@ -81,8 +92,10 @@ export function FinancialsChart({ orderbookId }: { orderbookId: string }) {
   if (!definition) return null;
   return (
     <Section
-      title="Financials"
-      aside={margin && `Net margin ${formatShare(margin.value)} in ${margin.financialYear}`}
+      title={m.workspace.financials.title}
+      aside={
+        margin && m.workspace.financials.marginIn(formatShare(margin.value), margin.financialYear)
+      }
     >
       <div className="flex flex-col gap-2">
         <div className="text-muted-foreground flex gap-4 text-xs">
@@ -96,7 +109,7 @@ export function FinancialsChart({ orderbookId }: { orderbookId: string }) {
         <div className="h-56">
           <Chart
             definition={definition}
-            ariaLabel="Sales and net profit per year"
+            ariaLabel={m.workspace.financials.chart}
             className="num text-muted-foreground text-xs"
             style={{ height: "100%" }}
           />

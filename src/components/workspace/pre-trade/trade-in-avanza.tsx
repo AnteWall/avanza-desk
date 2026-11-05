@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { OrderSide } from "@/lib/avanza/codes";
 import type { Instrument } from "@/lib/avanza/instrument";
 import { avanzaOrderUrl } from "@/lib/avanza/links";
+import { m } from "@/lib/i18n";
 
 /** Hands the order over to Avanza's own order page (avanza-ts can't place orders). */
 export function TradeInAvanza({
@@ -32,7 +33,9 @@ export function TradeInAvanza({
         side === OrderSide.Buy ? "bg-buy hover:bg-buy/90" : "bg-sell hover:bg-sell/90",
       )}
     >
-      {`${side === OrderSide.Buy ? "Buy" : "Sell"} ${instrument.shortName} in Avanza`}
+      {(side === OrderSide.Buy ? m.workspace.preTrade.buyIn : m.workspace.preTrade.sellIn)(
+        instrument.shortName,
+      )}
       <ExternalLink />
     </Button>
   );

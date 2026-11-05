@@ -18,6 +18,7 @@ import {
 } from "@/lib/avanza/queries";
 import type { UniverseStock } from "@/lib/avanza/universe";
 import { formatInteger, formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { byUpside, parseFairValue, upside } from "@/lib/upside";
 
 type Row = {
@@ -32,14 +33,15 @@ type Row = {
 };
 
 const dash = "–";
-const words = (code: string) => code.toLowerCase().replaceAll("_", " ");
+const words = (code: string) =>
+  m.signals.upside.consensus[code] ?? code.toLowerCase().replaceAll("_", " ");
 const dataOf = <T,>(results: UseQueryResult<T>[]) => results.map((r) => r.data);
 
 const col = dataTableColumns<Row>();
 const analystColumns = col.columns([
   col.accessor((r) => r.stock.name, {
     id: "name",
-    header: "Stock",
+    header: m.signals.table.stock,
     cell: (c) => (
       <span className="flex items-center gap-1.5">
         <InstrumentLogo isin={c.row.original.stock.isin} name={c.getValue()} />
@@ -48,12 +50,12 @@ const analystColumns = col.columns([
     ),
   }),
   col.accessor("last", {
-    header: "Last",
+    header: m.common.last,
     cell: (c) => (c.getValue() == null ? dash : formatPrice(c.getValue()!)),
     meta: { align: "end", className: "num" },
   }),
   col.accessor("target", {
-    header: "Target",
+    header: m.signals.upside.target,
     cell: (c) => {
       const t = c.getValue();
       if (!t?.numberOfEstimates) return dash;
@@ -66,21 +68,18 @@ const analystColumns = col.columns([
     meta: { align: "end", className: "num" },
   }),
   col.accessor("targetUpside", {
-    header: infoHeader(
-      "Upside",
-      "How far the analysts' average price target is above today's price. Targets are opinions, often wrong, and look about a year ahead.",
-    ),
+    header: infoHeader(m.signals.upside.upside, m.signals.upside.upsideTip),
     cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()!} />),
     meta: { align: "end", className: "num font-medium" },
   }),
   col.accessor((r) => r.target?.numberOfEstimates, {
     id: "analysts",
-    header: "Analysts",
+    header: m.signals.upside.analysts,
     cell: (c) => (c.getValue() ? formatInteger(c.getValue()!) : dash),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.accessor("consensus", {
-    header: "Analysts say",
+    header: m.signals.upside.analystsSay,
     cell: (c) => <span className="capitalize">{c.getValue() ?? dash}</span>,
     meta: { className: "text-muted-foreground" },
   }),
@@ -90,24 +89,21 @@ const allColumns = [
   ...analystColumns,
   ...col.columns([
     col.accessor("fairValue", {
-      header: infoHeader(
-        "Fair value",
-        "What Morningstar's analysts think one share is really worth, based on the company's future cash flows.",
-      ),
+      header: infoHeader(m.signals.upside.fairValue, m.signals.upside.fairValueTip),
       cell: (c) => (c.getValue() == null ? dash : formatPrice(c.getValue()!)),
       meta: { align: "end", className: "num" },
     }),
     col.accessor("fairUpside", {
-      header: "To fair value",
+      header: m.signals.upside.toFairValue,
       cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()!} />),
       meta: { align: "end", className: "num" },
     }),
     col.accessor("moat", {
-      header: infoHeader(
-        "Moat",
-        "How well Morningstar thinks the company can keep competitors away: wide, narrow or none.",
-      ),
-      cell: (c) => c.getValue() ?? dash,
+      header: infoHeader(m.signals.upside.moat, m.signals.upside.moatTip),
+      cell: (c) => {
+        const moat = c.getValue();
+        return moat ? (m.signals.upside.moats[moat] ?? moat) : dash;
+      },
       meta: { className: "text-muted-foreground" },
     }),
   ]),
@@ -155,7 +151,7 @@ export function UpsideTable() {
     [universe, quotes, fundamentals, morningstar],
   );
 
-  if (rows.length === 0) return <Empty>No held or watched stocks.</Empty>;
+  if (rows.length === 0) return <Empty>{m.signals.upside.empty}</Empty>;
   return (
     <DataTable
       columns={rows.some((r) => r.fairValue != null || r.moat) ? allColumns : analystColumns}

@@ -6,6 +6,7 @@ import { TableSkeleton } from "@/components/common/table-skeleton";
 import { ScreenerTable } from "@/components/markets/screener-table";
 import { Input } from "@/components/ui/input";
 import { Panel } from "@/components/workspace/panel";
+import { m } from "@/lib/i18n";
 import { useDebounced } from "@/lib/use-debounced";
 
 /** Stock screener: filter by name, sorted by how many Avanza customers own each stock. */
@@ -17,20 +18,23 @@ export function ScreenerPanel() {
 
   return (
     <Panel
-      title="Popular on Avanza"
+      title={m.markets.screener.title}
       icon={Filter}
-      subtitle="the stocks most Avanza customers own"
+      subtitle={m.markets.screener.subtitle}
       actions={
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Filter by name"
-          aria-label="Filter stocks by name"
+          placeholder={m.markets.screener.filter}
+          aria-label={m.markets.screener.filterLabel}
           className="h-6 w-48 text-xs"
         />
       }
     >
-      <AsyncBoundary what="the screener" fallback={<TableSkeleton rows={12} columns={8} />}>
+      <AsyncBoundary
+        what={m.markets.screener.what}
+        fallback={<TableSkeleton rows={12} columns={8} />}
+      >
         <ScreenerTable name={shown} />
       </AsyncBoundary>
     </Panel>

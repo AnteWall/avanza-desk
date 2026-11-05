@@ -25,7 +25,7 @@ export function Flash({
       key={tick.n}
       className={cn(
         "rounded-sm",
-        tick.dir > 0 && "motion-safe:animate-flash-up",
+        0 < tick.dir && "motion-safe:animate-flash-up",
         tick.dir < 0 && "motion-safe:animate-flash-down",
         className,
       )}

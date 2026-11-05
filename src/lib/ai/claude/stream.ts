@@ -1,5 +1,7 @@
 import { EventType, type StreamChunk } from "@tanstack/ai";
 
+import { m } from "@/lib/i18n";
+
 import type { ChatStatus } from "../types";
 
 // Maps the claude CLI's stream-json events (one JSON object per stdout line) to the AG-UI chunks
@@ -128,7 +130,7 @@ export function toChunks(event: ClaudeEvent, run: Run): { chunks: StreamChunk[];
       type: EventType.RUN_ERROR,
       threadId,
       runId,
-      message: event.stderr.trim() || "Claude stopped unexpectedly.",
+      message: event.stderr.trim() || m.ai.provider.errors.claudeStopped,
     });
   }
   return { chunks, done };

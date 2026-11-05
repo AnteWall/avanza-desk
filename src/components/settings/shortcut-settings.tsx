@@ -1,17 +1,18 @@
 import { SettingsRow } from "@/components/settings/settings-row";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { ShortcutRecorder } from "@/components/settings/shortcut-recorder";
+import { m } from "@/lib/i18n";
 import { shortcutActions } from "@/lib/shortcuts";
 
 const fixed = [
-  ["1 … 6", "Chart range", "In the workspace's overview."],
-  ["↑ ↓  j k  Enter", "Tables", "Move through rows and open one."],
-  ["A", "Add instrument", "On the Rebalance page."],
+  ["1 … 6", m.settings.shortcuts.fixedRows.chartRange],
+  ["↑ ↓  j k  Enter", m.settings.shortcuts.fixedRows.tables],
+  ["A", m.settings.shortcuts.fixedRows.addInstrument],
 ] as const;
 
 const groups = [
-  { id: "general", title: "General" },
-  { id: "pages", title: "Go to page" },
+  { id: "general", title: m.settings.shortcuts.general },
+  { id: "pages", title: m.settings.shortcuts.pages },
 ] as const;
 
 /**
@@ -36,9 +37,9 @@ export function ShortcutSettings() {
             ))}
         </SettingsSection>
       ))}
-      <SettingsSection title="Inside pages (fixed)">
-        {fixed.map(([keys, label, hint]) => (
-          <SettingsRow key={label} label={label} hint={hint}>
+      <SettingsSection title={m.settings.shortcuts.fixed}>
+        {fixed.map(([keys, { label, hint }]) => (
+          <SettingsRow key={keys} label={label} hint={hint}>
             <span className="num text-muted-foreground text-xs whitespace-pre">{keys}</span>
           </SettingsRow>
         ))}

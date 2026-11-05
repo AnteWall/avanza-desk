@@ -7,28 +7,29 @@ import { Empty } from "@/components/common/empty";
 import { useMarketOpen, type Focus } from "@/components/workspace/use-focused-instrument";
 import { brokerSummaryQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 type Row = BrokerTradeSummary & { share: number };
 
 const col = dataTableColumns<Row>();
 const columns = col.columns([
   col.accessor("brokerCode", {
-    header: "Broker",
+    header: m.workspace.orderBook.broker,
     cell: (c) => <span title={c.row.original.brokerName}>{c.getValue()}</span>,
     meta: { className: "num font-medium" },
   }),
   col.accessor("buyVolume", {
-    header: "Bought",
+    header: m.workspace.orderBook.bought,
     cell: (c) => formatInteger(c.getValue()),
     meta: { align: "end", className: "num" },
   }),
   col.accessor("sellVolume", {
-    header: "Sold",
+    header: m.workspace.orderBook.sold,
     cell: (c) => formatInteger(c.getValue()),
     meta: { align: "end", className: "num" },
   }),
   col.accessor("netBuyVolume", {
-    header: "Net",
+    header: m.workspace.orderBook.net,
     cell: (c) => (
       <span className={cn(c.getValue() > 0 && "text-up", c.getValue() < 0 && "text-down")}>
         {c.getValue() > 0 && "+"}
@@ -38,7 +39,7 @@ const columns = col.columns([
     meta: { align: "end", className: "num font-medium" },
   }),
   col.accessor("share", {
-    header: "Of volume",
+    header: m.workspace.orderBook.ofVolume,
     cell: (c) => (
       <>
         <span
@@ -68,21 +69,25 @@ export function BrokersTable({ focus }: { focus: Focus }) {
   const buyer = rows[0];
   const seller = rows.at(-1);
 
-  if (rows.length === 0) return <Empty>No broker statistics today.</Empty>;
+  if (rows.length === 0) return <Empty>{m.workspace.orderBook.noBrokers}</Empty>;
   return (
     <>
       <div className="num text-muted-foreground flex h-7 items-center gap-4 border-b px-3 text-xs">
         <span>
-          Top 3 <span className="text-foreground">{formatShare(top3)}</span> of volume
+          {m.workspace.orderBook.top3(
+            <span key="share" className="text-foreground">
+              {formatShare(top3)}
+            </span>,
+          )}
         </span>
         {buyer && buyer.netBuyVolume > 0 && (
           <span title={buyer.brokerName}>
-            Net buyer <span className="text-up">{buyer.brokerCode}</span>
+            {m.workspace.orderBook.netBuyer} <span className="text-up">{buyer.brokerCode}</span>
           </span>
         )}
         {seller && seller.netBuyVolume < 0 && (
           <span title={seller.brokerName}>
-            Net seller <span className="text-down">{seller.brokerCode}</span>
+            {m.workspace.orderBook.netSeller} <span className="text-down">{seller.brokerCode}</span>
           </span>
         )}
       </div>

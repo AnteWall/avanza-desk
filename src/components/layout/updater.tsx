@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
+import { m } from "@/lib/i18n";
 import { installUpdate, updateQuery } from "@/lib/updater";
 
 /**
@@ -12,10 +13,10 @@ export function Updater() {
   const { data: update } = useQuery({ ...updateQuery, enabled: !import.meta.env.DEV });
   useEffect(() => {
     if (!update) return;
-    toast(`AvanzaDesk v${update.version} is available`, {
+    toast(m.layout.updates.available(update.version), {
       id: "update",
       duration: Infinity,
-      action: { label: "Restart to update", onClick: () => void installUpdate(update) },
+      action: { label: m.layout.updates.restart, onClick: () => void installUpdate(update) },
     });
   }, [update]);
   return null;

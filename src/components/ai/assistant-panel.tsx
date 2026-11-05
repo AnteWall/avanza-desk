@@ -46,6 +46,7 @@ import {
   setProvider,
 } from "@/lib/ai/providers";
 import type { SessionOptions } from "@/lib/ai/types";
+import { m } from "@/lib/i18n";
 
 /** The open conversation: a fresh one, or a saved one with its messages and provider session. */
 type Current = {
@@ -199,7 +200,7 @@ export function AssistantPanel() {
     <div className="relative h-full" style={{ width: panelCssWidth(size) }}>
       <PanelResizeHandle />
       <Panel
-        title="Assistant"
+        title={m.ai.panel.title}
         icon={Sparkles}
         subtitle={
           ready && (
@@ -208,19 +209,19 @@ export function AssistantPanel() {
               type="button"
               onClick={() => setShowHistory((s) => !s)}
               aria-expanded={showHistory}
-              aria-label="Chat history"
+              aria-label={m.ai.panel.chatHistory}
               className="hover:text-foreground focus-visible:ring-ring/50 data-[open]:text-foreground flex max-w-56 items-center gap-1 rounded-sm transition-colors outline-none focus-visible:ring-3"
               data-open={showHistory || undefined}
             >
               {current.temporary && !showHistory && (
-                <CircleDashed className="size-3 shrink-0" aria-label="Temporary" />
+                <CircleDashed className="size-3 shrink-0" aria-label={m.ai.panel.temporary} />
               )}
               <span className="truncate">
                 {showHistory
-                  ? "History"
+                  ? m.ai.panel.history
                   : current.temporary
-                    ? "Temporary chat"
-                    : (current.title ?? "New chat")}
+                    ? m.ai.panel.temporaryChat
+                    : (current.title ?? m.ai.panel.newChat)}
               </span>
               <ChevronDown
                 className={cn("size-3 shrink-0 transition-transform", showHistory && "rotate-180")}
@@ -235,8 +236,8 @@ export function AssistantPanel() {
               <Button
                 variant="ghost"
                 size="icon-xs"
-                aria-label="New chat"
-                title="New chat"
+                aria-label={m.ai.panel.newChat}
+                title={m.ai.panel.newChat}
                 onClick={() => newChat()}
               >
                 <SquarePen />
@@ -245,9 +246,9 @@ export function AssistantPanel() {
             <Button
               variant="ghost"
               size="icon-xs"
-              aria-label={size.expanded ? "Narrower" : "Wider"}
+              aria-label={size.expanded ? m.ai.panel.narrower : m.ai.panel.wider}
               aria-pressed={size.expanded}
-              title={size.expanded ? "Narrower" : "Wider, for reading"}
+              title={size.expanded ? m.ai.panel.narrower : m.ai.panel.widerForReading}
               onClick={togglePanelExpanded}
             >
               {size.expanded ? <Minimize2 /> : <Maximize2 />}
@@ -260,7 +261,7 @@ export function AssistantPanel() {
         ) : !setup ? (
           <p className="text-muted-foreground flex items-center gap-2 p-3 text-xs" role="status">
             <LoaderCircle className="size-3.5 motion-safe:animate-spin" />
-            Connecting to {provider.name}…
+            {m.ai.panel.connecting(provider.name)}
           </p>
         ) : !ready ? (
           <div className="flex flex-col gap-3 p-3">
@@ -277,7 +278,7 @@ export function AssistantPanel() {
                 className="self-start"
                 onClick={() => switchProvider(other.id)}
               >
-                Use {other.name} instead
+                {m.ai.panel.useInstead(other.name)}
               </Button>
             ))}
           </div>

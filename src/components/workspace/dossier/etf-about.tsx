@@ -5,6 +5,7 @@ import { Section } from "@/components/workspace/dossier/section";
 import { ExposureTables } from "@/components/workspace/fundamentals/exposure-tables";
 import { etfDetailsQuery, totalFeeQuery } from "@/lib/avanza/queries";
 import { formatCountry, formatDate, formatPrice, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 // Avanza spells the risk level as a word: "FOUR".
 const riskLevels = ["ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN"];
@@ -22,21 +23,30 @@ export function EtfAbout({ orderbookId }: { orderbookId: string }) {
   const risk = riskLevels.indexOf(data.riskScore) + 1;
 
   const stats = [
-    { label: "Total fee / yr", value: fee == null ? "–" : formatShare(fee / 100) },
+    { label: m.workspace.fund.totalFee, value: fee == null ? "–" : formatShare(fee / 100) },
     // Percent of 10 000 is the fee times 100.
     {
-      label: "Per 10 000 kr / yr",
+      label: m.workspace.fund.per10k,
       value: fee == null ? "–" : `${formatPrice(fee * 100)} kr`,
     },
-    { label: "Risk", value: risk ? `${risk} of 7` : "–" },
-    { label: "Holdings as of", value: data.portfolioDate ? formatDate(data.portfolioDate) : "–" },
+    { label: m.workspace.fund.risk, value: risk ? m.workspace.fund.outOf(risk, 7) : "–" },
+    {
+      label: m.workspace.fund.holdingsAsOf,
+      value: data.portfolioDate ? formatDate(data.portfolioDate) : "–",
+    },
   ];
   const about = [
-    { label: "Tracks", value: data.underlying?.name ?? data.subCategory },
-    { label: "Issuer", value: data.issuer },
-    { label: "Category", value: [data.assetCategory, data.category].filter(Boolean).join(" · ") },
-    { label: "Horizon", value: data.holdingPeriod ? humanize(data.holdingPeriod) : "" },
-    { label: "Listed since", value: data.introDate ? formatDate(data.introDate) : "" },
+    { label: m.workspace.etf.tracks, value: data.underlying?.name ?? data.subCategory },
+    { label: m.workspace.etf.issuer, value: data.issuer },
+    {
+      label: m.workspace.etf.category,
+      value: [data.assetCategory, data.category].filter(Boolean).join(" · "),
+    },
+    {
+      label: m.workspace.fund.horizon,
+      value: data.holdingPeriod ? humanize(data.holdingPeriod) : "",
+    },
+    { label: m.workspace.etf.listedSince, value: data.introDate ? formatDate(data.introDate) : "" },
   ].filter((s) => s.value);
 
   return (

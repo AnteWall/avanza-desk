@@ -7,6 +7,7 @@ import { Empty } from "@/components/common/empty";
 import { useHoldings } from "@/components/portfolio/use-holdings";
 import { paidDividendsQuery, upcomingDividendsQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { forecastIncome } from "@/lib/income";
 import { stockholmDay } from "@/lib/snapshots";
 
@@ -23,16 +24,31 @@ export function IncomeForecast() {
     [holdings, upcoming, paid],
   );
 
-  if (rows.length === 0) return <Empty>No dividends paid or announced on your holdings.</Empty>;
+  if (rows.length === 0) return <Empty>{m.analysis.income.empty}</Empty>;
   const announced = rows.reduce((s, r) => s + r.announced, 0);
   const total = rows.reduce((s, r) => s + r.income, 0);
   const value = holdings.reduce((s, h) => s + h.value, 0);
   const stats = [
-    { label: "Next 12 months", value: `${formatInteger(total)} SEK`, sensitive: true },
-    { label: "Announced", value: `${formatInteger(announced)} SEK`, sensitive: true },
-    { label: "Estimated", value: `${formatInteger(total - announced)} SEK`, sensitive: true },
-    { label: "Per month", value: `${formatInteger(total / 12)} SEK`, sensitive: true },
-    { label: "Portfolio yield", value: value > 0 ? formatShare(total / value) : "–" },
+    { label: m.analysis.income.next12, value: `${formatInteger(total)} SEK`, sensitive: true },
+    {
+      label: m.analysis.income.announced,
+      value: `${formatInteger(announced)} SEK`,
+      sensitive: true,
+    },
+    {
+      label: m.analysis.income.estimated,
+      value: `${formatInteger(total - announced)} SEK`,
+      sensitive: true,
+    },
+    {
+      label: m.analysis.income.perMonth,
+      value: `${formatInteger(total / 12)} SEK`,
+      sensitive: true,
+    },
+    {
+      label: m.analysis.income.portfolioYield,
+      value: value > 0 ? formatShare(total / value) : "–",
+    },
   ];
 
   return (

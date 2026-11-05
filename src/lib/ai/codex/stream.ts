@@ -1,5 +1,7 @@
 import { EventType, type StreamChunk } from "@tanstack/ai";
 
+import { m } from "@/lib/i18n";
+
 import type { ChatStatus, RateLimit } from "../types";
 
 // Maps `codex app-server` notifications (one JSON-RPC message per line, forwarded by
@@ -106,20 +108,30 @@ export function toChunks(event: CodexEvent, run: Run): { chunks: StreamChunk[]; 
     // An interrupt is a normal stop, not a failure.
     chunks.push(
       status === "failed"
-        ? { type: EventType.RUN_ERROR, threadId, runId, message: error?.message ?? "Codex failed." }
+        ? {
+            type: EventType.RUN_ERROR,
+            threadId,
+            runId,
+            message: error?.message ?? m.ai.provider.errors.codexFailed,
+          }
         : { type: EventType.RUN_FINISHED, threadId, runId },
     );
   } else if (is(event, "thread/status/changed") && event.params.status.type === "systemError") {
     // Codex gave up on the turn without a turn/completed (seen with an outdated CLI).
     done = true;
-    chunks.push({ type: EventType.RUN_ERROR, threadId, runId, message: "Codex hit an error." });
+    chunks.push({
+      type: EventType.RUN_ERROR,
+      threadId,
+      runId,
+      message: m.ai.provider.errors.codexError,
+    });
   } else if (is(event, "exit")) {
     done = true;
     chunks.push({
       type: EventType.RUN_ERROR,
       threadId,
       runId,
-      message: event.params.stderr.trim() || "Codex stopped unexpectedly.",
+      message: event.params.stderr.trim() || m.ai.provider.errors.codexStopped,
     });
   }
   return { chunks, done };

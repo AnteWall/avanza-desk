@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
+import { m } from "@/lib/i18n";
 import type { FileRoutesByTo } from "@/routeTree.gen";
 
 /** A chapter of the briefing: a headline, a muted dek, and a way to the full page. */
@@ -28,7 +29,7 @@ export function BriefingSection({
           className="ml-auto self-center"
           onClick={() => void navigate({ to })}
         >
-          View all
+          {m.briefing.viewAll}
         </Button>
       </div>
       {children}

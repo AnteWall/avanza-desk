@@ -6,6 +6,7 @@ import type {
 } from "avanza-ts";
 
 import { formatCompact, formatPercent, formatPrice, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import type { SnapshotPoint } from "@/lib/snapshots";
 
 export type SignalKind = "insider" | "short" | "owners" | "target" | "consensus" | "report";
@@ -69,7 +70,13 @@ export function deriveSignals(orderbookId: string, s: SignalSources, now: number
     add(
       "insider",
       latest,
-      `Insiders net ${net > 0 ? "bought" : "sold"} ${formatCompact(Math.abs(net))} ${currency} in 30 days (${buys} buys, ${trades.length - buys} sells)`,
+      m.signals.derive.insider(
+        net > 0,
+        formatCompact(Math.abs(net)),
+        currency ?? "",
+        buys,
+        trades.length - buys,
+      ),
       net > 0 ? "up" : "down",
       Math.log10(Math.abs(net)) - 5, // 1 at 1 mn, 2 at 10 mn
     );
@@ -86,7 +93,11 @@ export function deriveSignals(orderbookId: string, s: SignalSources, now: number
       add(
         "short",
         isoDay(last.timestamp),
-        `Short interest ${delta > 0 ? "up" : "down"} ${formatPrice(Math.abs(delta))} pp to ${formatShare((last.ratio * toPp) / 100)} in 2 weeks`,
+        m.signals.derive.short(
+          delta > 0,
+          formatPrice(Math.abs(delta)),
+          formatShare((last.ratio * toPp) / 100),
+        ),
         delta > 0 ? "down" : "up",
         delta / 0.5,
       );
@@ -101,7 +112,7 @@ export function deriveSignals(orderbookId: string, s: SignalSources, now: number
       add(
         "owners",
         isoDay(nowOwners.timestamp),
-        `Avanza owners ${formatPercent(change)} in a week`,
+        m.signals.derive.owners(formatPercent(change)),
         change > 0 ? "up" : "down",
         change / 0.03,
       );
@@ -119,7 +130,7 @@ export function deriveSignals(orderbookId: string, s: SignalSources, now: number
       add(
         "target",
         target[1].day,
-        `Average price target ${change > 0 ? "raised" : "cut"} ${formatPercent(change)} to ${formatPrice(target[1].value)}`,
+        m.signals.derive.target(change > 0, formatPercent(change), formatPrice(target[1].value)),
         change > 0 ? "up" : "down",
         change / 0.03,
       );
@@ -131,7 +142,10 @@ export function deriveSignals(orderbookId: string, s: SignalSources, now: number
       add(
         "consensus",
         consensus[1].day,
-        `Analysts rating it buy went from ${formatShare(consensus[0].value)} to ${formatShare(consensus[1].value)}`,
+        m.signals.derive.consensus(
+          formatShare(consensus[0].value),
+          formatShare(consensus[1].value),
+        ),
         delta > 0 ? "up" : "down",
         delta / 0.1,
       );
@@ -140,13 +154,7 @@ export function deriveSignals(orderbookId: string, s: SignalSources, now: number
   for (const e of s.events ?? [])
     if (/report/i.test(e.eventType) && e.timestamp >= now && e.timestamp <= now + 7 * DAY) {
       const days = Math.round((e.timestamp - now) / DAY);
-      add(
-        "report",
-        isoDay(e.timestamp),
-        `Reports ${days === 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`}`,
-        "neutral",
-        1,
-      );
+      add("report", isoDay(e.timestamp), m.signals.derive.report(days), "neutral", 1);
     }
   return out;
 }

@@ -1,5 +1,6 @@
 import { usePanelSize } from "@/components/ai/use-panel-size";
 import { DEFAULT_WIDTH, MIN_WIDTH, setPanelWidth } from "@/lib/ai/panel";
+import { m } from "@/lib/i18n";
 
 const STEP = 24;
 
@@ -14,7 +15,7 @@ export function PanelResizeHandle() {
     <div
       role="separator"
       aria-orientation="vertical"
-      aria-label="Resize assistant"
+      aria-label={m.ai.panel.resize}
       aria-valuenow={expanded ? undefined : width}
       aria-valuemin={MIN_WIDTH}
       tabIndex={0}

@@ -1,5 +1,7 @@
 import type { WatchlistRow } from "avanza-ts";
 
+import { m } from "@/lib/i18n";
+
 import { formatDecimal } from "./format";
 import { getSetting, saveSetting } from "./settings";
 
@@ -26,19 +28,20 @@ const n = (v: number | null | undefined) => (v == null ? "" : formatDecimal(v));
 /** One row per instrument (first watchlist wins), plain numbers with a decimal comma. */
 export function quoteRows(rows: readonly WatchlistRow[]): string[][] {
   const seen = new Set<string>();
+  const c = m.layout.liveQuotes.columns;
   const out = [
     [
-      "Orderbook id",
-      "Name",
-      "Last",
-      "Change %",
-      "Bid",
-      "Ask",
-      "High",
-      "Low",
-      "Volume",
-      "Turnover",
-      "Updated",
+      c.id,
+      m.common.name,
+      m.common.last,
+      c.change,
+      c.bid,
+      c.ask,
+      m.common.high,
+      m.common.low,
+      m.common.volume,
+      m.common.turnover,
+      c.updated,
     ],
   ];
   for (const r of rows) {

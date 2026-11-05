@@ -13,6 +13,7 @@ import { TradeInAvanza } from "@/components/workspace/pre-trade/trade-in-avanza"
 import { useFocusedInstrument } from "@/components/workspace/use-focused-instrument";
 import { InstrumentType, OrderSide } from "@/lib/avanza/codes";
 import { instrumentQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 
 const estimateSkeleton = (
   <div className="flex flex-col gap-2 py-0.5">
@@ -42,7 +43,7 @@ export function PreTradePanel() {
 
   return (
     <Panel
-      title="Pre-trade"
+      title={m.workspace.preTrade.title}
       icon={Calculator}
       subtitle={
         instrument && (
@@ -62,26 +63,24 @@ export function PreTradePanel() {
               aria-pressed={side === s}
               onClick={() => setSide(s)}
               className={cn(
-                "h-7 rounded-sm font-medium text-muted-foreground capitalize",
+                "h-7 rounded-sm font-medium text-muted-foreground",
                 side === s && s === OrderSide.Buy && "bg-buy text-white",
                 side === s && s === OrderSide.Sell && "bg-sell text-white",
               )}
             >
-              {s}
+              {s === OrderSide.Buy ? m.common.buy : m.common.sell}
             </button>
           ))}
         </div>
         {fund ? (
           <>
-            <p className="text-muted-foreground">
-              Fund orders fill at the next NAV, so there is nothing to estimate.
-            </p>
+            <p className="text-muted-foreground">{m.workspace.preTrade.fund}</p>
             {instrument && <TradeInAvanza instrument={instrument} side={side} />}
           </>
         ) : (
           <>
             <label className="text-muted-foreground flex flex-col gap-1 text-xs">
-              Quantity
+              {m.workspace.preTrade.quantity}
               <Input
                 type="number"
                 min={1}
@@ -93,7 +92,7 @@ export function PreTradePanel() {
             <div className="border-t pt-2">
               {focus && (
                 <AsyncBoundary
-                  what="the estimate"
+                  what={m.workspace.preTrade.what}
                   fallback={estimateSkeleton}
                   compact
                   resetKey={focus.id}
@@ -102,9 +101,7 @@ export function PreTradePanel() {
                 </AsyncBoundary>
               )}
             </div>
-            <p className="text-muted-foreground text-xs">
-              Estimate from visible depth, excl. fees.
-            </p>
+            <p className="text-muted-foreground text-xs">{m.workspace.preTrade.footnote}</p>
             {instrument && (
               <TradeInAvanza instrument={instrument} side={side} quantity={quantity} />
             )}

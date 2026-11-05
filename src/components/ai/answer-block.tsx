@@ -6,12 +6,16 @@ import { TargetsCard } from "@/components/ai/targets-card";
 import { AsyncBoundary } from "@/components/common/async-boundary";
 import { Skeleton } from "@/components/common/skeleton";
 import { parseBlock } from "@/lib/ai/blocks";
+import { m } from "@/lib/i18n";
 
 const placeholders: Record<string, string> = {
-  chart: "Drawing a chart…",
-  targets: "Suggesting targets…",
+  chart: m.ai.block.chart,
+  targets: m.ai.block.targets,
 };
-const names: Record<string, string> = { instrument: "the instrument", targets: "the targets" };
+const names: Record<string, string> = {
+  instrument: m.ai.block.whatInstrument,
+  targets: m.ai.block.whatTargets,
+};
 
 /**
  * A ```chart or ```instrument block in an answer, drawn live. Until its JSON is complete
@@ -23,14 +27,14 @@ export function AnswerBlockView({ language, code }: { language: string; code: st
     return (
       <p className="text-muted-foreground flex items-center gap-2 rounded-md border border-dashed px-3 py-2 text-xs">
         <BarChart3 className="size-3.5" aria-hidden />
-        {placeholders[language] ?? "Adding an instrument…"}
+        {placeholders[language] ?? m.ai.block.instrument}
       </p>
     );
   }
   return (
     <div className="not-prose overflow-hidden rounded-md border">
       <AsyncBoundary
-        what={names[block.kind] ?? "the chart"}
+        what={names[block.kind] ?? m.ai.block.whatChart}
         fallback={
           <Skeleton
             className={block.kind === "price" || block.kind === "portfolio" ? "h-52" : "h-12"}

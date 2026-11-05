@@ -8,19 +8,20 @@ import { Segmented } from "@/components/common/segmented";
 import { Skeleton } from "@/components/common/skeleton";
 import { TableSkeleton } from "@/components/common/table-skeleton";
 import { Section } from "@/components/workspace/dossier/section";
+import { m } from "@/lib/i18n";
 
 const periods: { label: string; value: PerformancePeriod }[] = [
-  { label: "1Y", value: "ONE_YEAR" },
-  { label: "3Y", value: "THREE_YEARS" },
-  { label: "5Y", value: "FIVE_YEARS" },
-  { label: "All", value: "ALL_TIME" },
+  { label: m.portfolio.periods.oneYear, value: "ONE_YEAR" },
+  { label: m.portfolio.periods.threeYears, value: "THREE_YEARS" },
+  { label: m.portfolio.periods.fiveYears, value: "FIVE_YEARS" },
+  { label: m.portfolio.periods.all, value: "ALL_TIME" },
 ];
 
 const insightPeriods: { label: string; value: InsightsPeriod }[] = [
-  { label: "Today", value: "TODAY" },
-  { label: "1W", value: "ONE_WEEK" },
-  { label: "YTD", value: "THIS_YEAR" },
-  { label: "3Y", value: "THREE_YEARS_ROLLING" },
+  { label: m.portfolio.periods.today, value: "TODAY" },
+  { label: m.portfolio.periods.oneWeek, value: "ONE_WEEK" },
+  { label: m.portfolio.periods.thisYear, value: "THIS_YEAR" },
+  { label: m.portfolio.periods.threeYears, value: "THREE_YEARS_ROLLING" },
 ];
 
 /** You against an index and the average Avanza customer, then which holdings made the result. */
@@ -30,13 +31,19 @@ export function BenchmarkView() {
   return (
     <div className="@container flex flex-col divide-y">
       <Section
-        title="Versus the market"
+        title={m.analysis.benchmark.versus}
         aside={
-          <Segmented label="Range" numeric options={periods} value={period} onChange={setPeriod} />
+          <Segmented
+            label={m.analysis.benchmark.range}
+            numeric
+            options={periods}
+            value={period}
+            onChange={setPeriod}
+          />
         }
       >
         <AsyncBoundary
-          what="the comparison"
+          what={m.analysis.benchmark.loading.comparison}
           fallback={<Skeleton className="h-72 w-full opacity-60" />}
           resetKey={period}
         >
@@ -44,10 +51,10 @@ export function BenchmarkView() {
         </AsyncBoundary>
       </Section>
       <Section
-        title="What drove it"
+        title={m.analysis.benchmark.drivers}
         aside={
           <Segmented
-            label="Attribution period"
+            label={m.analysis.benchmark.attributionPeriod}
             options={insightPeriods}
             value={insights}
             onChange={setInsights}
@@ -56,7 +63,7 @@ export function BenchmarkView() {
         flush
       >
         <AsyncBoundary
-          what="your result per holding"
+          what={m.analysis.benchmark.loading.attribution}
           fallback={<TableSkeleton rows={6} columns={5} />}
           resetKey={insights}
         >

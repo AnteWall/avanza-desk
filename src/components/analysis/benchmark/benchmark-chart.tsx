@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { crosshairLabel } from "@/components/common/price-chart";
 import type { ReturnPoint } from "@/lib/benchmark";
 import { formatDate, formatPercent } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 // Literal class names so Tailwind keeps them; strokes follow the same palette order.
 const palette = [
@@ -79,7 +80,7 @@ export function BenchmarkChart({
       <div className="h-64">
         <Chart
           definition={definition}
-          ariaLabel="Return compared with benchmarks"
+          ariaLabel={m.analysis.benchmark.chart}
           className="num text-muted-foreground text-xs"
           style={{ height: "100%" }}
         />

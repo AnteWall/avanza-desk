@@ -8,6 +8,7 @@ import { avanza } from "@/lib/avanza/client";
 import { applyRowQuote, follow } from "@/lib/avanza/push";
 import { watchlistRowsQuery, watchlistsQuery } from "@/lib/avanza/queries";
 import { toCsv, writeCsv } from "@/lib/csv";
+import { m } from "@/lib/i18n";
 import { quoteRows } from "@/lib/live-quotes-file";
 import { getRefreshIntervals } from "@/lib/refresh-intervals";
 
@@ -59,7 +60,7 @@ export function LiveQuotesFile() {
     timer.current = setTimeout(() => {
       timer.current = undefined;
       writeCsv(path, toCsv(quoteRows(latest.current))).catch((error) =>
-        toast.error("Couldn't write the live quotes file", {
+        toast.error(m.layout.liveQuotes.writeFailed, {
           id: "live-quotes-file",
           description: String(error),
         }),

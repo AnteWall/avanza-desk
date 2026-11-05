@@ -1,5 +1,7 @@
 import type { PositionListResponse, StockPositionKeyRatiosResponse } from "avanza-ts";
 
+import { m } from "@/lib/i18n";
+
 /** The user's holding in one orderbook across all accounts, with a volume-weighted average price. */
 export function holding(positions: PositionListResponse | undefined, orderbookId: string) {
   let volume = 0;
@@ -101,7 +103,7 @@ export type Exposure = {
 export type Slice = { key: string; name: string; code?: string; value: number; share: number };
 type Entry = { key: string; name: string; code?: string; value: number };
 
-export const unclassified = "Unclassified";
+export const unclassified = m.portfolio.unclassified;
 
 /** Rescales weights in any unit so they sum to 1. Empty when there is nothing to scale. */
 export function fractions(exposures: readonly Exposure[]): Exposure[] {
@@ -166,19 +168,7 @@ export function holdingYield(h: Holding, yields: ReadonlyMap<string, number>) {
   for (const id of h.positionIds) if (yields.has(id)) return yields.get(id);
 }
 
-const typeLabels: Record<string, string> = {
-  STOCK: "Stocks",
-  FUND: "Funds",
-  EXCHANGE_TRADED_FUND: "ETFs",
-  CERTIFICATE: "Certificates",
-  WARRANT: "Warrants",
-  BOND: "Bonds",
-  OPTION: "Options",
-  FUTURE_FORWARD: "Futures",
-  PREMIUM_BOND: "Premium bonds",
-  EQUITY_LINKED_BOND: "Structured products",
-};
-
 /** "EXCHANGE_TRADED_FUND" → "ETFs"; unknown codes become "Subscription option" style. */
 export const typeLabel = (type: string) =>
-  typeLabels[type] ?? type.charAt(0) + type.slice(1).toLowerCase().replaceAll("_", " ");
+  m.portfolio.instrumentTypes[type] ??
+  type.charAt(0) + type.slice(1).toLowerCase().replaceAll("_", " ");

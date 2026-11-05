@@ -4,6 +4,7 @@ import { InstrumentLogo } from "@/components/common/instrument-logo";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { instrumentItem } from "@/lib/ai/context";
 import { formatInteger, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import type { IncomeRow } from "@/lib/income";
 
 const dash = "–";
@@ -12,7 +13,7 @@ const col = dataTableColumns<IncomeRow>();
 const columns = col.columns([
   col.accessor((r) => r.holding.name, {
     id: "name",
-    header: "Instrument",
+    header: m.common.instrument,
     cell: (c) => (
       <span className="flex items-center gap-1.5">
         <InstrumentLogo isin={c.row.original.holding.isin} name={c.getValue()} />
@@ -21,27 +22,27 @@ const columns = col.columns([
     ),
   }),
   col.accessor("announced", {
-    header: "Announced",
+    header: m.analysis.income.announced,
     cell: (c) => (c.getValue() ? formatInteger(c.getValue()) : dash),
     meta: { align: "end", className: "sensitive num text-muted-foreground" },
   }),
   col.accessor("estimated", {
-    header: "Estimated",
+    header: m.analysis.income.estimated,
     cell: (c) => (c.getValue() ? formatInteger(c.getValue()) : dash),
     meta: { align: "end", className: "sensitive num text-muted-foreground" },
   }),
   col.accessor("income", {
-    header: "12 months SEK",
+    header: m.analysis.income.months12,
     cell: (c) => formatInteger(c.getValue()),
     meta: { align: "end", className: "sensitive num font-medium" },
   }),
   col.accessor("yieldOnCost", {
-    header: "Yield on cost",
+    header: m.analysis.income.yieldOnCost,
     cell: (c) => (c.getValue() == null ? dash : formatShare(c.getValue()!)),
     meta: { align: "end", className: "num" },
   }),
   col.accessor("growth", {
-    header: "Growth / share",
+    header: m.analysis.income.growth,
     cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()!} />),
     meta: { align: "end" },
   }),

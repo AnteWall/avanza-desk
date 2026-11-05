@@ -9,6 +9,7 @@ import { useFocusInstrument } from "@/components/workspace/use-focused-instrumen
 import { instrumentItem } from "@/lib/ai/context";
 import { forumStatsQuery, trendingStocksQuery, universeQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 const dash = "–";
 const shown = 30;
@@ -22,7 +23,7 @@ function ForumPosts({ orderbookId }: { orderbookId: string }) {
 const col = dataTableColumns<ScreenedStock>();
 const columns = col.columns([
   col.accessor("name", {
-    header: "Stock",
+    header: m.markets.columns.stock,
     cell: (c) => (
       <span className="flex items-center gap-1.5">
         <span className="max-w-48 truncate font-medium">{c.getValue()}</span>
@@ -31,40 +32,40 @@ const columns = col.columns([
     ),
   }),
   col.accessor("lastPrice", {
-    header: "Last",
+    header: m.common.last,
     cell: (c) => (c.getValue() == null ? dash : formatPrice(c.getValue()!)),
     meta: { align: "end", className: "num" },
   }),
   col.accessor("oneWeekChangePercent", {
-    header: "Week",
+    header: m.markets.columns.week,
     // The stock filter sends ratios (0.0078 = +0.78 %), unlike quotes.
     cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()!} />),
     meta: { align: "end" },
   }),
   col.accessor("ownersChangeOneWeekAbsolute", {
-    header: "New owners",
+    header: m.markets.columns.newOwners,
     cell: (c) => (c.getValue() == null ? dash : formatInteger(c.getValue()!)),
     meta: { align: "end", className: "num font-medium" },
   }),
   // Owner changes are ratios too.
   col.accessor("ownersChangeOneWeek", {
-    header: "Owners 1W",
+    header: m.markets.columns.owners1w,
     cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()!} />),
     meta: { align: "end" },
   }),
   col.accessor("ownersChangeOneMonth", {
-    header: "Owners 1M",
+    header: m.markets.columns.owners1m,
     cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()!} />),
     meta: { align: "end" },
   }),
   col.accessor("numberOfOwners", {
-    header: "Owners",
+    header: m.markets.columns.owners,
     cell: (c) => (c.getValue() == null ? dash : formatInteger(c.getValue()!)),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.display({
     id: "forum",
-    header: "Forum posts",
+    header: m.markets.columns.forumPosts,
     cell: (c) => <ForumPosts orderbookId={c.row.original.orderbookId} />,
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
@@ -79,7 +80,7 @@ export function TrendingTable() {
   const yours = new Set(universe.map((s) => s.orderbookId));
   const stocks = data.stocks.filter((s) => !yours.has(s.orderbookId)).slice(0, shown);
 
-  if (stocks.length === 0) return <Empty>Nothing new is trending.</Empty>;
+  if (stocks.length === 0) return <Empty>{m.markets.trending.empty}</Empty>;
   return (
     <DataTable
       columns={columns}

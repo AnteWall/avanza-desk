@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { accountsQuery } from "@/lib/avanza/queries";
 import { formatInteger } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 /** A wallet button that fills an amount with an account's buying power without credit (or all of them). */
 export function BuyingPowerMenu({ onPick }: { onPick: (sek: number) => void }) {
@@ -37,8 +38,8 @@ export function BuyingPowerMenu({ onPick }: { onPick: (sek: number) => void }) {
             variant="outline"
             size="icon-sm"
             className="shrink-0"
-            aria-label="Use buying power"
-            title="Use an account's buying power"
+            aria-label={m.rebalance.buyingPower.label}
+            title={m.rebalance.buyingPower.title}
           />
         }
       >
@@ -46,9 +47,9 @@ export function BuyingPowerMenu({ onPick }: { onPick: (sek: number) => void }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Use buying power</DropdownMenuLabel>
+          <DropdownMenuLabel>{m.rebalance.buyingPower.label}</DropdownMenuLabel>
           {withCash.length === 0 && (
-            <DropdownMenuItem disabled>No account has buying power</DropdownMenuItem>
+            <DropdownMenuItem disabled>{m.rebalance.buyingPower.none}</DropdownMenuItem>
           )}
           {withCash.map((a) => (
             <DropdownMenuItem key={a.id} onClick={() => pick(a.sek)}>
@@ -63,7 +64,7 @@ export function BuyingPowerMenu({ onPick }: { onPick: (sek: number) => void }) {
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => pick(total)}>
-              All accounts
+              {m.rebalance.buyingPower.all}
               <span className="sensitive num text-muted-foreground ml-auto">
                 {formatInteger(total)}
               </span>

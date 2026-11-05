@@ -19,19 +19,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Panel } from "@/components/workspace/panel";
 import { headerIndicesQuery, indexConstituentsQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 
 type IndexOption = { id: string; label: string; region: string };
 
 // Indices Avanza lists members for beyond the top bar's (found with its index search, Nov 2026).
 const MORE_INDICES: IndexOption[] = [
-  { id: "19002", label: "OMXS30", region: "Nordic" },
-  { id: "53548", label: "OMX Nordic 40", region: "Nordic" },
-  { id: "53291", label: "OMXC20", region: "Nordic" },
-  { id: "731293", label: "OMXC25", region: "Nordic" },
-  { id: "53295", label: "OMXH25", region: "Nordic" },
-  { id: "18981", label: "DAX", region: "Europe" },
-  { id: "155541", label: "Nasdaq 100", region: "US" },
-  { id: "18985", label: "Dow Jones", region: "US" },
+  { id: "19002", label: "OMXS30", region: m.markets.index.regions.nordic },
+  { id: "53548", label: "OMX Nordic 40", region: m.markets.index.regions.nordic },
+  { id: "53291", label: "OMXC20", region: m.markets.index.regions.nordic },
+  { id: "731293", label: "OMXC25", region: m.markets.index.regions.nordic },
+  { id: "53295", label: "OMXH25", region: m.markets.index.regions.nordic },
+  { id: "18981", label: "DAX", region: m.markets.index.regions.europe },
+  { id: "155541", label: "Nasdaq 100", region: m.markets.index.regions.us },
+  { id: "18985", label: "Dow Jones", region: m.markets.index.regions.us },
 ];
 
 /**
@@ -54,7 +55,11 @@ export function IndexPanel() {
   // Your top bar's indices first, then the rest.
   const indexes: IndexOption[] = all
     .filter((_, i) => members[i]?.data?.length !== 0)
-    .map((i) => ({ id: i.link.orderbookId, label: i.link.shortLinkDisplay, region: "Top bar" }));
+    .map((i) => ({
+      id: i.link.orderbookId,
+      label: i.link.shortLinkDisplay,
+      region: m.markets.index.regions.topBar,
+    }));
   for (const more of MORE_INDICES) if (!indexes.some((i) => i.id === more.id)) indexes.push(more);
   const regions = [...new Set(indexes.map((i) => i.region))];
   const [picked, setPicked] = useState<string>();
@@ -64,16 +69,16 @@ export function IndexPanel() {
 
   return (
     <Panel
-      title="Index"
+      title={m.common.index}
       icon={ChartNoAxesColumn}
       actions={
         <>
           <Segmented
-            label="View"
+            label={m.markets.index.view}
             options={[
-              { label: "Heatmap", value: "map" },
-              { label: "List", value: "list" },
-              { label: "World", value: "world" },
+              { label: m.markets.index.views.map, value: "map" },
+              { label: m.markets.index.views.list, value: "list" },
+              { label: m.markets.index.views.world, value: "world" },
             ]}
             value={view}
             onChange={setView}
@@ -81,7 +86,7 @@ export function IndexPanel() {
           {view !== "world" && active && (
             <DropdownMenu>
               <DropdownMenuTrigger
-                render={<Button variant="outline" size="xs" aria-label="Index" />}
+                render={<Button variant="outline" size="xs" aria-label={m.common.index} />}
               >
                 {active.label}
                 <ChevronDown data-icon="inline-end" />
@@ -108,13 +113,16 @@ export function IndexPanel() {
       }
     >
       {view === "world" ? (
-        <AsyncBoundary what="world indices" fallback={<TableSkeleton rows={10} columns={3} />}>
+        <AsyncBoundary
+          what={m.markets.index.worldIndices}
+          fallback={<TableSkeleton rows={10} columns={3} />}
+        >
           <WorldMap />
         </AsyncBoundary>
       ) : (
         active && (
           <AsyncBoundary
-            what="the index"
+            what={m.markets.index.theIndex}
             fallback={<TableSkeleton rows={10} columns={2} />}
             resetKey={active.id}
           >

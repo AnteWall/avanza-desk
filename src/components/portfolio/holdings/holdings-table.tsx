@@ -19,6 +19,7 @@ import { stockKeyRatiosQuery } from "@/lib/avanza/queries";
 import { sessionLabel } from "@/lib/exchanges";
 import { formatInteger, formatShare } from "@/lib/format";
 import { holdingsColumns } from "@/lib/holdings-columns";
+import { m } from "@/lib/i18n";
 
 type Row = Holding & { sector: string; weight: number; dividendYield?: number };
 
@@ -27,7 +28,7 @@ const dash = "–";
 const col = dataTableColumns<Row>();
 const allColumns = col.columns([
   col.accessor("name", {
-    header: "Instrument",
+    header: m.common.instrument,
     cell: (c) => (
       <span className="flex items-center gap-1.5">
         <InstrumentLogo isin={c.row.original.isin} name={c.getValue()} />
@@ -39,22 +40,22 @@ const allColumns = col.columns([
   col.accessor("sector", {
     // Explicit: key-accessor columns carry no `id` on their definition, and the filter below needs one.
     id: "sector",
-    header: "Sector / type",
+    header: m.portfolio.holdings.columns.sector,
     meta: { className: "text-muted-foreground max-w-36 truncate" },
   }),
   col.accessor((h) => h.accounts.join(", "), {
     id: "accounts",
-    header: "Accounts",
+    header: m.portfolio.holdings.columns.accounts,
     meta: { className: "text-muted-foreground max-w-36 truncate" },
   }),
   col.accessor("value", {
-    header: "Value",
+    header: m.common.value,
     cell: (c) => formatInteger(c.getValue()),
     meta: { align: "end", className: "sensitive num font-medium" },
   }),
   col.accessor("weight", {
     id: "weight",
-    header: "Weight",
+    header: m.portfolio.holdings.columns.weight,
     cell: (c) => formatShare(c.getValue()),
     meta: { align: "end", className: "num" },
   }),
@@ -67,22 +68,19 @@ const allColumns = col.columns([
   }),
   col.accessor("profit", {
     id: "profit",
-    header: infoHeader(
-      "Gain",
-      "What the holding is worth now minus what you paid for it (unrealized P/L).",
-    ),
+    header: infoHeader(m.portfolio.holdings.columns.profit, m.portfolio.holdings.gainTip),
     cell: (c) => (c.row.original.cost ? <SignedAmount value={c.getValue()} /> : dash),
     meta: { align: "end", className: "sensitive" },
   }),
   col.accessor((h) => (h.cost ? h.profit / h.cost : null), {
     id: "return",
-    header: "Return",
+    header: m.common.return,
     cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()!} />),
     meta: { align: "end" },
   }),
   col.accessor("dividendYield", {
     id: "dividendYield",
-    header: "Yield",
+    header: m.portfolio.holdings.columns.dividendYield,
     cell: (c) => (c.getValue() ? formatShare(c.getValue()!) : dash),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
@@ -110,9 +108,7 @@ export function HoldingsTable() {
   if (holdings.length === 0) {
     return (
       <p className="text-muted-foreground p-3">
-        {group
-          ? `${group.name} is empty. Switch to All holdings and right-click holdings to add them.`
-          : "No holdings."}
+        {group ? m.portfolio.holdings.groupEmpty(group.name) : m.portfolio.holdings.empty}
       </p>
     );
   }

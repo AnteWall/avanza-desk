@@ -27,6 +27,7 @@ import {
   renameChat,
 } from "@/lib/ai/history";
 import { formatDate, formatTime } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 /** Today's chats show the time, older ones the date. */
 const when = (t: number) => (t >= new Date().setHours(0, 0, 0, 0) ? formatTime(t) : formatDate(t));
@@ -37,7 +38,7 @@ const fileName = (title: string) =>
     title
       .replace(/[\\/:*?"<>|]+/g, "")
       .trim()
-      .slice(0, 80) || "Chat"
+      .slice(0, 80) || m.ai.history.fileName
   }.md`;
 
 /**
@@ -80,7 +81,7 @@ export function ChatHistory({
   };
   const exportAs = async (chat: ChatSummary) => {
     const path = await save({
-      title: "Export chat",
+      title: m.ai.history.exportTitle,
       defaultPath: fileName(chat.title),
       filters: [{ name: "Markdown", extensions: ["md"] }],
     });
@@ -103,20 +104,20 @@ export function ChatHistory({
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           onKeyDown={(e) => e.key === "Escape" && setFilter("")}
-          placeholder="Search chats and messages"
-          aria-label="Search chats"
+          placeholder={m.ai.history.search}
+          aria-label={m.ai.history.searchLabel}
           autoFocus
           className="h-7 pl-7"
         />
       </div>
       <div className="mx-auto min-h-0 w-full max-w-3xl flex-1 overflow-y-auto py-1">
         {!isPending && chats?.length === 0 && (
-          <Empty>{query ? "No chats match your search." : "No chats yet."}</Empty>
+          <Empty>{query ? m.ai.history.noMatches : m.ai.history.empty}</Empty>
         )}
         {groups.map((group) => (
           <section key={group.label} className="pb-1">
             <h3 className="text-muted-foreground flex items-center gap-1 px-3 pt-2 pb-1 text-xs font-medium">
-              {group.label === "Pinned" && <Pin className="size-3" aria-hidden />}
+              {group.chats[0]?.pinned && <Pin className="size-3" aria-hidden />}
               {group.label}
             </h3>
             <ul>
@@ -127,7 +128,7 @@ export function ChatHistory({
                       <Input
                         autoFocus
                         defaultValue={chat.title}
-                        aria-label="Chat title"
+                        aria-label={m.ai.history.titleLabel}
                         maxLength={200}
                         className="h-7"
                         onFocus={(e) => e.currentTarget.select()}
@@ -162,7 +163,7 @@ export function ChatHistory({
                           <Button
                             variant="ghost"
                             size="icon-xs"
-                            aria-label={`Actions for “${chat.title}”`}
+                            aria-label={m.ai.history.actions(chat.title)}
                             className="text-muted-foreground absolute top-1/2 right-2 -translate-y-1/2 opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100"
                           />
                         }
@@ -172,17 +173,17 @@ export function ChatHistory({
                       <DropdownMenuContent align="end" className="w-44">
                         <DropdownMenuItem onClick={() => setRenaming(chat.id)}>
                           <Pencil />
-                          Rename
+                          {m.ai.history.rename}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => void pinChat(chat.id, !chat.pinned).then(refresh)}
                         >
                           {chat.pinned ? <PinOff /> : <Pin />}
-                          {chat.pinned ? "Unpin" : "Pin"}
+                          {chat.pinned ? m.ai.history.unpin : m.ai.history.pin}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => void exportAs(chat)}>
                           <Download />
-                          Export as Markdown…
+                          {m.ai.history.export}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -190,7 +191,7 @@ export function ChatHistory({
                           onClick={() => void remove(chat.id)}
                         >
                           <Trash2 />
-                          Delete
+                          {m.common.delete}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

@@ -8,6 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { m } from "@/lib/i18n";
 
 export type MultiSelectOption = { value: string; label: string; hint?: ReactNode };
 
@@ -16,7 +17,7 @@ export function MultiSelect({
   options,
   value,
   onChange,
-  placeholder = "None",
+  placeholder = m.common.none,
 }: {
   options: MultiSelectOption[];
   value: string[];

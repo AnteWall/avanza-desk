@@ -16,6 +16,7 @@ import { useMemo } from "react";
 
 import { OrderSide } from "@/lib/avanza/codes";
 import { formatClock, formatCompact, formatDate, formatPercent, formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 export type ChartPoint = { timestamp: number; value: number };
 export type TradeMarker = { timestamp: number; price: number; side: OrderSide };
@@ -40,6 +41,13 @@ export const crosshairLabel = (format: (value: number) => string) => ({
 /** Left margin when charts are stacked, so their x axes line up. */
 export const STACKED_MARGIN = 64;
 
+const candleLabels = {
+  open: m.common.priceChart.open,
+  high: m.common.high,
+  low: m.common.low,
+  close: m.common.priceChart.close,
+};
+
 const noTrades: readonly TradeMarker[] = [];
 const noVolumes: readonly VolumeBar[] = [];
 const noEvents: readonly number[] = [];
@@ -56,7 +64,7 @@ export function PriceChart({
   points,
   intraday,
   formatValue = formatPrice,
-  valueLabel = "Price",
+  valueLabel = m.common.price,
   previousClose,
   averagePrice,
   trades = noTrades,
@@ -224,7 +232,7 @@ export function PriceChart({
             rows: [
               ...(candle
                 ? (["open", "high", "low", "close"] as const).map((k) => ({
-                    label: k[0]!.toUpperCase() + k.slice(1),
+                    label: candleLabels[k],
                     value: formatValue(candle[k]),
                     color: k === "close" ? "var(--brand)" : undefined,
                   }))
@@ -234,12 +242,17 @@ export function PriceChart({
                 : []),
               // Zero is a baseline for % series (funds, returns), not a price to compare with.
               ...(line && previousClose
-                ? [{ label: "Since close", value: formatPercent(line.value / previousClose - 1) }]
+                ? [
+                    {
+                      label: m.common.priceChart.sinceClose,
+                      value: formatPercent(line.value / previousClose - 1),
+                    },
+                  ]
                 : []),
               ...(line && averagePrice
                 ? [
                     {
-                      label: "Vs your average",
+                      label: m.common.priceChart.vsAverage,
                       value: formatPercent(line.value / averagePrice - 1),
                     },
                   ]
@@ -249,9 +262,12 @@ export function PriceChart({
                 value: formatValue(l.overlay),
                 color: l.color,
               })),
-              ...(volume ? [{ label: "Volume", value: formatCompact(volume.y2) }] : []),
+              ...(volume ? [{ label: m.common.volume, value: formatCompact(volume.y2) }] : []),
               ...marks.map((t) => ({
-                label: t.side === OrderSide.Buy ? "You bought" : "You sold",
+                label:
+                  t.side === OrderSide.Buy
+                    ? m.common.priceChart.youBought
+                    : m.common.priceChart.youSold,
                 value: formatPrice(t.price),
                 color: t.side === OrderSide.Buy ? "var(--up)" : "var(--down)",
               })),
@@ -278,7 +294,7 @@ export function PriceChart({
   return (
     <Chart
       definition={definition}
-      ariaLabel="Price chart"
+      ariaLabel={m.common.priceChart.label}
       className="num text-muted-foreground text-xs"
       style={{ height: "100%" }}
     />

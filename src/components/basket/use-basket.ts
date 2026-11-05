@@ -12,6 +12,7 @@ import {
   useBasketItems,
   type BasketItem,
 } from "@/lib/basket";
+import { m } from "@/lib/i18n";
 import { defaultOptions } from "@/lib/rebalance";
 import { getSetting, saveSetting } from "@/lib/settings";
 
@@ -75,7 +76,9 @@ export function useBasket() {
     add: addToBasketItems,
     clear: () => {
       setBasket([]);
-      toast("Basket emptied", { action: { label: "Undo", onClick: () => setBasket(items) } });
+      toast(m.basket.emptied, {
+        action: { label: m.basket.undo, onClick: () => setBasket(items) },
+      });
     },
   };
 }

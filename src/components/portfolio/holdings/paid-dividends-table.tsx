@@ -9,34 +9,35 @@ import { useFocusInstrument } from "@/components/workspace/use-focused-instrumen
 import { paidDividendsQuery } from "@/lib/avanza/queries";
 import { formatDate, formatInteger, formatPrice } from "@/lib/format";
 import { inGroup } from "@/lib/groups";
+import { m } from "@/lib/i18n";
 
 const dash = "–";
 
 const col = dataTableColumns<Dividend>();
 const columns = col.columns([
   col.accessor("date", {
-    header: "Paid",
+    header: m.portfolio.dividends.paid,
     cell: (c) => formatDate(c.getValue()),
     meta: { className: "num text-muted-foreground" },
   }),
   col.accessor((d) => d.orderbook?.name ?? d.instrumentName, {
     id: "instrument",
-    header: "Instrument",
+    header: m.common.instrument,
     meta: { className: "font-medium" },
   }),
   col.accessor("volume", {
-    header: "Shares",
+    header: m.common.shares,
     cell: (c) => formatInteger(c.getValue()),
     meta: { align: "end", className: "sensitive num" },
   }),
   col.accessor("amountPerShare", {
-    header: "Per share",
+    header: m.portfolio.dividends.perShare,
     cell: (c) =>
       c.getValue() ? `${formatPrice(c.getValue()!.value)} ${c.getValue()!.currency}` : dash,
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.accessor("amountInSek", {
-    header: "Received SEK",
+    header: m.portfolio.dividends.received,
     cell: (c) => formatPrice(c.getValue()),
     meta: { align: "end", className: "sensitive num font-medium" },
   }),
@@ -55,7 +56,7 @@ export function PaidDividendsTable() {
   for (const d of rows)
     perYear.set(d.date.slice(0, 4), (perYear.get(d.date.slice(0, 4)) ?? 0) + d.amountInSek);
 
-  if (rows.length === 0) return <Empty>No dividends received yet.</Empty>;
+  if (rows.length === 0) return <Empty>{m.portfolio.dividends.noneReceived}</Empty>;
   return (
     <div className="flex flex-col">
       <div className="border-b p-3">

@@ -17,23 +17,20 @@ import {
 } from "@/lib/alert-rules";
 import { quoteQuery } from "@/lib/avanza/queries";
 import { formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import type { SignalKind } from "@/lib/signals";
 
-const unitHint: Record<string, string> = {
-  "%": "percent",
-  score: "1 = just notable, 5 = very strong",
-  price: "price level",
-};
+const unitHint: Record<string, string> = m.alerts.form.unitHint;
 
 const asInput = (n: number) => String(n).replace(".", ",");
 
 /** "Every holding" / "Every held stock": what a rule without a target covers. */
 const allLabel = (kind: RuleKind) =>
   kind === "price"
-    ? "Pick a stock"
+    ? m.alerts.form.pickStock
     : ruleKinds[kind].scope === "holdings" || kind === "day-move"
-      ? "Every holding"
-      : "Every held stock";
+      ? m.alerts.form.everyHolding
+      : m.alerts.form.everyHeldStock;
 
 /**
  * Step two of a rule: what it applies to, the threshold (presets or typed), and for signal
@@ -96,14 +93,14 @@ export function RuleForm({
             className="text-muted-foreground ml-auto"
             onClick={onBack}
           >
-            Change
+            {m.alerts.form.change}
           </Button>
         )}
       </div>
 
       {kind.scope !== "accounts" && (
         <label className="flex flex-col gap-1.5">
-          <span className="text-muted-foreground text-xs">Applies to</span>
+          <span className="text-muted-foreground text-xs">{m.alerts.form.appliesTo}</span>
           <RuleTargetPicker
             scope={kind.scope}
             allLabel={allLabel(initial.kind)}
@@ -115,12 +112,12 @@ export function RuleForm({
 
       {initial.kind === "signal" && (
         <div className="flex flex-col gap-1.5">
-          <span className="text-muted-foreground text-xs">Kind of signal</span>
+          <span className="text-muted-foreground text-xs">{m.alerts.form.kindOfSignal}</span>
           <Segmented
-            label="Kind of signal"
+            label={m.alerts.form.kindOfSignal}
             className="flex-wrap"
             options={[
-              { label: "Any", value: "any" },
+              { label: m.alerts.form.any, value: "any" },
               ...(Object.keys(signalKindLabels) as SignalKind[]).map((k) => ({
                 label: signalKindLabels[k],
                 value: k,
@@ -135,26 +132,26 @@ export function RuleForm({
       {isPrice ? (
         <div className="flex flex-col gap-1.5">
           <span className="text-muted-foreground text-xs">
-            Price level
+            {m.alerts.form.priceLevel}
             {last != null && (
               <>
-                {" "}
-                · now <span className="num">{formatPrice(last)}</span>
+                {` · ${m.alerts.form.now} `}
+                <span className="num">{formatPrice(last)}</span>
               </>
             )}
           </span>
           <div className="flex flex-wrap items-center gap-1">
             <Segmented
-              label="Direction"
+              label={m.alerts.form.direction}
               options={[
-                { label: "Rises to", value: "above" },
-                { label: "Falls to", value: "below" },
+                { label: m.alerts.form.risesTo, value: "above" },
+                { label: m.alerts.form.fallsTo, value: "below" },
               ]}
               value={direction}
               onChange={setDirection}
             />
             <Input
-              aria-label="Price level"
+              aria-label={m.alerts.form.priceLevel}
               inputMode="decimal"
               value={threshold}
               onChange={(e) => setThreshold(e.target.value)}
@@ -164,7 +161,7 @@ export function RuleForm({
           </div>
           {last != null && (
             <Segmented
-              label="Levels from the current price"
+              label={m.alerts.form.levelsFromPrice}
               numeric
               options={kind.presets.map((p) => ({
                 label: `${p > 0 ? "+" : "−"}${Math.abs(p)} %`,
@@ -181,11 +178,12 @@ export function RuleForm({
       ) : (
         <div className="flex flex-col gap-1.5">
           <span className="text-muted-foreground text-xs">
-            {initial.kind === "signal" ? "Minimum strength" : "Threshold"} ({unitHint[kind.unit]})
+            {initial.kind === "signal" ? m.alerts.form.minimumStrength : m.alerts.form.threshold} (
+            {unitHint[kind.unit]})
           </span>
           <div className="flex items-center gap-1">
             <Segmented
-              label="Presets"
+              label={m.alerts.form.presets}
               numeric
               options={kind.presets.map((p) => ({
                 label: kind.unit === "score" ? String(p) : `${p} ${kind.unit}`,
@@ -195,7 +193,7 @@ export function RuleForm({
               onChange={(p) => setThreshold(String(p))}
             />
             <Input
-              aria-label="Threshold"
+              aria-label={m.alerts.form.threshold}
               inputMode="decimal"
               value={threshold}
               onChange={(e) => setThreshold(e.target.value)}
@@ -211,7 +209,7 @@ export function RuleForm({
 
       <div className="bg-muted/40 flex flex-col gap-2 rounded-md p-3">
         <p className="flex flex-col gap-0.5">
-          <span className="text-muted-foreground text-xs">Notifies when</span>
+          <span className="text-muted-foreground text-xs">{m.alerts.form.notifiesWhen}</span>
           <span className="font-medium">{describeRule(rule)}</span>
         </p>
         <RuleNow rule={rule} />
@@ -219,7 +217,7 @@ export function RuleForm({
 
       <div className="flex justify-end gap-2">
         <Button type="submit" disabled={!valid}>
-          {editing ? "Save rule" : "Create rule"}
+          {editing ? m.alerts.form.saveRule : m.alerts.form.createRule}
         </Button>
       </div>
     </form>

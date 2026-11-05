@@ -10,6 +10,7 @@ import { TransactionSide } from "@/lib/avanza/codes";
 import { toAlertRow, toDealRow, toStopLossRow } from "@/lib/avanza/loose-records";
 import { alertsQuery, dealsQuery, stopLossesQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { newKeys } from "@/lib/new-keys";
 import { getNotifications } from "@/lib/notifications";
 import { getPrivacy } from "@/lib/privacy";
@@ -23,7 +24,8 @@ export async function notify(title: string, body: string) {
   if (await permission) sendNotification({ title, body });
 }
 
-const side = (s?: string) => (s === TransactionSide.Sell ? "Sold" : "Bought");
+const side = (s?: string) =>
+  s === TransactionSide.Sell ? m.layout.notify.sold : m.layout.notify.bought;
 
 /**
  * Desktop notifications for fills, triggered alerts and stop-loss status changes. Keeps those
@@ -47,8 +49,8 @@ export function Notifier() {
       if (!on.fills) continue;
       const qty =
         r.volume == null || getPrivacy() || !on.quantities ? "" : `${formatInteger(r.volume)} `;
-      const price = r.price == null ? "" : ` at ${formatPrice(r.price)}`;
-      void notify("Order filled", `${side(r.side)} ${qty}${r.name}${price}`);
+      const price = r.price == null ? "" : m.layout.notify.at(formatPrice(r.price));
+      void notify(m.layout.notify.filled, `${side(r.side)} ${qty}${r.name}${price}`);
     }
   }, [deals]);
 
@@ -61,8 +63,8 @@ export function Notifier() {
     )) {
       if (!getNotifications().alerts) continue;
       const r = rows.find((a) => a.id === id)!;
-      const level = r.value == null ? "" : ` at ${formatPrice(r.value)}`;
-      void notify("Alert triggered", `${r.name}${level}`);
+      const level = r.value == null ? "" : m.layout.notify.level(formatPrice(r.value));
+      void notify(m.layout.notify.alert, `${r.name}${level}`);
     }
   }, [triggered]);
 
@@ -75,8 +77,8 @@ export function Notifier() {
       if (!getNotifications().stopLosses) continue;
       const r = rows.find((s) => key(s) === k)!;
       void notify(
-        "Stop-loss",
-        `${r.name}: ${r.status?.toLowerCase().replaceAll("_", " ") ?? "new"}`,
+        m.layout.notify.stopLoss,
+        `${r.name}: ${r.status?.toLowerCase().replaceAll("_", " ") ?? m.layout.notify.newStatus}`,
       );
     }
   }, [stopLosses]);

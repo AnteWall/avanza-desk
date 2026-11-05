@@ -7,6 +7,7 @@ import { useMemo } from "react";
 
 import type { Slice } from "@/lib/avanza/portfolio";
 import { formatInteger, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 export type DonutSlice = Slice & { color: string };
 
@@ -25,7 +26,9 @@ export function AllocationDonut({ slices }: { slices: readonly DonutSlice[] }) {
     <div className="h-64">
       <Chart
         definition={definition}
-        ariaLabel={`Allocation: ${slices.map((s) => `${s.name} ${formatShare(s.share)}`).join(", ")}`}
+        ariaLabel={m.portfolio.allocation.ariaLabel(
+          slices.map((s) => `${s.name} ${formatShare(s.share)}`).join(", "),
+        )}
         className="num text-muted-foreground text-xs"
         style={{ height: "100%" }}
       />
@@ -99,7 +102,7 @@ export function donutChart(slices: readonly DonutSlice[]) {
         return {
           title: d.name,
           rows: [
-            { label: "Share", value: formatShare(d.share), color: d.color },
+            { label: m.portfolio.allocation.share, value: formatShare(d.share), color: d.color },
             { label: "SEK", value: formatInteger(d.value) },
           ],
         };

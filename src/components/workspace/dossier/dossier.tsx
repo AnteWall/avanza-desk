@@ -24,6 +24,9 @@ import { InstrumentNotes } from "@/components/workspace/notes/instrument-notes";
 import type { Focus } from "@/components/workspace/use-focused-instrument";
 import { InstrumentType } from "@/lib/avanza/codes";
 import { instrumentQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
+
+const names = m.workspace.dossier.what;
 
 const skeleton = (
   <div className="flex flex-col gap-2 p-3">
@@ -55,48 +58,48 @@ export function Dossier({ focus, period }: { focus: Focus; period: ChartPeriod }
       {instrument.stock ? (
         <>
           <div className="border-t">
-            {part("the snapshot", <Snapshot instrument={instrument} />)}
+            {part(names.snapshot, <Snapshot instrument={instrument} />)}
           </div>
           <div className="border-t empty:hidden">
-            {part("signals", <Signals instrument={instrument} />)}
+            {part(names.signals, <Signals instrument={instrument} />)}
           </div>
           <SectionRow>
-            {part("the company profile", <About instrument={instrument} />)}
-            {part("the latest report", <LatestReport orderbookId={id} />)}
+            {part(names.profile, <About instrument={instrument} />)}
+            {part(names.report, <LatestReport orderbookId={id} />)}
           </SectionRow>
           <SectionRow>
-            {part("key ratios", <KeyRatios instrument={instrument} />)}
-            {part("financials", <FinancialsChart orderbookId={id} />)}
+            {part(names.ratios, <KeyRatios instrument={instrument} />)}
+            {part(names.financials, <FinancialsChart orderbookId={id} />)}
           </SectionRow>
           <SectionRow>
             <div className="flex flex-col">
-              {part("analyst views", <Analysts orderbookId={id} />)}
-              {part("dividends", <Dividends orderbookId={id} />)}
+              {part(names.analysts, <Analysts orderbookId={id} />)}
+              {part(names.dividends, <Dividends orderbookId={id} />)}
             </div>
-            {part("owners", <Owners orderbookId={id} />)}
+            {part(names.owners, <Owners orderbookId={id} />)}
           </SectionRow>
-          <div className="border-t">{part("insider trades", <Insiders orderbookId={id} />)}</div>
+          <div className="border-t">{part(names.insiders, <Insiders orderbookId={id} />)}</div>
         </>
       ) : instrument.kind === "fund" ? (
         <div className="border-t">
-          <Section title="Fund" flush>
-            {part("fund details", <FundDetails orderbookId={id} />)}
+          <Section title={m.common.fund} flush>
+            {part(names.fund, <FundDetails orderbookId={id} />)}
           </Section>
         </div>
       ) : (
         focus.type === InstrumentType.Etf && (
-          <div className="border-t">{part("ETF details", <EtfAbout orderbookId={id} />)}</div>
+          <div className="border-t">{part(names.etf, <EtfAbout orderbookId={id} />)}</div>
         )
       )}
 
       <div className="border-t">
-        <Section title="News" flush>
-          {part("news", <InstrumentNews orderbookId={id} />)}
+        <Section title={m.workspace.dossier.news} flush>
+          {part(names.news, <InstrumentNews orderbookId={id} />)}
         </Section>
       </div>
       <div className="border-t">
-        <Section title="Your notes" flush>
-          {part("your notes", <InstrumentNotes orderbookId={id} />)}
+        <Section title={m.workspace.dossier.notes} flush>
+          {part(names.notes, <InstrumentNotes orderbookId={id} />)}
         </Section>
       </div>
     </div>

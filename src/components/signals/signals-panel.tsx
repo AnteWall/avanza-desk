@@ -7,6 +7,7 @@ import { TableSkeleton } from "@/components/common/table-skeleton";
 import { SignalsTable } from "@/components/signals/signals-table";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/workspace/panel";
+import { m } from "@/lib/i18n";
 import { openRuleDialog } from "@/lib/rule-dialog";
 
 /** Insider, short-interest, owner and analyst moves in the stocks you hold or watch. */
@@ -14,16 +15,16 @@ export function SignalsPanel() {
   const [heldOnly, setHeldOnly] = useState(false);
   return (
     <Panel
-      title="Signals"
+      title={m.signals.panel.title}
       icon={Radar}
-      subtitle="last 30 days"
+      subtitle={m.signals.panel.subtitle}
       actions={
         <>
           <Segmented
-            label="Stocks"
+            label={m.signals.panel.stocks}
             options={[
-              { label: "All", value: "all" },
-              { label: "Held", value: "held" },
+              { label: m.common.all, value: "all" },
+              { label: m.signals.panel.held, value: "held" },
             ]}
             value={heldOnly ? "held" : "all"}
             onChange={(v) => setHeldOnly(v === "held")}
@@ -35,12 +36,15 @@ export function SignalsPanel() {
             onClick={() => openRuleDialog({ kind: "signal" })}
           >
             <Bell />
-            Alert me
+            {m.signals.panel.alertMe}
           </Button>
         </>
       }
     >
-      <AsyncBoundary what="your stocks" fallback={<TableSkeleton rows={8} columns={4} />}>
+      <AsyncBoundary
+        what={m.signals.panel.yourStocks}
+        fallback={<TableSkeleton rows={8} columns={4} />}
+      >
         <SignalsTable heldOnly={heldOnly} />
       </AsyncBoundary>
     </Panel>

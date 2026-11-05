@@ -7,7 +7,10 @@ import { useMemo } from "react";
 import { crosshairLabel, STACKED_MARGIN } from "@/components/common/price-chart";
 import type { LowerPane } from "@/lib/chart-view";
 import { formatClock, formatDate, formatDecimal } from "@/lib/format";
+import { m as i18n } from "@/lib/i18n";
 import { macd, rsi } from "@/lib/indicators";
+
+const t = i18n.workspace.chart;
 
 type Point = { timestamp: number; v: number; label: string };
 
@@ -58,7 +61,7 @@ export function IndicatorPane({
             const hist = m.histogram.flatMap((v, i) =>
               v == null
                 ? []
-                : [{ x1: ts[i]! - half, x2: ts[i]! + half, y1: 0, y2: v, label: "Histogram" }],
+                : [{ x1: ts[i]! - half, x2: ts[i]! + half, y1: 0, y2: v, label: t.histogram }],
             );
             return [
               ruleY([0], { stroke: "var(--muted-foreground)", strokeWidth: 1 }),
@@ -81,7 +84,7 @@ export function IndicatorPane({
                 stroke: "var(--brand)",
                 strokeWidth: 1.25,
               }),
-              lineY(points(ts, m.signal, "Signal"), {
+              lineY(points(ts, m.signal, t.signal), {
                 x: "timestamp",
                 y: "v",
                 stroke: "var(--chart-3)",
@@ -132,7 +135,7 @@ export function IndicatorPane({
   return (
     <Chart
       definition={definition}
-      ariaLabel={kind === "rsi" ? "RSI chart" : "MACD chart"}
+      ariaLabel={kind === "rsi" ? t.rsiChart : t.macdChart}
       className="num text-muted-foreground text-xs"
       style={{ height: "100%" }}
     />

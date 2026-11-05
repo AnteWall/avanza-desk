@@ -2,6 +2,7 @@ import { TableSkeleton } from "@/components/common/table-skeleton";
 import { AllocationTable } from "@/components/portfolio/allocation/allocation-table";
 import { useLookThroughs } from "@/components/portfolio/use-holdings";
 import { lookThrough, unclassified } from "@/lib/avanza/portfolio";
+import { m } from "@/lib/i18n";
 
 /** Where the money is invested: stocks by listing country, funds and ETFs by their holdings. */
 export function CountryAllocation() {
@@ -11,7 +12,7 @@ export function CountryAllocation() {
     <AllocationTable
       slices={lookThrough(holdings, (h) => byKey.get(h.key)?.countries)}
       rest={unclassified}
-      restNote="cash in funds, or instruments without country data"
+      restNote={m.portfolio.allocation.countryNote}
     />
   );
 }

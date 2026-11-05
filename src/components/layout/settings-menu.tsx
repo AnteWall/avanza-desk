@@ -23,12 +23,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { meQuery, signOut } from "@/lib/avanza/client";
 import { ideaUrl, notesFor } from "@/lib/changelog";
+import { m } from "@/lib/i18n";
 import { getTheme, setTheme, type Theme } from "@/lib/theme";
 
 const themes: { value: Theme; label: string }[] = [
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-  { value: "system", label: "System" },
+  { value: "light", label: m.layout.settingsMenu.themes.light },
+  { value: "dark", label: m.layout.settingsMenu.themes.dark },
+  { value: "system", label: m.layout.settingsMenu.themes.system },
 ];
 
 /** Settings button at the bottom of the nav rail: user, theme, settings, what's new, suggest a feature, sign out. */
@@ -63,15 +64,15 @@ export function SettingsMenu({
           render={
             <Button
               variant="ghost"
-              aria-label="Settings"
-              title="Settings"
+              aria-label={m.common.settings}
+              title={m.common.settings}
               data-active={active}
               className={className}
             />
           }
         >
           <Settings />
-          <span className={labelClassName}>Settings</span>
+          <span className={labelClassName}>{m.common.settings}</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent side="right" align="end" sideOffset={8} className="w-56">
           {me && (
@@ -87,7 +88,7 @@ export function SettingsMenu({
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <SunMoon />
-              Theme
+              {m.layout.settingsMenu.theme}
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent className="w-32">
               <DropdownMenuRadioGroup
@@ -107,15 +108,15 @@ export function SettingsMenu({
           </DropdownMenuSub>
           <DropdownMenuItem onClick={() => void navigate({ to: "/settings" })}>
             <SlidersHorizontal />
-            Settings
+            {m.common.settings}
           </DropdownMenuItem>
           <DropdownMenuItem disabled={!notes} onClick={() => setNotesOpen(true)}>
             <Gift />
-            What's new
+            {m.layout.settingsMenu.whatsNew}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => void openUrl(ideaUrl(version))}>
             <Lightbulb />
-            Suggest a feature
+            {m.layout.settingsMenu.suggestFeature}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -123,7 +124,7 @@ export function SettingsMenu({
             onClick={() => void signOut(queryClient, { remote: true })}
           >
             <LogOut />
-            Sign out
+            {m.layout.settingsMenu.signOut}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -133,7 +134,7 @@ export function SettingsMenu({
           open={notesOpen}
           onClose={() => setNotesOpen(false)}
           releases={[notes]}
-          description={`Version ${notes.version}`}
+          description={m.common.version(notes.version)}
         />
       )}
     </>

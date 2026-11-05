@@ -26,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { createGroup, deleteGroup, setGroupId, updateGroup, type Group } from "@/lib/groups";
+import { m } from "@/lib/i18n";
 
 const all = "all";
 
@@ -54,7 +55,9 @@ export function GroupPicker() {
           }
         >
           <Folder />
-          <span className="max-w-48 truncate font-medium">{selected?.name ?? "All holdings"}</span>
+          <span className="max-w-48 truncate font-medium">
+            {selected?.name ?? m.portfolio.groups.all}
+          </span>
           <ChevronDown />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-52">
@@ -62,7 +65,7 @@ export function GroupPicker() {
             value={selected?.id ?? all}
             onValueChange={(id: string) => setGroupId(id === all ? null : id)}
           >
-            <DropdownMenuRadioItem value={all}>All holdings</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value={all}>{m.portfolio.groups.all}</DropdownMenuRadioItem>
             {groups.length > 0 && <DropdownMenuSeparator />}
             {groups.map((g) => (
               <div key={g.id} className="flex items-center">
@@ -73,7 +76,7 @@ export function GroupPicker() {
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger
                     openOnHover={false}
-                    aria-label={`${g.name} options`}
+                    aria-label={m.portfolio.groups.options(g.name)}
                     // Just the … icon: hide the submenu chevron.
                     className="text-muted-foreground [&>svg:last-child]:hidden"
                   >
@@ -82,11 +85,11 @@ export function GroupPicker() {
                   <DropdownMenuSubContent>
                     <DropdownMenuItem onClick={() => setRenaming(g)}>
                       <Pencil />
-                      Rename…
+                      {m.portfolio.groups.rename}
                     </DropdownMenuItem>
                     <DropdownMenuItem variant="destructive" onClick={() => setDeleting(g)}>
                       <Trash2 />
-                      Delete…
+                      {m.portfolio.groups.delete}
                     </DropdownMenuItem>
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
@@ -94,14 +97,12 @@ export function GroupPicker() {
             ))}
           </DropdownMenuRadioGroup>
           {groups.length === 0 && (
-            <p className="text-muted-foreground px-1.5 py-1 text-xs">
-              Right-click holdings to group them.
-            </p>
+            <p className="text-muted-foreground px-1.5 py-1 text-xs">{m.portfolio.groups.hint}</p>
           )}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setCreating(true)}>
             <Plus />
-            New group…
+            {m.portfolio.groups.newGroup}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -109,8 +110,8 @@ export function GroupPicker() {
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label="Show all holdings"
-          title="Show all holdings"
+          aria-label={m.portfolio.groups.showAll}
+          title={m.portfolio.groups.showAll}
           onClick={() => setGroupId(null)}
         >
           <X />
@@ -118,7 +119,7 @@ export function GroupPicker() {
       )}
       <GroupNameDialog
         open={creating}
-        title="New group"
+        title={m.portfolio.groups.newTitle}
         onSubmit={(name) => setGroupId(createGroup(name, []))}
         onClose={() => setCreating(false)}
       />
@@ -126,7 +127,7 @@ export function GroupPicker() {
         // Remount per group so the input starts from that group's name.
         key={renaming?.id}
         open={Boolean(renaming)}
-        title="Rename group"
+        title={m.portfolio.groups.renameTitle}
         initial={renaming?.name}
         onSubmit={(name) => renaming && updateGroup(renaming.id, (g) => ({ ...g, name }))}
         onClose={() => setRenaming(undefined)}
@@ -134,14 +135,12 @@ export function GroupPicker() {
       <Dialog open={Boolean(deleting)} onOpenChange={(open) => !open && setDeleting(undefined)}>
         <DialogContent showCloseButton={false}>
           <DialogHeader>
-            <DialogTitle>Delete {deleting?.name}?</DialogTitle>
-            <DialogDescription>
-              The group goes away; its holdings and your accounts are untouched.
-            </DialogDescription>
+            <DialogTitle>{m.portfolio.groups.deleteTitle(deleting?.name ?? "")}</DialogTitle>
+            <DialogDescription>{m.portfolio.groups.deleteDescription}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDeleting(undefined)}>
-              Cancel
+              {m.common.cancel}
             </Button>
             <Button
               variant="destructive"
@@ -151,7 +150,7 @@ export function GroupPicker() {
                 setDeleting(undefined);
               }}
             >
-              Delete group
+              {m.portfolio.groups.deleteConfirm}
             </Button>
           </DialogFooter>
         </DialogContent>

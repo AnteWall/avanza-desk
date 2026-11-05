@@ -9,6 +9,7 @@ import { instrumentItem } from "@/lib/ai/context";
 import { toStopLossRow, type StopLossRow } from "@/lib/avanza/loose-records";
 import { stopLossesQuery } from "@/lib/avanza/queries";
 import { formatDate, formatInteger, formatPrice, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 const dash = "–";
 // Percentage values are percent units ("5" = 5 %).
@@ -17,9 +18,9 @@ const amount = (value: number, percent: boolean) =>
 
 const col = dataTableColumns<StopLossRow>();
 const columns = col.columns([
-  col.accessor("name", { header: "Instrument", meta: { className: "font-medium" } }),
+  col.accessor("name", { header: m.common.instrument, meta: { className: "font-medium" } }),
   col.accessor("trigger", {
-    header: "Trigger",
+    header: m.orders.columns.trigger,
     cell: (c) => {
       const t = c.getValue();
       if (!t) return dash;
@@ -29,27 +30,27 @@ const columns = col.columns([
   }),
   col.accessor((r) => r.order?.side, {
     id: "side",
-    header: "Then",
+    header: m.orders.columns.thenSide,
     cell: (c) => <Side side={c.getValue()} />,
   }),
   col.accessor((r) => r.order?.volume, {
     id: "qty",
-    header: "Qty",
+    header: m.common.quantity,
     cell: (c) => (c.getValue() == null ? dash : formatInteger(c.getValue()!)),
     meta: { align: "end", className: "sensitive num" },
   }),
   col.accessor("order", {
-    header: "Order price",
+    header: m.orders.columns.orderPrice,
     cell: (c) => (c.getValue() ? amount(c.getValue()!.price, c.getValue()!.percent) : dash),
     meta: { align: "end", className: "num font-medium" },
   }),
   col.accessor("status", {
-    header: "Status",
+    header: m.orders.columns.status,
     cell: (c) => c.getValue()?.toLowerCase().replaceAll("_", " ") ?? dash,
     meta: { className: "text-muted-foreground" },
   }),
   col.accessor("validUntil", {
-    header: "Valid until",
+    header: m.orders.columns.validUntil,
     cell: (c) => (c.getValue() ? formatDate(c.getValue()!) : dash),
     meta: { className: "num text-muted-foreground" },
   }),
@@ -64,7 +65,7 @@ export function StopLossesTable() {
     .map(toStopLossRow)
     .filter((r) => !account || !r.accountId || r.accountId === account);
 
-  if (rows.length === 0) return <Empty>No stop-loss orders.</Empty>;
+  if (rows.length === 0) return <Empty>{m.orders.empty.stopLoss}</Empty>;
   return (
     <DataTable
       columns={columns}

@@ -7,6 +7,7 @@ import type { Instrument } from "@/lib/avanza/instrument";
 import { sectorAnalysisQuery, stockAnalysisQuery } from "@/lib/avanza/queries";
 import { vsAverage } from "@/lib/avanza/stock-details";
 import { formatPercent, formatPrice, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 type Row = {
   label: string;
@@ -22,29 +23,29 @@ const ratios: { key: string; label: string; format?: (v: number) => string }[] =
   { key: "evEbitRatio", label: "EV/EBIT" },
   { key: "priceSalesRatio", label: "P/S" },
   { key: "priceBookRatio", label: "P/B" },
-  { key: "earningsPerShare", label: "EPS" },
+  { key: "earningsPerShare", label: m.workspace.ratios.eps },
   { key: "returnOnEquityRatio", label: "ROE", format: formatShare },
-  { key: "netDebtEbitdaRatio", label: "Net debt / EBITDA" },
+  { key: "netDebtEbitdaRatio", label: m.workspace.ratios.netDebtEbitda },
 ];
 
 const value = (format: Row["format"]) => (v: number | null) => (v == null ? "–" : format(v));
 
 const col = dataTableColumns<Row>();
 const columns = col.columns([
-  col.accessor("label", { header: "Ratio", meta: { className: "font-medium" } }),
+  col.accessor("label", { header: m.workspace.ratios.ratio, meta: { className: "font-medium" } }),
   col.accessor("now", {
-    header: "Now",
+    header: m.workspace.ratios.now,
     cell: (c) => value(c.row.original.format)(c.getValue()),
     meta: { align: "end", className: "num font-medium" },
   }),
   col.accessor("average", {
-    header: "Own average",
+    header: m.workspace.ratios.ownAverage,
     cell: (c) => value(c.row.original.format)(c.getValue()),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.display({
     id: "vs",
-    header: "Now vs average",
+    header: m.workspace.ratios.vsAverage,
     cell: (c) => {
       const delta = vsAverage(c.row.original.now, c.row.original.average);
       return delta == null ? "–" : formatPercent(delta);
@@ -52,7 +53,7 @@ const columns = col.columns([
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.accessor("sector", {
-    header: "Sector",
+    header: m.workspace.ratios.sectorColumn,
     cell: (c) => value(c.row.original.format)(c.getValue()),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
@@ -76,19 +77,23 @@ export function KeyRatios({ instrument }: { instrument: Instrument }) {
   const share = (v: number | undefined) => (v == null ? "–" : formatShare(v));
   const extra = ki
     ? [
-        { label: "Gross margin", value: share(ki.grossMargin) },
-        { label: "Operating margin", value: share(ki.operatingProfitMargin) },
-        { label: "Net margin", value: share(ki.netMargin) },
+        { label: m.workspace.ratios.grossMargin, value: share(ki.grossMargin) },
+        { label: m.workspace.ratios.operatingMargin, value: share(ki.operatingProfitMargin) },
+        { label: m.workspace.ratios.netMargin, value: share(ki.netMargin) },
         { label: "ROCE", value: share(ki.returnOnCapitalEmployed) },
-        { label: "Equity ratio", value: share(ki.equityRatio) },
+        { label: m.workspace.ratios.equityRatio, value: share(ki.equityRatio) },
         { label: "Beta", value: ki.beta == null ? "–" : formatPrice(ki.beta) },
-        { label: "Volatility", value: share(ki.volatility) },
+        { label: m.workspace.ratios.volatility, value: share(ki.volatility) },
       ]
     : [];
 
   if (rows.length === 0 && !ki) return null;
   return (
-    <Section title="Key ratios" aside={sector && `Sector: ${sector.sectorName}`} flush>
+    <Section
+      title={m.workspace.ratios.title}
+      aside={sector && m.workspace.ratios.sector(sector.sectorName)}
+      flush
+    >
       {rows.length > 0 && <DataTable columns={columns} data={rows} getRowId={(r) => r.label} />}
       <div className="p-3">
         <StatList stats={extra} />

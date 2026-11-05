@@ -7,6 +7,7 @@ import { dailyPerformance } from "@/lib/avanza/portfolio";
 import { positionsQuery } from "@/lib/avanza/queries";
 import { sessionLabel } from "@/lib/exchanges";
 import { formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 /**
  * Your portfolio: total value including cash, as on the portfolio page, then the last trading day's change in SEK and %, labelled with
@@ -21,11 +22,15 @@ export function DailyPerformance() {
   return (
     <div
       className="flex items-center gap-2.5 whitespace-nowrap"
-      title={`Your portfolio's change ${session === "Today" ? "today" : `on the last trading day (${session})`}`}
+      title={
+        session === m.common.today
+          ? m.layout.dailyPerformance.changeToday
+          : m.layout.dailyPerformance.changeOn(session)
+      }
     >
       <span className="flex flex-col leading-tight">
         <span className="text-muted-foreground text-[10px] font-medium tracking-wider uppercase">
-          Portfolio
+          {m.layout.pages.portfolio.label}
         </span>
         <span className="num sensitive font-semibold">{formatPrice(value + cash)} SEK</span>
       </span>
@@ -34,7 +39,7 @@ export function DailyPerformance() {
         className={cn(
           "grid size-6 place-items-center rounded-md",
           change > 0 && "bg-up/15 text-up",
-          change < 0 && "bg-down/15 text-down",
+          0 > change && "bg-down/15 text-down",
           change === 0 && "bg-muted text-muted-foreground",
         )}
       >
@@ -45,7 +50,7 @@ export function DailyPerformance() {
           {session}
         </span>
         <span className="num flex items-baseline gap-1.5 font-semibold">
-          <span className={cn("sensitive", change > 0 && "text-up", change < 0 && "text-down")}>
+          <span className={cn("sensitive", change > 0 && "text-up", 0 > change && "text-down")}>
             {change > 0 && "+"}
             {formatPrice(change)} SEK
           </span>

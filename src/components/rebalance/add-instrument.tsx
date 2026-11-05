@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { searchQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 import { isTyping } from "@/lib/keys";
 import { toAdded, type AddedInstrument } from "@/lib/rebalance";
 import { useDebounced } from "@/lib/use-debounced";
@@ -53,16 +54,18 @@ export function AddInstrument({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger render={<Button variant="outline" size="xs" title="Add instrument (A)" />}>
+      <PopoverTrigger
+        render={<Button variant="outline" size="xs" title={m.rebalance.addInstrument.title} />}
+      >
         <Plus />
-        Add instrument
+        {m.rebalance.addInstrument.label}
         <kbd className="num text-muted-foreground">A</kbd>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-96 gap-1 p-2">
         <Input
           autoFocus
-          placeholder="Search stocks, funds, ETFs…"
-          aria-label="Search instrument to add"
+          placeholder={m.rebalance.addInstrument.placeholder}
+          aria-label={m.rebalance.addInstrument.aria}
           value={query}
           className="h-8"
           onChange={(e) => {
@@ -78,7 +81,11 @@ export function AddInstrument({
           }}
         />
         {hits.length > 0 && (
-          <ul role="listbox" aria-label="Results" className="flex max-h-80 flex-col overflow-auto">
+          <ul
+            role="listbox"
+            aria-label={m.rebalance.addInstrument.results}
+            className="flex max-h-80 flex-col overflow-auto"
+          >
             {hits.map((hit, i) => (
               <li
                 key={hit.orderBookId}

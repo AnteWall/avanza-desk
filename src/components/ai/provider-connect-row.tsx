@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { connect } from "@/lib/ai/connected";
 import { setProvider } from "@/lib/ai/providers";
 import type { Provider } from "@/lib/ai/types";
+import { m } from "@/lib/i18n";
 
 /** A provider that isn't connected: what it is, where to get its program, and Connect. */
 export function ProviderConnectRow({ provider }: { provider: Provider }) {
@@ -19,17 +20,24 @@ export function ProviderConnectRow({ provider }: { provider: Provider }) {
           <ProviderBillingTip provider={provider} />
         </span>
         <span className="text-muted-foreground truncate text-xs">
-          by {provider.vendor} · needs {provider.setApiKey && "an "}
-          <button
-            type="button"
-            onClick={() => void openUrl(provider.installUrl)}
-            title={provider.setApiKey ? "Get an API key" : `Download ${provider.program}`}
-            className="text-brand focus-visible:ring-ring/50 inline-flex items-baseline gap-0.5 rounded-xs underline underline-offset-2 outline-none focus-visible:ring-2"
-          >
-            {provider.program}
-            <ArrowUpRight className="size-3 self-center" aria-hidden />
-          </button>{" "}
-          {!provider.setApiKey && "on this computer"}
+          {m.ai.provider.needs(
+            provider.vendor,
+            <button
+              key="program"
+              type="button"
+              onClick={() => void openUrl(provider.installUrl)}
+              title={
+                provider.setApiKey
+                  ? m.ai.provider.getApiKey
+                  : m.ai.provider.download(provider.program)
+              }
+              className="text-brand focus-visible:ring-ring/50 inline-flex items-baseline gap-0.5 rounded-xs underline underline-offset-2 outline-none focus-visible:ring-2"
+            >
+              {provider.program}
+              <ArrowUpRight className="size-3 self-center" aria-hidden />
+            </button>,
+            !!provider.setApiKey,
+          )}
         </span>
       </span>
       <Button
@@ -41,7 +49,7 @@ export function ProviderConnectRow({ provider }: { provider: Provider }) {
         }}
       >
         <Plug />
-        Connect
+        {m.ai.provider.connect}
       </Button>
     </div>
   );

@@ -6,6 +6,7 @@ import { SettingsRow } from "@/components/settings/settings-row";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { Button } from "@/components/ui/button";
 import { pickCsvPath } from "@/lib/csv";
+import { m } from "@/lib/i18n";
 import { setLiveQuotesPath } from "@/lib/live-quotes-file";
 import {
   getRefreshIntervals,
@@ -19,13 +20,10 @@ const fields: {
   key: Exclude<keyof RefreshIntervals, "quotesFile">;
   label: string;
   hint: string;
-}[] = [
-  { key: "positions", label: "Positions", hint: "Holdings and account values" },
-  { key: "alerts", label: "Alerts", hint: "Avanza price alerts" },
-  { key: "news", label: "News", hint: "News feed and instrument news" },
-  { key: "market", label: "Market movers", hint: "Gainers and losers" },
-  { key: "indices", label: "Index ticker", hint: "Indices in the top bar" },
-];
+}[] = (["positions", "alerts", "news", "market", "indices"] as const).map((key) => ({
+  key,
+  ...m.settings.data.fields[key],
+}));
 
 /** Forgets every saved value under `prefix`, then reloads so open panels fall back to defaults. */
 async function reset(prefix: string) {
@@ -41,7 +39,7 @@ export function DataSettings() {
   const [intervals, setIntervals] = useState(getRefreshIntervals);
   const quotesPath = useLiveQuotesPath();
   const pickQuotesFile = async () => {
-    const path = await pickCsvPath("Live quotes file", "avanzadesk-quotes.csv");
+    const path = await pickCsvPath(m.settings.data.quotesFile.label, "avanzadesk-quotes.csv");
     if (path) setLiveQuotesPath(path);
   };
 
@@ -54,12 +52,12 @@ export function DataSettings() {
 
   return (
     <>
-      <SettingsSection title="Refresh intervals">
+      <SettingsSection title={m.settings.data.refreshIntervals}>
         {fields.map((f) => (
           <SettingsRow
             key={f.key}
             label={f.label}
-            hint={`${f.hint} · default ${refreshIntervalDefaults[f.key] / 1000}s`}
+            hint={m.settings.data.withDefault(f.hint, refreshIntervalDefaults[f.key] / 1000)}
           >
             <SecondsInput
               label={f.label}
@@ -69,49 +67,52 @@ export function DataSettings() {
           </SettingsRow>
         ))}
       </SettingsSection>
-      <SettingsSection title="Spreadsheets">
+      <SettingsSection title={m.settings.data.spreadsheets}>
         <SettingsRow
-          label="Live quotes file"
+          label={m.settings.data.quotesFile.label}
           hint={
             quotesPath
-              ? `Writing your watchlists' quotes to ${quotesPath} while AvanzaDesk runs.`
-              : "A CSV of your watchlists' quotes, rewritten as prices move. Point Excel or Sheets at it and refresh."
+              ? m.settings.data.quotesFile.writing(quotesPath)
+              : m.settings.data.quotesFile.hint
           }
         >
           <span className="flex gap-1">
             <Button variant="outline" size="sm" onClick={() => void pickQuotesFile()}>
-              {quotesPath ? "Change file…" : "Choose file…"}
+              {quotesPath ? m.settings.data.quotesFile.change : m.settings.data.quotesFile.choose}
             </Button>
             {quotesPath && (
               <Button variant="ghost" size="sm" onClick={() => setLiveQuotesPath(null)}>
-                Stop
+                {m.settings.data.quotesFile.stop}
               </Button>
             )}
           </span>
         </SettingsRow>
         <SettingsRow
-          label="Write every"
-          hint={`How often the file is rewritten while prices move · default ${refreshIntervalDefaults.quotesFile / 1000}s`}
+          label={m.settings.data.writeEvery.label}
+          hint={m.settings.data.writeEvery.hint(refreshIntervalDefaults.quotesFile / 1000)}
         >
           <SecondsInput
-            label="Write the live quotes file every"
+            label={m.settings.data.writeEvery.aria}
             seconds={intervals.quotesFile / 1000}
             onChange={(v) => update("quotesFile", v)}
           />
         </SettingsRow>
       </SettingsSection>
-      <SettingsSection title="Reset">
-        <SettingsRow label="Panel layouts" hint="Panel sizes back to default. Reloads the window.">
+      <SettingsSection title={m.settings.data.reset.title}>
+        <SettingsRow
+          label={m.settings.data.reset.layouts.label}
+          hint={m.settings.data.reset.layouts.hint}
+        >
           <Button variant="outline" size="sm" onClick={() => void reset("layout:")}>
-            Reset
+            {m.settings.data.reset.button}
           </Button>
         </SettingsRow>
         <SettingsRow
-          label="Open tabs"
-          hint="Every page opens on its first tab. Reloads the window."
+          label={m.settings.data.reset.tabs.label}
+          hint={m.settings.data.reset.tabs.hint}
         >
           <Button variant="outline" size="sm" onClick={() => void reset("tab:")}>
-            Reset
+            {m.settings.data.reset.button}
           </Button>
         </SettingsRow>
       </SettingsSection>

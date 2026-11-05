@@ -6,13 +6,20 @@ import { tooltip } from "@tanstack/charts/tooltip";
 import { useMemo } from "react";
 
 import { formatCompact, formatInteger } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import type { YearRow } from "@/lib/years";
 
 const series = [
-  { key: "end", label: "Value", stroke: "var(--chart-1)", dot: "bg-chart-1", dash: undefined },
+  {
+    key: "end",
+    label: m.common.value,
+    stroke: "var(--chart-1)",
+    dot: "bg-chart-1",
+    dash: undefined,
+  },
   {
     key: "deposited",
-    label: "Deposited",
+    label: m.analysis.years.deposited,
     stroke: "var(--chart-2)",
     dot: "bg-chart-2",
     dash: "4 3",
@@ -58,9 +65,17 @@ export function ValueChart({ rows }: { rows: readonly YearRow[] }) {
           return {
             title: `${r.year} · SEK`,
             rows: [
-              { label: "Value", value: formatInteger(r.end), color: series[0].stroke },
-              { label: "Deposited", value: formatInteger(r.deposited), color: series[1].stroke },
-              { label: "Growth", value: formatInteger(r.end - r.deposited), active: true },
+              { label: m.common.value, value: formatInteger(r.end), color: series[0].stroke },
+              {
+                label: m.analysis.years.deposited,
+                value: formatInteger(r.deposited),
+                color: series[1].stroke,
+              },
+              {
+                label: m.analysis.years.growth,
+                value: formatInteger(r.end - r.deposited),
+                active: true,
+              },
             ],
           };
         },
@@ -73,7 +88,7 @@ export function ValueChart({ rows }: { rows: readonly YearRow[] }) {
       <div className="sensitive h-56">
         <Chart
           definition={definition}
-          ariaLabel="Portfolio value and money deposited, per year"
+          ariaLabel={m.analysis.years.valueChart}
           className="num text-muted-foreground text-xs"
           style={{ height: "100%" }}
         />

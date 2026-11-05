@@ -18,7 +18,7 @@ export function IndexTicker() {
             className={cn(
               "num",
               index.todayChangeDirection > 0 && "text-up",
-              index.todayChangeDirection < 0 && "text-down",
+              0 > index.todayChangeDirection && "text-down",
             )}
           >
             {index.quoteChangeToday}

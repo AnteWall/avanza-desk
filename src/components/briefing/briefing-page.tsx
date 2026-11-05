@@ -3,11 +3,12 @@ import { useState } from "react";
 import { BriefingView } from "@/components/briefing/briefing-view";
 import { Segmented } from "@/components/common/segmented";
 import { SINCE_KEY, type LastVisit } from "@/lib/briefing";
+import { m } from "@/lib/i18n";
 import { getSetting } from "@/lib/settings";
 
 const views = [
-  { value: "visit", label: "Since last visit" },
-  { value: "today", label: "Today" },
+  { value: "visit", label: m.briefing.views.visit },
+  { value: "today", label: m.briefing.views.today },
 ] as const;
 
 /**
@@ -22,7 +23,9 @@ export function BriefingPage() {
       key={view}
       since={view === "visit" ? (since ?? undefined) : undefined}
       switcher={
-        since && <Segmented label="Home view" options={views} value={view} onChange={setView} />
+        since && (
+          <Segmented label={m.briefing.homeView} options={views} value={view} onChange={setView} />
+        )
       }
     />
   );

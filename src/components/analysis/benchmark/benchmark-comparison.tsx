@@ -20,6 +20,7 @@ import {
 } from "@/lib/avanza/queries";
 import { rebase, simulate, xirr, type CashFlow } from "@/lib/benchmark";
 import { formatInteger } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 const points = (series: readonly { timestamp: number; performance: { value: number } }[]) =>
   rebase(series.map((p) => ({ timestamp: p.timestamp, value: p.performance.value })));
@@ -27,10 +28,10 @@ const points = (series: readonly { timestamp: number; performance: { value: numb
 const isOmxs30 = (name: string) => /OMXS30|OMX Stockholm 30/i.test(name);
 
 const periodWords: Partial<Record<PerformancePeriod, string>> = {
-  ONE_YEAR: "the last year",
-  THREE_YEARS: "the last 3 years",
-  FIVE_YEARS: "the last 5 years",
-  ALL_TIME: "all time",
+  ONE_YEAR: m.analysis.benchmark.periods.oneYear,
+  THREE_YEARS: m.analysis.benchmark.periods.threeYears,
+  FIVE_YEARS: m.analysis.benchmark.periods.fiveYears,
+  ALL_TIME: m.analysis.benchmark.periods.all,
 };
 
 /**
@@ -66,7 +67,8 @@ export function BenchmarkComparison({ period }: { period: PerformancePeriod }) {
 
   const yours = points(mine.relativeSeries);
   const indexSeries = points(charts?.[0]?.relativeSeries ?? []);
-  const indexName = index?.link.shortLinkDisplay || index?.link.linkDisplay || "Index";
+  const indexName = index?.link.shortLinkDisplay || index?.link.linkDisplay || m.common.index;
+  const over = periodWords[period] ?? m.analysis.benchmark.periods.other;
 
   const start = mine.valueSeries[0];
   const end = mine.valueSeries.at(-1);
@@ -95,29 +97,28 @@ export function BenchmarkComparison({ period }: { period: PerformancePeriod }) {
       {/* The answer first, in a sentence; the chart and figures below back it up. */}
       {ahead != null && (
         <p className="text-xl leading-snug font-semibold text-balance">
-          {Math.abs(ahead) < 1 ? (
-            <>
-              You're level with {indexName} over {periodWords[period] ?? "this period"}.
-            </>
-          ) : (
-            <>
-              You're{" "}
-              <span className={cn("num sensitive", ahead > 0 ? "text-up" : "text-down")}>
-                {formatInteger(Math.abs(ahead))} SEK
-              </span>{" "}
-              {ahead > 0 ? "ahead of" : "behind"} {indexName} over{" "}
-              {periodWords[period] ?? "this period"}.
-            </>
-          )}
+          {Math.abs(ahead) < 1
+            ? m.analysis.benchmark.level(indexName, over)
+            : m.analysis.benchmark.ahead(
+                <span
+                  key="amount"
+                  className={cn("num sensitive", ahead > 0 ? "text-up" : "text-down")}
+                >
+                  {formatInteger(Math.abs(ahead))} SEK
+                </span>,
+                ahead > 0,
+                indexName,
+                over,
+              )}
           <span className="text-muted-foreground block text-sm font-normal">
-            That's compared with putting the same deposits into the index on the same days.
+            {m.analysis.benchmark.compared}
           </span>
         </p>
       )}
       <div className="flex flex-wrap items-center gap-3">
         {indices.indexes.length > 1 && (
           <Segmented
-            label="Benchmark index"
+            label={m.analysis.benchmark.index}
             options={indices.indexes.map((i) => ({
               label: i.link.shortLinkDisplay || i.link.linkDisplay,
               value: i.link.orderbookId,
@@ -132,51 +133,48 @@ export function BenchmarkComparison({ period }: { period: PerformancePeriod }) {
             onCheckedChange={setWithAverage}
             className="data-checked:bg-brand"
           />
-          Average Avanza customer
+          {m.analysis.benchmark.average}
         </label>
       </div>
       <BenchmarkChart
         series={[
           // The optional line goes last, so the others keep their colors when it toggles.
-          { label: "You", points: yours },
+          { label: m.analysis.benchmark.you, points: yours },
           { label: indexName, points: indexSeries },
           ...(withAverage
-            ? [{ label: "Average Avanza customer", points: points(average.relativeSeries) }]
+            ? [{ label: m.analysis.benchmark.average, points: points(average.relativeSeries) }]
             : []),
         ]}
       />
       <StatList
         stats={[
-          { label: "Your value", value: formatInteger(actual), sensitive: true },
+          { label: m.analysis.benchmark.yourValue, value: formatInteger(actual), sensitive: true },
           {
-            label: `Same money into ${indexName}`,
+            label: m.analysis.benchmark.sameMoney(indexName),
             value: simulated == null ? "–" : formatInteger(simulated),
             sensitive: true,
-            note: simulated != null && (
-              <>
-                You <SignedAmount value={actual - simulated} className="sensitive" /> SEK
-              </>
-            ),
+            note:
+              simulated != null &&
+              m.analysis.benchmark.sameMoneyNote(
+                <SignedAmount key="amount" value={actual - simulated} className="sensitive" />,
+              ),
           },
           {
-            label: "Your yearly return",
+            label: m.analysis.benchmark.yearly,
             value: mwr == null ? "–" : <Change ratio={mwr} />,
-            note: "per year, this period",
-            tip: "How much your money grew per year over this period, counting when you deposited and withdrew (money-weighted return).",
+            note: m.analysis.benchmark.yearlyNote,
+            tip: m.analysis.benchmark.yearlyTip,
           },
           {
-            label: "Yearly return, all time",
-            tip: "Your average growth per year since you started at Avanza, as Avanza calculates it (CAGR).",
+            label: m.analysis.benchmark.allTime,
+            tip: m.analysis.benchmark.allTimeTip,
             // Avanza sends percent units.
             value: <Change ratio={ratios.compoundAnnualGrowthRate.value / 100} />,
-            note: "per year, all time",
+            note: m.analysis.benchmark.allTimeNote,
           },
         ]}
       />
-      <p className="text-muted-foreground text-xs">
-        Same money: your value at the start and every deposit and withdrawal since, bought into or
-        sold out of the index on its day. Indices exclude fees and, unless total return, dividends.
-      </p>
+      <p className="text-muted-foreground text-xs">{m.analysis.benchmark.footnote}</p>
     </div>
   );
 }

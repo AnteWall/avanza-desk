@@ -7,6 +7,7 @@ import type { Focus } from "@/components/workspace/use-focused-instrument";
 import { toOrderRow, toStopLossRow } from "@/lib/avanza/loose-records";
 import { orderDepthQuery, ordersQuery, quoteQuery, stopLossesQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { buildLadder, type LadderRow } from "@/lib/ladder";
 
 type Row = LadderRow & { max: number; bestBid?: number; bestAsk?: number };
@@ -32,7 +33,7 @@ const mine = (qty: number | undefined, tone: "up" | "down") =>
         "sensitive rounded-sm px-1 font-medium text-white",
         tone === "up" ? "bg-buy" : "bg-sell",
       )}
-      title={tone === "up" ? "Your buy order" : "Your sell order"}
+      title={tone === "up" ? m.workspace.orderBook.yourBuy : m.workspace.orderBook.yourSell}
     >
       {formatInteger(qty)}
     </span>
@@ -41,17 +42,17 @@ const mine = (qty: number | undefined, tone: "up" | "down") =>
 const col = dataTableColumns<Row>();
 const columns = col.columns([
   col.accessor("myBuy", {
-    header: "You buy",
+    header: m.workspace.orderBook.youBuy,
     cell: (c) => mine(c.getValue(), "up"),
     meta: { align: "end", className: "num" },
   }),
   col.accessor("bidQty", {
-    header: "Bid qty",
+    header: m.workspace.orderBook.bidQty,
     cell: (c) => qtyBar(c.getValue(), c.row.original.max, "up"),
     meta: { align: "end", className: "num relative" },
   }),
   col.accessor("price", {
-    header: "Price",
+    header: m.common.price,
     cell: (c) => {
       const r = c.row.original;
       const tone =
@@ -62,14 +63,19 @@ const columns = col.columns([
             : "text-muted-foreground";
       return (
         <span className="flex items-center justify-center gap-1.5">
-          {r.last && <span className="bg-brand size-1.5 rounded-full" title="Last price" />}
+          {r.last && (
+            <span
+              className="bg-brand size-1.5 rounded-full"
+              title={m.workspace.orderBook.lastPrice}
+            />
+          )}
           <span className={cn("font-medium", tone, r.last && "underline decoration-brand")}>
             {formatPrice(r.price)}
           </span>
           {r.stops != null && (
             <span
               className="text-warning border-warning/50 rounded-sm border px-1 text-xs"
-              title={`${r.stops} stop-loss trigger${r.stops > 1 ? "s" : ""} at this price`}
+              title={m.workspace.orderBook.stops(r.stops)}
             >
               SL
             </span>
@@ -80,12 +86,12 @@ const columns = col.columns([
     meta: { className: "num text-center", headerClassName: "text-center" },
   }),
   col.accessor("askQty", {
-    header: "Ask qty",
+    header: m.workspace.orderBook.askQty,
     cell: (c) => qtyBar(c.getValue(), c.row.original.max, "down"),
     meta: { className: "num relative" },
   }),
   col.accessor("mySell", {
-    header: "You sell",
+    header: m.workspace.orderBook.youSell,
     cell: (c) => mine(c.getValue(), "down"),
     meta: { className: "num" },
   }),
@@ -116,7 +122,7 @@ export function LadderTable({ focus }: { focus: Focus }) {
   const max = Math.max(0, ...rows.map((r) => Math.max(r.bidQty ?? 0, r.askQty ?? 0)));
 
   if (rows.length === 0)
-    return <p className="text-muted-foreground p-3">No orders in the book right now.</p>;
+    return <p className="text-muted-foreground p-3">{m.workspace.orderBook.empty}</p>;
   return (
     <DataTable
       columns={columns}

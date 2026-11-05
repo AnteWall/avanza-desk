@@ -9,6 +9,7 @@ import { useHoldings } from "@/components/portfolio/use-holdings";
 import { dividendYields, holdingYield } from "@/lib/avanza/portfolio";
 import { stockKeyRatiosQuery, totalValuesQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatPrice, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 /**
  * The headline numbers in one row. Today's move is in the top bar, development per period in
@@ -38,39 +39,38 @@ export function PortfolioOverview() {
     <dl className="bg-card @container flex flex-wrap items-center gap-x-10 gap-y-2 overflow-hidden rounded-md border px-4 py-2.5">
       {/* First, so what the numbers cover reads before the numbers. */}
       <div className="-my-1 flex flex-col gap-0.5 border-r pr-10">
-        <dt className="text-muted-foreground text-xs">Showing</dt>
+        <dt className="text-muted-foreground text-xs">{m.portfolio.overview.showing}</dt>
         <dd>
           <GroupPicker />
         </dd>
       </div>
       <Kpi
-        label={group ? `${group.name} value` : "Total value"}
+        label={
+          group ? m.portfolio.overview.groupValue(group.name) : m.portfolio.overview.totalValue
+        }
         className="sensitive text-lg font-semibold"
       >
         {formatPrice(total)} SEK
       </Kpi>
       <Kpi
-        label="In holdings"
-        hint="What your stocks and funds are worth right now, without cash."
+        label={m.portfolio.overview.inHoldings}
+        hint={m.portfolio.overview.inHoldingsHint}
         className="sensitive"
       >
         {formatInteger(invested)}
       </Kpi>
-      <Kpi
-        label="Gain since you bought"
-        hint="What your holdings are worth now minus what you paid for them. It becomes real when you sell (also called unrealized P/L)."
-      >
+      <Kpi label={m.portfolio.overview.gain} hint={m.portfolio.overview.gainHint}>
         <SignedAmount value={profit} className="sensitive" />
         {cost > 0 && <Change ratio={profit / cost} className="ml-2 text-xs" />}
       </Kpi>
       {!group && (
-        <Kpi label="Cash" className="sensitive">
+        <Kpi label={m.common.cash} className="sensitive">
           {formatInteger(total - invested)}
         </Kpi>
       )}
       <Kpi
-        label="Dividends per year"
-        hint="Roughly what your stocks would pay you in a year at today's dividend yields."
+        label={m.portfolio.overview.dividendsPerYear}
+        hint={m.portfolio.overview.dividendsPerYearHint}
       >
         <span className="sensitive">{dividends == null ? "–" : formatInteger(dividends)}</span>
         {dividends != null && invested > 0 && (
@@ -83,16 +83,21 @@ export function PortfolioOverview() {
           the window: beside a wide assistant panel it would squeeze to a word per line. */}
       {biggest && total > 0 && (
         <p className="text-muted-foreground ml-auto hidden max-w-md text-xs leading-relaxed @min-[88rem]:block">
-          {cost > 0 && (
-            <>
-              Your holdings are {profit >= 0 ? "up" : "down"}{" "}
-              <span className="num text-foreground">{formatShare(Math.abs(profit / cost))}</span> on
-              what you paid.{" "}
-            </>
+          {cost > 0 &&
+            m.portfolio.overview.onCost(
+              profit >= 0,
+              <span key="share" className="num text-foreground">
+                {formatShare(Math.abs(profit / cost))}
+              </span>,
+            )}
+          {m.portfolio.overview.biggest(
+            <span key="name" className="text-foreground">
+              {biggest.name}
+            </span>,
+            <span key="share" className="num text-foreground">
+              {formatShare(biggest.value / total)}
+            </span>,
           )}
-          Your biggest holding is <span className="text-foreground">{biggest.name}</span>, at{" "}
-          <span className="num text-foreground">{formatShare(biggest.value / total)}</span> of your
-          money.
         </p>
       )}
     </dl>

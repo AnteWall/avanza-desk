@@ -16,6 +16,7 @@ import {
 import { Panel } from "@/components/workspace/panel";
 import { WatchlistTable } from "@/components/workspace/watchlist-table";
 import { watchlistsQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 import { getSetting, saveSetting } from "@/lib/settings";
 import { watchlistColumns } from "@/lib/watchlist-columns";
 
@@ -29,7 +30,7 @@ export function WatchlistPanel() {
 
   return (
     <Panel
-      title="Watchlist"
+      title={m.workspace.watchlist.title}
       icon={Star}
       subtitle={watchlists.length === 1 ? watchlist?.name : undefined}
       actions={
@@ -63,7 +64,11 @@ export function WatchlistPanel() {
         </>
       }
     >
-      <AsyncBoundary what="the watchlist" fallback={<TableSkeleton />} resetKey={selectedId ?? ""}>
+      <AsyncBoundary
+        what={m.workspace.watchlist.what}
+        fallback={<TableSkeleton />}
+        resetKey={selectedId ?? ""}
+      >
         <WatchlistTable watchListId={selectedId} />
       </AsyncBoundary>
     </Panel>

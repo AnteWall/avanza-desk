@@ -8,6 +8,7 @@ import { useProviderSetup } from "@/components/ai/use-provider-setup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Provider } from "@/lib/ai/types";
+import { m } from "@/lib/i18n";
 
 /** Connecting a provider that runs with the user's API key: paste it, AvanzaDesk checks it. */
 export function ApiKeySetup({ provider }: { provider: Provider }) {
@@ -40,7 +41,7 @@ export function ApiKeySetup({ provider }: { provider: Provider }) {
             <ProviderBillingTip provider={provider} />
           </span>
           <span className="text-muted-foreground text-xs">
-            by {provider.vendor}, with your own API key
+            {m.ai.apiKey.byVendor(provider.vendor)}
           </span>
         </div>
       </div>
@@ -55,8 +56,8 @@ export function ApiKeySetup({ provider }: { provider: Provider }) {
           type="password"
           autoComplete="off"
           spellCheck={false}
-          placeholder={setup?.state === "broken" ? "Paste a new key" : "Paste your API key"}
-          aria-label={`${provider.vendor} API key`}
+          placeholder={setup?.state === "broken" ? m.ai.apiKey.pasteNew : m.ai.apiKey.paste}
+          aria-label={m.ai.apiKey.label(provider.vendor)}
           aria-invalid={!!shownError}
           value={key}
           onChange={(e) => setKey(e.target.value)}
@@ -67,18 +68,18 @@ export function ApiKeySetup({ provider }: { provider: Provider }) {
           ) : (
             <KeyRound />
           )}
-          Save
+          {m.common.save}
         </Button>
       </form>
       {shownError && <p className="text-destructive text-xs leading-relaxed">{shownError}</p>}
       <div className="flex flex-wrap gap-1.5">
         <Button size="xs" variant="outline" onClick={() => void openUrl(provider.installUrl)}>
           <ExternalLink />
-          Get an API key
+          {m.ai.provider.getApiKey}
         </Button>
         <Button size="xs" variant="ghost" onClick={() => void openUrl(provider.plansUrl)}>
           <ExternalLink />
-          API pricing
+          {m.ai.provider.apiPricing}
         </Button>
       </div>
     </div>

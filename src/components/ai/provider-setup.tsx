@@ -18,6 +18,7 @@ import { ProviderLogo } from "@/components/ai/provider-logo";
 import { useProviderSetup } from "@/components/ai/use-provider-setup";
 import { Button } from "@/components/ui/button";
 import type { Provider } from "@/lib/ai/types";
+import { m } from "@/lib/i18n";
 
 type StepState = "done" | "todo" | "blocked" | "checking";
 
@@ -32,7 +33,7 @@ export function ProviderSetup({ provider }: { provider: Provider }) {
 
   const locate = async () => {
     const path = await open({
-      title: `Locate ${provider.program}`,
+      title: m.ai.setup.locateTitle(provider.program),
       multiple: false,
       directory: false,
     });
@@ -66,7 +67,7 @@ export function ProviderSetup({ provider }: { provider: Provider }) {
             <ProviderBillingTip provider={provider} />
           </span>
           <span className="text-muted-foreground text-xs">
-            by {provider.vendor}, through {provider.program} on this computer
+            {m.ai.setup.byVendor(provider.vendor, provider.program)}
           </span>
         </div>
       </div>
@@ -75,35 +76,32 @@ export function ProviderSetup({ provider }: { provider: Provider }) {
         <Step
           n={1}
           state={checking ? "checking" : installed ? "done" : "todo"}
-          title={`${provider.program} installed`}
+          title={m.ai.setup.installed(provider.program)}
         >
-          {checking && <Detail>Looking for {provider.program}…</Detail>}
+          {checking && <Detail>{m.ai.setup.lookingFor(provider.program)}</Detail>}
           {setup?.state === "missing" && (
             <>
               <Detail tone={setup.error ? "error" : undefined}>
-                {setup.error ?? `Not found on this computer.`}
+                {setup.error ?? m.ai.setup.notFound}
               </Detail>
-              <Detail>
-                Install it, then come back: AvanzaDesk finds it on its own. Already installed
-                somewhere unusual? Locate it.
-              </Detail>
+              <Detail>{m.ai.setup.installHint}</Detail>
               <Actions>
                 <Button size="xs" onClick={() => void openUrl(provider.installUrl)}>
                   <ExternalLink />
-                  Install {provider.program}
+                  {m.ai.setup.install(provider.program)}
                 </Button>
                 <Button size="xs" variant="outline" onClick={() => void locate()}>
                   <FolderSearch />
-                  Locate…
+                  {m.ai.setup.locate}
                 </Button>
                 {custom ? (
                   <Button size="xs" variant="ghost" onClick={() => void setBinary(null)}>
-                    Use auto-detect
+                    {m.ai.setup.autoDetect}
                   </Button>
                 ) : (
                   <Button size="xs" variant="ghost" onClick={recheck} disabled={isFetching}>
                     <RefreshCw className={cn(isFetching && "motion-safe:animate-spin")} />
-                    Detect again
+                    {m.ai.setup.detectAgain}
                   </Button>
                 )}
               </Actions>
@@ -116,11 +114,11 @@ export function ProviderSetup({ provider }: { provider: Provider }) {
               <Actions>
                 <Button size="xs" variant="outline" onClick={() => void locate()}>
                   <FolderSearch />
-                  Choose another…
+                  {m.ai.setup.chooseAnother}
                 </Button>
                 {custom && (
                   <Button size="xs" variant="ghost" onClick={() => void setBinary(null)}>
-                    Use auto-detect
+                    {m.ai.setup.autoDetect}
                   </Button>
                 )}
               </Actions>
@@ -132,11 +130,11 @@ export function ProviderSetup({ provider }: { provider: Provider }) {
               <Actions>
                 <Button size="xs" variant="ghost" onClick={() => void locate()}>
                   <FolderSearch />
-                  Change…
+                  {m.ai.setup.change}
                 </Button>
                 {custom && (
                   <Button size="xs" variant="ghost" onClick={() => void setBinary(null)}>
-                    Use auto-detect
+                    {m.ai.setup.autoDetect}
                   </Button>
                 )}
               </Actions>
@@ -155,38 +153,32 @@ export function ProviderSetup({ provider }: { provider: Provider }) {
                   ? "checking"
                   : "todo"
           }
-          title="Signed in"
+          title={m.ai.setup.signedIn}
           last
         >
-          {!installed && <Detail>Needs {provider.program} first.</Detail>}
+          {!installed && <Detail>{m.ai.setup.needsFirst(provider.program)}</Detail>}
           {setup?.state === "signed-out" && provider.signIn && (
             <>
-              <Detail>
-                Sign in with your {provider.vendor} account in the browser. AvanzaDesk notices when
-                you're done.
-              </Detail>
+              <Detail>{m.ai.setup.signInBrowser(provider.vendor)}</Detail>
               <Actions>
                 <Button size="xs" onClick={() => void signIn()} disabled={signingIn}>
                   <LogIn />
-                  Sign in
+                  {m.ai.setup.signIn}
                 </Button>
               </Actions>
               {signInError && <Detail tone="error">{signInError}</Detail>}
-              <Detail>Or run this in a terminal:</Detail>
+              <Detail>{m.ai.setup.orTerminal}</Detail>
               <Command text={provider.loginCommand} />
             </>
           )}
           {setup?.state === "signed-out" && !provider.signIn && (
             <>
-              <Detail>
-                Run this in a terminal and follow the browser sign-in. AvanzaDesk notices when
-                you're done.
-              </Detail>
+              <Detail>{m.ai.setup.runInTerminal}</Detail>
               <Command text={provider.loginCommand} />
               <Actions>
                 <Button size="xs" variant="outline" onClick={recheck} disabled={isFetching}>
                   <RefreshCw className={cn(isFetching && "motion-safe:animate-spin")} />
-                  I've signed in
+                  {m.ai.setup.iveSignedIn}
                 </Button>
               </Actions>
             </>
@@ -195,7 +187,7 @@ export function ProviderSetup({ provider }: { provider: Provider }) {
             <Detail>
               {[setup.account.email, setup.account.plan ?? setup.account.organization]
                 .filter(Boolean)
-                .join(" · ") || "Signed in"}
+                .join(" · ") || m.ai.setup.signedIn}
             </Detail>
           )}
         </Step>
@@ -204,11 +196,11 @@ export function ProviderSetup({ provider }: { provider: Provider }) {
       <Actions>
         <Button size="xs" variant="ghost" onClick={() => void openUrl(provider.guideUrl)}>
           <ExternalLink />
-          Setup guide
+          {m.ai.setup.guide}
         </Button>
         <Button size="xs" variant="ghost" onClick={() => void openUrl(provider.plansUrl)}>
           <ExternalLink />
-          {provider.name} plans
+          {m.ai.setup.plans(provider.name)}
         </Button>
       </Actions>
     </div>
@@ -239,7 +231,13 @@ function Step({
             state === "blocked" && "text-muted-foreground",
             state === "checking" && "text-muted-foreground",
           )}
-          aria-label={state === "done" ? "Done" : state === "checking" ? "Checking" : `Step ${n}`}
+          aria-label={
+            state === "done"
+              ? m.common.done
+              : state === "checking"
+                ? m.ai.setup.checking
+                : m.ai.setup.step(n)
+          }
         >
           {state === "done" ? (
             <Check className="size-3" />
@@ -287,7 +285,7 @@ function Path({ bin, custom, version }: { bin: string; custom: boolean; version?
       <span className="num truncate" title={bin}>
         {bin}
       </span>
-      <span className="shrink-0">· {custom ? "chosen" : "auto-detected"}</span>
+      <span className="shrink-0">· {custom ? m.ai.setup.chosen : m.ai.setup.autoDetected}</span>
     </p>
   );
 }
@@ -303,8 +301,8 @@ function Command({ text }: { text: string }) {
       <Button
         variant="ghost"
         size="icon-xs"
-        aria-label={copied ? "Copied" : "Copy command"}
-        title={copied ? "Copied" : "Copy command"}
+        aria-label={copied ? m.common.copied : m.ai.setup.copyCommand}
+        title={copied ? m.common.copied : m.ai.setup.copyCommand}
         onClick={() => {
           void navigator.clipboard.writeText(text);
           setCopied(true);

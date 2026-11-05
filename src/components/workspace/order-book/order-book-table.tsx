@@ -4,6 +4,7 @@ import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { type Focus } from "@/components/workspace/use-focused-instrument";
 import { orderDepthQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 type Level = {
   bid?: number;
@@ -29,12 +30,12 @@ const columns = col.columns([
     meta: { className: `num text-muted-foreground/70 ${wide}`, headerClassName: wide },
   }),
   col.accessor("bidQty", {
-    header: "Qty",
+    header: m.common.quantity,
     cell: (c) => c.getValue() != null && formatInteger(c.getValue()!),
     meta: { className: "num text-muted-foreground" },
   }),
   col.accessor("bid", {
-    header: "Bid",
+    header: m.workspace.watchlist.columns.bid,
     cell: (c) =>
       c.getValue() != null && (
         <>
@@ -48,7 +49,7 @@ const columns = col.columns([
     meta: { align: "end", className: "num relative font-medium text-up" },
   }),
   col.accessor("ask", {
-    header: "Ask",
+    header: m.workspace.watchlist.columns.ask,
     cell: (c) =>
       c.getValue() != null && (
         <>
@@ -62,7 +63,7 @@ const columns = col.columns([
     meta: { className: "num relative font-medium text-down" },
   }),
   col.accessor("askQty", {
-    header: "Qty",
+    header: m.common.quantity,
     cell: (c) => c.getValue() != null && formatInteger(c.getValue()!),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
@@ -104,19 +105,20 @@ export function OrderBookTable({ focus }: { focus: Focus }) {
   const spread = best?.ask != null && best.bid != null ? best.ask - best.bid : null;
 
   if (levels.length === 0)
-    return <p className="text-muted-foreground p-3">No orders in the book right now.</p>;
+    return <p className="text-muted-foreground p-3">{m.workspace.orderBook.empty}</p>;
   return (
     <>
       <div className="num text-muted-foreground flex h-7 items-center gap-4 border-b px-3 text-xs">
         {spread != null && (
           <span>
-            Spread <span className="text-foreground">{formatPrice(spread)}</span>
+            {m.workspace.orderBook.spread}{" "}
+            <span className="text-foreground">{formatPrice(spread)}</span>
           </span>
         )}
         {bidShare != null && (
           <span
             className="flex flex-1 items-center gap-2"
-            title={`Visible volume: ${formatInteger(bidCum)} bid, ${formatInteger(askCum)} ask`}
+            title={m.workspace.orderBook.visible(formatInteger(bidCum), formatInteger(askCum))}
           >
             <span className="text-up">{formatInteger(bidCum)}</span>
             <span className="text-up">{Math.round(bidShare * 100)} %</span>

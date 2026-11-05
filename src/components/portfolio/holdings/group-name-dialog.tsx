@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { m } from "@/lib/i18n";
 
 /** Asks for a group's name: a new group's, or a new name for one. Closed while `open` is false. */
 export function GroupNameDialog({
@@ -38,12 +39,18 @@ export function GroupNameDialog({
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
-          <Input name="name" defaultValue={initial} placeholder="Group name" autoFocus required />
+          <Input
+            name="name"
+            defaultValue={initial}
+            placeholder={m.portfolio.groups.namePlaceholder}
+            autoFocus
+            required
+          />
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={onClose}>
-              Cancel
+              {m.common.cancel}
             </Button>
-            <Button type="submit">Save</Button>
+            <Button type="submit">{m.common.save}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

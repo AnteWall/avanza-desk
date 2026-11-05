@@ -9,13 +9,14 @@ import { useFocusInstrument } from "@/components/workspace/use-focused-instrumen
 import { instrumentItem } from "@/lib/ai/context";
 import { gainersLosersQuery } from "@/lib/avanza/queries";
 import { formatCompact, formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 const dash = "–";
 
 const col = dataTableColumns<MoverStock>();
 const columns = col.columns([
   col.accessor("name", {
-    header: "Stock",
+    header: m.markets.columns.stock,
     cell: (c) => (
       <span className="flex items-center gap-1.5">
         <span className="font-medium">{c.getValue()}</span>
@@ -24,18 +25,18 @@ const columns = col.columns([
     ),
   }),
   col.accessor("lastPrice", {
-    header: "Last",
+    header: m.common.last,
     cell: (c) => (c.getValue() == null ? dash : formatPrice(c.getValue()!)),
     meta: { align: "end", className: "num" },
   }),
   col.accessor("oneDayChangePercent", {
-    header: "Today",
+    header: m.common.today,
     // The stock filter sends ratios (0.8035 = +80.35 %), unlike quotes.
     cell: (c) => (c.getValue() == null ? dash : <Change ratio={c.getValue()!} />),
     meta: { align: "end" },
   }),
   col.accessor("totalValueTraded", {
-    header: "Turnover",
+    header: m.common.turnover,
     cell: (c) => (c.getValue() == null ? dash : formatCompact(c.getValue()!)),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
@@ -46,7 +47,7 @@ export function MoversTable({ list }: { list: "gainers" | "losers" }) {
   const { data } = useSuspenseQuery(gainersLosersQuery);
   const focus = useFocusInstrument();
 
-  if (data[list].length === 0) return <Empty>No movers yet today.</Empty>;
+  if (data[list].length === 0) return <Empty>{m.markets.movers.empty}</Empty>;
   return (
     <DataTable
       columns={columns}

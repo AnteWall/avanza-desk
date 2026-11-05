@@ -58,6 +58,17 @@ and each GitHub release's notes, which the in-app updater shows too.
   module components. No `useEffect`, state, event handlers or other component logic; move that
   into a component under `src/components/<module>/`.
 
+## UI text (i18n)
+
+- Every string a user reads goes through `m` from `src/lib/i18n`: `m.portfolio.holdings.empty`.
+  Add it to `src/lib/i18n/en/<module>.ts` and `sv/<module>.ts`; tsc fails if a language misses
+  a key. Strings with values are functions: `count: (n: number) => …`, plurals inside.
+- Swedish follows Avanza's own wording (glossary at the top of `src/lib/i18n/sv/index.ts`).
+- Text the AI model reads (prompts, tool descriptions) stays English.
+- `src/lib/i18n/keys.test.ts` fails when a language misses a key, even in open code maps;
+  `literals.test.ts` fails on literal text left in JSX.
+- A new language: add it to `languages` and `loaders` in `src/lib/i18n/index.ts` and copy `sv/`.
+
 ## String codes
 
 - Avanza's codes live as named constants in `src/lib/avanza/codes.ts` (`InstrumentType`,

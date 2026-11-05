@@ -14,6 +14,7 @@ import {
 import { accountScopedKeys, setAccount } from "@/lib/account";
 import { accountsQuery } from "@/lib/avanza/queries";
 import { formatInteger } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 const all = "all";
 
@@ -42,7 +43,7 @@ export function AccountPicker() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-64">
         <DropdownMenuRadioGroup value={account.id ?? all} onValueChange={pick}>
-          <DropdownMenuRadioItem value={all}>All accounts</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value={all}>{m.layout.accounts.all}</DropdownMenuRadioItem>
           <DropdownMenuSeparator />
           {[...accounts]
             .sort((a, b) => b.totalValue.totalValue.value - a.totalValue.totalValue.value)

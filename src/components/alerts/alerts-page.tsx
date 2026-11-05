@@ -5,6 +5,7 @@ import { RulesTable } from "@/components/alerts/rules-table";
 import { AsyncBoundary } from "@/components/common/async-boundary";
 import { TableSkeleton } from "@/components/common/table-skeleton";
 import { TabbedPanel } from "@/components/workspace/tabbed-panel";
+import { m } from "@/lib/i18n";
 
 const skeleton = <TableSkeleton rows={6} columns={5} />;
 
@@ -13,51 +14,51 @@ export function AlertsPage() {
   return (
     <TabbedPanel
       id="alerts"
-      aside="Manage alerts in Avanza"
+      aside={m.alerts.page.aside}
       tabs={[
         {
           value: "price",
-          label: "Price",
+          label: m.alerts.page.tabs.price,
           icon: DollarSign,
           content: (
-            <AsyncBoundary what="your alerts" fallback={skeleton}>
+            <AsyncBoundary what={m.alerts.page.yourAlerts} fallback={skeleton}>
               <AlertsTable list="priceAlerts" />
             </AsyncBoundary>
           ),
         },
         {
           value: "percent",
-          label: "Percent",
+          label: m.alerts.page.tabs.percent,
           icon: Percent,
           content: (
-            <AsyncBoundary what="your alerts" fallback={skeleton}>
+            <AsyncBoundary what={m.alerts.page.yourAlerts} fallback={skeleton}>
               <AlertsTable list="percentAlerts" />
             </AsyncBoundary>
           ),
         },
         {
           value: "news",
-          label: "News",
+          label: m.alerts.page.tabs.news,
           icon: Newspaper,
           content: (
-            <AsyncBoundary what="your alerts" fallback={skeleton}>
+            <AsyncBoundary what={m.alerts.page.yourAlerts} fallback={skeleton}>
               <AlertsTable list="newsAlerts" />
             </AsyncBoundary>
           ),
         },
         {
           value: "triggered",
-          label: "Triggered",
+          label: m.alerts.page.tabs.triggered,
           icon: BellRing,
           content: (
-            <AsyncBoundary what="triggered alerts" fallback={skeleton}>
+            <AsyncBoundary what={m.alerts.page.triggeredAlerts} fallback={skeleton}>
               <AlertsTable list="triggered" />
             </AsyncBoundary>
           ),
         },
         {
           value: "rules",
-          label: "Rules",
+          label: m.alerts.page.tabs.rules,
           icon: SlidersHorizontal,
           content: <RulesTable />,
         },

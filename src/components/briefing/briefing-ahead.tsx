@@ -1,6 +1,7 @@
 import { InstrumentLogo } from "@/components/common/instrument-logo";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { dayParts } from "@/lib/briefing";
+import { m } from "@/lib/i18n";
 import type { CalendarEvent } from "@/lib/news";
 
 /** Reports and ex-dividend dates of your holdings as date tiles, soonest first. */
@@ -21,7 +22,7 @@ export function BriefingAhead({
             key={e.key}
             type="button"
             onClick={() => focus(e.orderbookId, e.type)}
-            title="Open in the workspace"
+            title={m.briefing.openInWorkspace}
             className="hover:bg-muted/60 focus-visible:ring-ring flex cursor-pointer flex-col gap-3 rounded-md border p-3 text-left transition-colors outline-none focus-visible:ring-2"
           >
             <span className="flex items-baseline gap-1.5">

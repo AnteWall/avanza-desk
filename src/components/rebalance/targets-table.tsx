@@ -17,6 +17,7 @@ import {
   formatShare,
   parseDecimal,
 } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 // Drift alerts suggest 5 %; mark the same as worth acting on.
 const FAR = 0.05;
@@ -26,10 +27,7 @@ type Row = RebalanceRow & { scale: number };
 const col = dataTableColumns<Row>();
 const columns = col.columns([
   col.accessor("name", {
-    header: infoHeader(
-      "Instrument",
-      "Right-click a row (or select several first) to add it to a group, take it out of one, or ask the assistant about it.",
-    ),
+    header: infoHeader(m.common.instrument, m.rebalance.targets.columns.instrumentTip),
     cell: (c) => {
       const { isin, remove } = c.row.original;
       return (
@@ -38,12 +36,12 @@ const columns = col.columns([
           <span className="max-w-56 truncate font-medium">{c.getValue()}</span>
           {remove && (
             <>
-              <span className="text-muted-foreground text-xs">New</span>
+              <span className="text-muted-foreground text-xs">{m.rebalance.targets.added}</span>
               <Button
                 variant="ghost"
                 size="icon-xs"
-                aria-label={`Remove ${c.getValue()} from the plan`}
-                title="Remove from the plan"
+                aria-label={m.rebalance.targets.remove(c.getValue())}
+                title={m.rebalance.targets.removeTitle}
                 onClick={remove}
               >
                 <X />
@@ -55,26 +53,23 @@ const columns = col.columns([
     },
   }),
   col.accessor("value", {
-    header: "Value SEK",
+    header: m.rebalance.targets.columns.value,
     cell: (c) => formatInteger(c.getValue()),
     meta: { align: "end", className: "sensitive num text-muted-foreground" },
   }),
   col.accessor("weight", {
-    header: infoHeader("Now", "Its share of the total value today."),
+    header: infoHeader(m.rebalance.targets.columns.now, m.rebalance.targets.columns.nowTip),
     cell: (c) => formatShare(c.getValue()),
     meta: { align: "end", className: "num" },
   }),
   col.accessor("target", {
-    header: infoHeader(
-      "Target",
-      "The share of the total you want it to be, in percent, e.g. 4,5. It starts at today's weight, so nothing trades until you change it. Saved as you type.",
-    ),
+    header: infoHeader(m.rebalance.targets.columns.target, m.rebalance.targets.columns.targetTip),
     cell: (c) => (
       <span className="flex items-center justify-end gap-1">
         <Input
           // Text, not number: a number input shows "4.5" and won't take Swedish "4,5".
           inputMode="decimal"
-          aria-label={`Target for ${c.row.original.name}, percent`}
+          aria-label={m.rebalance.targets.targetAria(c.row.original.name)}
           className="num h-6 w-16 text-right"
           // Uncontrolled: a controlled input fights half-typed values like "12,".
           defaultValue={formatDecimal(Math.round(c.getValue() * 1000) / 10)}
@@ -90,10 +85,7 @@ const columns = col.columns([
   }),
   col.display({
     id: "bar",
-    header: infoHeader(
-      "Now vs target",
-      "The bar is today's share, the tick is the target. A bar past the tick is above target and gets sold; one short of it gets bought.",
-    ),
+    header: infoHeader(m.rebalance.targets.columns.bar, m.rebalance.targets.columns.barTip),
     cell: (c) => {
       const { weight, target, scale } = c.row.original;
       return <WeightBar weight={weight} target={target} scale={scale} />;
@@ -102,24 +94,18 @@ const columns = col.columns([
   }),
   col.accessor((r) => r.weight - r.target, {
     id: "drift",
-    header: infoHeader(
-      "Drift",
-      "Now minus target: + is above target, − below. Orange from 5 %. Grey means no order: it's within the tolerance or below the minimum order.",
-    ),
+    header: infoHeader(m.rebalance.targets.columns.drift, m.rebalance.targets.columns.driftTip),
     cell: (c) => {
       const drift = c.getValue();
-      if (Math.abs(drift) < 0.0005) return <span className="text-muted-foreground">On target</span>;
+      if (Math.abs(drift) < 0.0005)
+        return <span className="text-muted-foreground">{m.rebalance.targets.onTarget}</span>;
       // Bright when it gets an order, muted when the tolerance or minimum order skips it.
       const tone =
         Math.abs(drift) >= FAR ? "text-warning" : !c.row.original.order && "text-muted-foreground";
       return (
         <span
           className={cn(tone)}
-          title={
-            c.row.original.order
-              ? undefined
-              : "No order: within the tolerance, or below the minimum order"
-          }
+          title={c.row.original.order ? undefined : m.rebalance.targets.noOrder}
         >
           {formatSignedShare(drift)}
         </span>

@@ -7,6 +7,7 @@ import { ProviderLogo } from "@/components/ai/provider-logo";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import type { ModelOption, Provider } from "@/lib/ai/types";
+import { m } from "@/lib/i18n";
 
 /** One provider's models, as its setup reported them. */
 export type ModelSource = { provider: Provider; models: ModelOption[]; defaultModel?: string };
@@ -124,7 +125,7 @@ export function ModelPicker({
           <span className="flex items-center gap-1.5">
             {model.label}
             {model.value === defaultModel && (
-              <span className="text-brand text-xs">Recommended</span>
+              <span className="text-brand text-xs">{m.ai.picker.recommended}</span>
             )}
           </span>
           {model.description && (
@@ -151,7 +152,7 @@ export function ModelPicker({
               expanded={showMore}
               className="text-muted-foreground"
             >
-              <span className="flex-1">More models</span>
+              <span className="flex-1">{m.ai.picker.moreModels}</span>
               <span className="num text-xs">{older.length}</span>
               <ChevronRight
                 className={cn("size-3.5 transition-transform", showMore && "rotate-90")}
@@ -206,7 +207,7 @@ export function ModelPicker({
     >
       <PopoverTrigger
         className="hover:bg-muted focus-visible:ring-ring/50 data-popup-open:bg-muted flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition-colors outline-none focus-visible:ring-3"
-        aria-label={`Model: ${selection.provider.name} ${label}`}
+        aria-label={m.ai.picker.label(selection.provider.name, label)}
       >
         <ProviderLogo provider={selection.provider} className="size-3.5" />
         {label}
@@ -224,8 +225,8 @@ export function ModelPicker({
               onKeyDown={(e) => {
                 if (e.key === "Enter" && latest[0]) pick(latest[0].provider, latest[0].model.value);
               }}
-              placeholder="Search models…"
-              aria-label="Search models"
+              placeholder={m.ai.picker.search}
+              aria-label={m.ai.picker.searchLabel}
               className="placeholder:text-muted-foreground h-6 flex-1 bg-transparent outline-none"
             />
           </label>
@@ -235,7 +236,9 @@ export function ModelPicker({
               <>
                 {latest.map((e) => modelRow(e))}
                 {latest.length === 0 && (
-                  <p className="text-muted-foreground px-2 py-1.5 text-xs">No models match.</p>
+                  <p className="text-muted-foreground px-2 py-1.5 text-xs">
+                    {m.ai.picker.noMatches}
+                  </p>
                 )}
               </>
             ) : grouped ? (
@@ -247,11 +250,11 @@ export function ModelPicker({
 
           {efforts && efforts.length > 0 && !words.length && (
             <div className="mt-1 flex flex-col gap-1 border-t px-2 pt-2 pb-1">
-              <span className="text-muted-foreground text-xs">Effort</span>
+              <span className="text-muted-foreground text-xs">{m.ai.picker.effort}</span>
               <div
                 className="bg-muted/50 flex rounded-md p-0.5"
                 role="radiogroup"
-                aria-label="Effort"
+                aria-label={m.ai.picker.effort}
               >
                 {[undefined, ...efforts].map((level) => (
                   <button
@@ -268,7 +271,7 @@ export function ModelPicker({
                         : "text-muted-foreground hover:text-foreground",
                     )}
                   >
-                    {level === "xhigh" ? "X-high" : (level ?? "Auto")}
+                    {m.ai.picker.efforts[level ?? "auto"] ?? level}
                   </button>
                 ))}
               </div>
@@ -279,8 +282,8 @@ export function ModelPicker({
             <label className="hover:bg-muted/60 flex items-center gap-2.5 rounded-md px-2 py-1.5">
               <CircleDashed className="text-muted-foreground size-3.5" aria-hidden />
               <span className="flex flex-1 flex-col">
-                Temporary chat
-                <span className="text-muted-foreground text-xs">Not saved to your history</span>
+                {m.ai.picker.temporary}
+                <span className="text-muted-foreground text-xs">{m.ai.picker.temporaryHint}</span>
               </span>
               <Switch
                 data-row
@@ -300,7 +303,7 @@ export function ModelPicker({
               className="text-muted-foreground hover:text-foreground"
             >
               <Settings className="size-3.5" aria-hidden />
-              Assistant settings
+              {m.ai.picker.settings}
             </Row>
           </div>
         </div>

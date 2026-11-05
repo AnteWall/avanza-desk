@@ -11,6 +11,7 @@ import { accountIds } from "@/lib/account";
 import { TransactionSide } from "@/lib/avanza/codes";
 import { transactionFilterQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { stockholmDay } from "@/lib/snapshots";
 import { PROFILE_YEARS, profileTrades } from "@/lib/trading-profile";
 
@@ -35,26 +36,29 @@ export function TradingProfile() {
   const selected = profile.findings.find((f) => f.id === picked) ?? profile.findings[0];
   const found = profile.findings.filter((f) => f.status === "found").length;
 
-  if (profile.trades === 0) return <Empty>No trades in the last five years.</Empty>;
+  if (profile.trades === 0) return <Empty>{m.analysis.profile.empty}</Empty>;
   return (
     <div className="flex h-full flex-col">
-      <Section title="Your trades" aside={`last ${PROFILE_YEARS} years`}>
+      <Section
+        title={m.analysis.profile.yourTrades}
+        aside={m.analysis.profile.lastYears(PROFILE_YEARS)}
+      >
         <StatList
           stats={[
-            { label: "Trades", value: formatInteger(profile.trades) },
+            { label: m.analysis.profile.trades, value: formatInteger(profile.trades) },
             {
-              label: "Closed lots",
+              label: m.analysis.profile.closed,
               value: formatInteger(profile.closed),
-              note: "first in, first out",
+              note: m.analysis.profile.fifo,
             },
             {
-              label: "Win rate",
+              label: m.analysis.profile.winRate,
               value: profile.winRate == null ? "–" : formatShare(profile.winRate),
             },
             {
-              label: "Realized",
+              label: m.analysis.profile.realized,
               value: <SignedAmount value={profile.realized} />,
-              note: "SEK, fees included",
+              note: m.analysis.profile.realizedNote,
               sensitive: true,
             },
           ]}
@@ -63,10 +67,14 @@ export function TradingProfile() {
       {/* List and detail side by side, each scrolling on its own; stacked when narrow. */}
       <div className="grid border-t @4xl:min-h-0 @4xl:flex-1 @4xl:grid-cols-[22rem_1fr]">
         <nav
-          aria-label="Patterns"
+          aria-label={m.analysis.profile.patterns}
           className="border-b @4xl:min-h-0 @4xl:overflow-auto @4xl:border-r @4xl:border-b-0"
         >
-          <Section title="Patterns" aside={`${found} of ${profile.findings.length} flagged`} flush>
+          <Section
+            title={m.analysis.profile.patterns}
+            aside={m.analysis.profile.flagged(found, profile.findings.length)}
+            flush
+          >
             <ul className="divide-border/60 divide-y">
               {profile.findings.map((f) => (
                 <li key={f.id}>

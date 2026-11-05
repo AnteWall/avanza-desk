@@ -19,6 +19,7 @@ import {
   tradesByIsinQuery,
 } from "@/lib/avanza/queries";
 import { overlayLabels, type Overlay } from "@/lib/chart-view";
+import { m } from "@/lib/i18n";
 import { ema, sma, vwap } from "@/lib/indicators";
 import { openRuleDialog } from "@/lib/rule-dialog";
 
@@ -106,12 +107,12 @@ export function ListedChart({
           }
         >
           <Bell />
-          Price alert
+          {m.workspace.chart.priceAlert}
         </Button>
         <ChartControls intraday={intraday} />
       </div>
       {chart.ohlc.length === 0 ? (
-        <p className="text-muted-foreground">No trades in this period.</p>
+        <p className="text-muted-foreground">{m.workspace.chart.noTrades}</p>
       ) : (
         <>
           <div className="min-h-0 flex-[3]">

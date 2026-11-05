@@ -10,6 +10,7 @@ import { InstrumentSearch } from "@/components/layout/instrument-search";
 import { PrivacyToggle } from "@/components/layout/privacy-toggle";
 import { useInAppFrame } from "@/components/layout/window/use-in-app-frame";
 import { WindowControls } from "@/components/layout/window/window-controls";
+import { m } from "@/lib/i18n";
 
 const tickerSkeleton = [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-3 w-24" />);
 const divider = <span className="bg-border h-6 w-px shrink-0" aria-hidden />;
@@ -37,7 +38,7 @@ export function TopBar({
       <div data-tauri-drag-region={drag} className="flex shrink-0 items-center gap-2 font-semibold">
         <AppLogo />
         <span>
-          Avanza<span className="text-muted-foreground font-normal">Desk</span>
+          Avanza<span className="text-muted-foreground font-normal">{"Desk"}</span>
         </span>
       </div>
       <HistoryButtons />
@@ -45,7 +46,7 @@ export function TopBar({
       <div className="flex shrink-0 items-center gap-2">
         <AccountPicker />
         <AsyncBoundary
-          what="today's performance"
+          what={m.layout.dailyPerformance.what}
           fallback={<Skeleton className="h-7 w-64" />}
           compact
         >
@@ -59,7 +60,7 @@ export function TopBar({
         data-tauri-drag-region={drag}
         className="flex min-w-0 items-center gap-5 overflow-hidden"
       >
-        <AsyncBoundary what="indices" fallback={tickerSkeleton} compact>
+        <AsyncBoundary what={m.layout.indices} fallback={tickerSkeleton} compact>
           <IndexTicker />
         </AsyncBoundary>
       </div>

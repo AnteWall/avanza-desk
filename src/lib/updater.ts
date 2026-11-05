@@ -3,6 +3,8 @@ import { relaunch } from "@tauri-apps/plugin-process";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { toast } from "sonner";
 
+import { m } from "@/lib/i18n";
+
 /** The newer release on GitHub, or null. Shared by the startup toast and Settings. */
 export const updateQuery = queryOptions({
   queryKey: ["app", "update"],
@@ -15,11 +17,11 @@ export const updateQuery = queryOptions({
 
 /** Downloads and installs the update, then restarts into it. */
 export async function installUpdate(update: Update) {
-  const id = toast.loading(`Downloading v${update.version}…`, { duration: Infinity });
+  const id = toast.loading(m.layout.updates.downloading(update.version), { duration: Infinity });
   try {
     await update.downloadAndInstall();
     await relaunch();
   } catch (e) {
-    toast.error("Update failed", { id, description: String(e) });
+    toast.error(m.layout.updates.failed, { id, description: String(e) });
   }
 }

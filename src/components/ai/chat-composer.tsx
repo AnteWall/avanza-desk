@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { type ContextItem, contextKey } from "@/lib/ai/context";
 import { type Attachment, imageFiles, MAX_IMAGES, readImage } from "@/lib/ai/images";
 import { formatTime } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 /** "@vol" right before the caret: the mention being typed, if any. */
 const MENTION = /(^|\s)@([^\s@]{0,30})$/;
@@ -113,7 +114,7 @@ export function ChatComposer({
       }}
     >
       <p className="text-muted-foreground/60 text-center text-xs leading-none">
-        AI can make mistakes. Check the numbers before you trade.
+        {m.ai.composer.disclaimer}
       </p>
       <div className="relative">
         {mention !== undefined && (
@@ -139,10 +140,13 @@ export function ChatComposer({
           {(context.length > 0 || images.length > 0) && (
             <div
               className="flex flex-wrap items-center gap-1 px-2 pt-2"
-              title="What the assistant sees with your next message"
+              title={m.ai.composer.contextTitle}
             >
               {context.length > 0 && (
-                <AtSign className="text-muted-foreground size-3.5" aria-label="Context" />
+                <AtSign
+                  className="text-muted-foreground size-3.5"
+                  aria-label={m.ai.composer.context}
+                />
               )}
               {context.map((item) => (
                 <ContextChip
@@ -160,7 +164,7 @@ export function ChatComposer({
                   />
                   <button
                     type="button"
-                    aria-label={`Remove ${image.name}`}
+                    aria-label={m.ai.composer.remove(image.name)}
                     onClick={() => setImages((all) => all.filter((_, j) => j !== i))}
                     className="bg-foreground text-background focus-visible:ring-ring/50 absolute -top-1.5 -right-1.5 grid size-4 place-items-center rounded-full opacity-0 transition-opacity outline-none group-hover/image:opacity-100 focus-visible:opacity-100 focus-visible:ring-2"
                   >
@@ -207,11 +211,9 @@ export function ChatComposer({
               }
             }}
             placeholder={
-              blocked
-                ? `Usage limit reached. You can send again at ${formatTime(blocked)}.`
-                : "Ask anything… @ to mention an instrument"
+              blocked ? m.ai.composer.blocked(formatTime(blocked)) : m.ai.composer.placeholder
             }
-            aria-label="Message the assistant"
+            aria-label={m.ai.composer.label}
             className="placeholder:text-muted-foreground max-h-40 resize-none bg-transparent px-3 pt-2.5 pb-1 leading-relaxed outline-none"
           />
           <div className="flex items-center gap-1 px-1.5 pb-1.5">
@@ -220,8 +222,8 @@ export function ChatComposer({
               type="button"
               variant="ghost"
               size="icon-sm"
-              aria-label="Attach an image"
-              title="Attach an image (or paste one)"
+              aria-label={m.ai.composer.attach}
+              title={m.ai.composer.attachTitle}
               disabled={images.length >= MAX_IMAGES}
               onClick={() => picker.current?.click()}
               className="text-muted-foreground rounded-full"
@@ -245,8 +247,8 @@ export function ChatComposer({
                 type="button"
                 size="icon-sm"
                 variant="secondary"
-                aria-label="Stop (Esc)"
-                title="Stop (Esc)"
+                aria-label={m.ai.composer.stop}
+                title={m.ai.composer.stop}
                 onClick={onStop}
                 className="rounded-full"
               >
@@ -256,8 +258,8 @@ export function ChatComposer({
               <Button
                 type="submit"
                 size="icon-sm"
-                aria-label="Send (Enter)"
-                title="Send (Enter)"
+                aria-label={m.ai.composer.send}
+                title={m.ai.composer.send}
                 disabled={(!draft.trim() && images.length === 0) || !!blocked}
                 className="rounded-full"
               >

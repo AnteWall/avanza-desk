@@ -5,6 +5,7 @@ import { SharedTable } from "@/components/analysis/overlap/shared-table";
 import { Empty } from "@/components/common/empty";
 import { useLookThroughs } from "@/components/portfolio/use-holdings";
 import { InstrumentType } from "@/lib/avanza/codes";
+import { m } from "@/lib/i18n";
 import { fundPairs, sharedHoldings, type Source } from "@/lib/overlap";
 
 function Heading({ title, aside }: { title: string; aside: ReactNode }) {
@@ -28,31 +29,16 @@ export function OverlapTables() {
   const funds = sources.filter((s) => s.type !== InstrumentType.Stock).length;
 
   if (funds < 2)
-    return (
-      <Empty>
-        {pending
-          ? "Loading fund holdings…"
-          : "Overlap needs at least two funds or ETFs with disclosed holdings."}
-      </Empty>
-    );
+    return <Empty>{pending ? m.analysis.overlap.loadingFunds : m.analysis.overlap.needsTwo}</Empty>;
   return (
     <div className="flex flex-col">
-      <Heading
-        title="Fund pairs"
-        aside="Funds disclose only their largest holdings, so overlap is a lower bound."
-      />
-      {pairs.length ? (
-        <PairsTable rows={pairs} />
-      ) : (
-        <Empty>Your funds share no disclosed holdings.</Empty>
+      <Heading title={m.analysis.overlap.pairs} aside={m.analysis.overlap.pairsNote} />
+      {pairs.length ? <PairsTable rows={pairs} /> : <Empty>{m.analysis.overlap.noPairs}</Empty>}
+      <Heading title={m.analysis.overlap.shared} aside={m.analysis.overlap.sharedNote} />
+      {shared.length ? <SharedTable rows={shared} /> : <Empty>{m.analysis.overlap.noShared}</Empty>}
+      {pending && (
+        <p className="text-muted-foreground p-3 text-xs">{m.analysis.overlap.loadingMore}</p>
       )}
-      <Heading title="Shared holdings" aside="Companies you own through two or more holdings" />
-      {shared.length ? (
-        <SharedTable rows={shared} />
-      ) : (
-        <Empty>No company appears in more than one holding.</Empty>
-      )}
-      {pending && <p className="text-muted-foreground p-3 text-xs">Loading more fund holdings…</p>}
     </div>
   );
 }

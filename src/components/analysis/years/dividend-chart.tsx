@@ -6,11 +6,22 @@ import { tooltip } from "@tanstack/charts/tooltip";
 import { useMemo } from "react";
 
 import { formatCompact, formatInteger } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import type { YearRow } from "@/lib/years";
 
 const kinds = [
-  { label: "Paid", fill: "var(--chart-1)", dot: "bg-chart-1" },
-  { label: "Expected", fill: "var(--chart-2)", dot: "bg-chart-2" },
+  {
+    label: m.analysis.years.paid,
+    legend: m.analysis.years.paid,
+    fill: "var(--chart-1)",
+    dot: "bg-chart-1",
+  },
+  {
+    label: m.analysis.years.expected,
+    legend: m.analysis.years.expectedRest,
+    fill: "var(--chart-2)",
+    dot: "bg-chart-2",
+  },
 ] as const;
 
 type Bar = { year: string; kind: string; value: number };
@@ -62,7 +73,7 @@ export function DividendChart({ rows, expected }: { rows: readonly YearRow[]; ex
                 color: kinds.find((k) => k.label === d.kind)!.fill,
               })),
               ...(ds.length > 1
-                ? [{ label: "Total", value: formatInteger(total), active: true }]
+                ? [{ label: m.common.total, value: formatInteger(total), active: true }]
                 : []),
             ],
           };
@@ -76,7 +87,7 @@ export function DividendChart({ rows, expected }: { rows: readonly YearRow[]; ex
       <div className="sensitive h-56">
         <Chart
           definition={definition}
-          ariaLabel="Dividends per year"
+          ariaLabel={m.analysis.years.dividendChart}
           className="num text-muted-foreground text-xs"
           style={{ height: "100%" }}
         />
@@ -87,7 +98,7 @@ export function DividendChart({ rows, expected }: { rows: readonly YearRow[]; ex
           .map((k) => (
             <li key={k.label} className="flex items-center gap-1.5">
               <span className={`size-2 rounded-full ${k.dot}`} />
-              {k.label === "Expected" ? "Expected rest of year" : k.label}
+              {k.legend}
             </li>
           ))}
       </ul>

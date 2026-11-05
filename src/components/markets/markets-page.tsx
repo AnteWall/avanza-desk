@@ -10,6 +10,7 @@ import { TrendingTable } from "@/components/markets/trending-table";
 import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 import { TabbedPanel } from "@/components/workspace/tabbed-panel";
 import { gutter } from "@/components/workspace/workspace";
+import { m } from "@/lib/i18n";
 
 const skeleton = <TableSkeleton rows={10} columns={4} />;
 
@@ -25,30 +26,30 @@ export function MarketsPage() {
               tabs={[
                 {
                   value: "gainers",
-                  label: "Gainers",
+                  label: m.markets.page.gainers,
                   icon: TrendingUp,
                   content: (
-                    <AsyncBoundary what="today's movers" fallback={skeleton}>
+                    <AsyncBoundary what={m.markets.page.movers} fallback={skeleton}>
                       <MoversTable list="gainers" />
                     </AsyncBoundary>
                   ),
                 },
                 {
                   value: "losers",
-                  label: "Losers",
+                  label: m.markets.page.losers,
                   icon: TrendingDown,
                   content: (
-                    <AsyncBoundary what="today's movers" fallback={skeleton}>
+                    <AsyncBoundary what={m.markets.page.movers} fallback={skeleton}>
                       <MoversTable list="losers" />
                     </AsyncBoundary>
                   ),
                 },
                 {
                   value: "trending",
-                  label: "Trending",
+                  label: m.markets.page.trending,
                   icon: Flame,
                   content: (
-                    <AsyncBoundary what="trending stocks" fallback={skeleton}>
+                    <AsyncBoundary what={m.markets.page.trendingStocks} fallback={skeleton}>
                       <TrendingTable />
                     </AsyncBoundary>
                   ),

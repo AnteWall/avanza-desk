@@ -8,7 +8,7 @@ export function SignedAmount({ value, className }: { value: number; className?: 
     <span
       className={cn(
         "num",
-        value > 0 && "text-up",
+        0 < value && "text-up",
         value < 0 && "text-down",
         value === 0 && "text-muted-foreground",
         className,

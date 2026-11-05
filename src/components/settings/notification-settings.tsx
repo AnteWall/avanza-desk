@@ -3,14 +3,12 @@ import { useState } from "react";
 import { SettingsRow } from "@/components/settings/settings-row";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { Switch } from "@/components/ui/switch";
+import { m } from "@/lib/i18n";
 import { getNotifications, setNotifications, type NotificationSettings } from "@/lib/notifications";
 
-const events: { key: keyof NotificationSettings; label: string; hint: string }[] = [
-  { key: "fills", label: "Order filled", hint: "When one of your orders is executed" },
-  { key: "alerts", label: "Avanza alerts", hint: "Price alerts you set on Avanza" },
-  { key: "stopLosses", label: "Stop-loss", hint: "When a stop-loss is placed, triggers or ends" },
-  { key: "rules", label: "Alert rules", hint: "Your local rules under Alerts › Rules" },
-];
+const events: { key: keyof NotificationSettings; label: string; hint: string }[] = (
+  ["fills", "alerts", "stopLosses", "rules"] as const
+).map((key) => ({ key, ...m.settings.notifications.events[key] }));
 
 export function NotificationSettings() {
   const [settings, setSettings] = useState(getNotifications);
@@ -32,14 +30,14 @@ export function NotificationSettings() {
 
   return (
     <>
-      <SettingsSection title="Desktop notifications">
+      <SettingsSection title={m.settings.notifications.desktop}>
         {events.map((e) => row(e.key, e.label, e.hint))}
       </SettingsSection>
-      <SettingsSection title="Content">
+      <SettingsSection title={m.settings.notifications.content}>
         {row(
           "quantities",
-          "Show quantities",
-          "Number of shares in fill notifications. Always hidden in privacy mode.",
+          m.settings.notifications.quantities.label,
+          m.settings.notifications.quantities.hint,
         )}
       </SettingsSection>
     </>

@@ -7,13 +7,14 @@ import { DataTable, dataTableColumns } from "@/components/common/data-table";
 import { Button } from "@/components/ui/button";
 import { describeRule, removeRule, ruleKinds, type AlertRule } from "@/lib/alert-rules";
 import { formatDate } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { openRuleDialog } from "@/lib/rule-dialog";
 
 const col = dataTableColumns<AlertRule>();
 const columns = col.columns([
   col.accessor((r) => ruleKinds[r.kind].label, {
     id: "kind",
-    header: "Rule",
+    header: m.alerts.rules.rule,
     cell: (c) => {
       const Icon = ruleKindIcon[c.row.original.kind];
       return (
@@ -26,11 +27,11 @@ const columns = col.columns([
   }),
   col.accessor((r) => describeRule(r), {
     id: "when",
-    header: "Notifies when",
+    header: m.alerts.rules.notifiesWhen,
     meta: { className: "max-w-0 w-full truncate" },
   }),
   col.accessor("created", {
-    header: "Since",
+    header: m.alerts.rules.since,
     cell: (c) => formatDate(c.getValue()),
     meta: { className: "num text-muted-foreground" },
   }),
@@ -42,7 +43,7 @@ const columns = col.columns([
         <Button
           variant="ghost"
           size="icon-xs"
-          aria-label="Edit rule"
+          aria-label={m.alerts.rules.edit}
           onClick={() => openRuleDialog(c.row.original)}
         >
           <Pencil />
@@ -50,7 +51,7 @@ const columns = col.columns([
         <Button
           variant="ghost"
           size="icon-xs"
-          aria-label="Delete rule"
+          aria-label={m.alerts.rules.delete}
           onClick={() => removeRule(c.row.original.id)}
         >
           <Trash2 />
@@ -73,18 +74,13 @@ export function RulesTable() {
       <div className="flex items-center gap-3 border-b p-3">
         <Button size="sm" onClick={() => openRuleDialog()}>
           <Plus />
-          New rule
+          {m.alerts.rules.newRule}
         </Button>
-        <p className="text-muted-foreground text-xs">
-          Tip: right-click any stock or holding, or use the bell on a stat in the workspace, to
-          create a rule for it.
-        </p>
+        <p className="text-muted-foreground text-xs">{m.alerts.rules.tip}</p>
       </div>
       <RuleSuggestions rules={rules} />
       {rules.length === 0 ? (
-        <p className="text-muted-foreground p-3">
-          No rules yet. Start from a suggestion above or create one with New rule.
-        </p>
+        <p className="text-muted-foreground p-3">{m.alerts.rules.empty}</p>
       ) : (
         <DataTable
           columns={columns}

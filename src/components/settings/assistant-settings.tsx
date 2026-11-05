@@ -5,13 +5,14 @@ import { AssistantConnection } from "@/components/settings/assistant-connection"
 import { AssistantPreferences } from "@/components/settings/assistant-preferences";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { providers } from "@/lib/ai/providers";
+import { m } from "@/lib/i18n";
 
 export function AssistantSettings() {
   const connected = useConnectedProviders();
 
   if (connected.length === 0) {
     return (
-      <SettingsSection title="Assistant">
+      <SettingsSection title={m.settings.assistant.title}>
         <div className="px-3 py-2">
           <AssistantOptIn />
         </div>
@@ -21,7 +22,7 @@ export function AssistantSettings() {
 
   return (
     <>
-      <SettingsSection title="Providers">
+      <SettingsSection title={m.settings.assistant.providers}>
         {providers.map((p) =>
           connected.includes(p) ? (
             <AssistantConnection key={p.id} provider={p} />

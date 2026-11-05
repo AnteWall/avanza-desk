@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import logo from "@/assets/providers/claude.svg";
 import openaiLogoDark from "@/assets/providers/openai-dark.svg";
 import openaiLogo from "@/assets/providers/openai.svg";
+import { m } from "@/lib/i18n";
 
 import type { ModelOption, Provider, ProviderSetup } from "../types";
 import { createApiSession, type Vendor } from "./connection";
@@ -39,7 +40,7 @@ function keySetup(probe: ApiProbe<unknown>, models: ModelOption[], defaultModel?
     bin: "",
     custom: false,
     version: "",
-    account: { plan: keyHint ? `API key …${keyHint}` : "API key" },
+    account: { plan: keyHint ? m.ai.provider.apiKeyHint(keyHint) : m.ai.provider.apiKey },
     models,
     defaultModel,
   } satisfies ProviderSetup;
@@ -106,13 +107,12 @@ export const claudeApi: Provider = {
   name: "Claude API",
   vendor: "Anthropic",
   logo,
-  billing:
-    "AvanzaDesk calls the Claude API directly with your API key. Each question is billed per token to your Anthropic API account, separate from any Claude subscription. Nothing to install.",
+  billing: m.ai.provider.billing.claudeApi,
   installUrl: "https://platform.claude.com/settings/keys",
   guideUrl: "https://platform.claude.com/docs/en/get-started",
   plansUrl: "https://claude.com/pricing#api",
   loginCommand: "",
-  program: "API key",
+  program: m.ai.provider.apiKey,
   probe: async () => toSetup(await apiProbe<AnthropicModel>("anthropic")),
   // Nothing to install: the backend calls the API itself.
   setBinary: async () => {},
@@ -126,13 +126,12 @@ export const openaiApi: Provider = {
   vendor: "OpenAI",
   logo: openaiLogo,
   logoDark: openaiLogoDark,
-  billing:
-    "AvanzaDesk calls the OpenAI API directly with your API key. Each question is billed per token to your OpenAI API account, separate from a ChatGPT plan. Nothing to install.",
+  billing: m.ai.provider.billing.openaiApi,
   installUrl: "https://platform.openai.com/api-keys",
   guideUrl: "https://platform.openai.com/docs/quickstart",
   plansUrl: "https://openai.com/api/pricing",
   loginCommand: "",
-  program: "API key",
+  program: m.ai.provider.apiKey,
   probe: async () => toOpenaiSetup(await apiProbe<OpenaiModel>("openai")),
   setBinary: async () => {},
   setApiKey: setApiKey("openai"),

@@ -1,6 +1,7 @@
 import type { CalendarResponse, NewsFeedItem, NewsFeedOrderbook } from "avanza-ts";
 
 import { formatAs, formatDate, formatPrice, formatTime } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 export type NewsGroup = { orderbook: NewsFeedOrderbook; items: NewsFeedItem[] };
 
@@ -60,8 +61,8 @@ export const eventDay = (date: string) => formatAs(date, "EEE d");
 /** Heading for a `yyyy-MM-dd` event: "This week", "Next week", then "December" / "January 2027". */
 export function eventGroup(date: string, today: string) {
   const weeks = weeksAhead(date, today);
-  if (weeks <= 0) return "This week";
-  if (weeks === 1) return "Next week";
+  if (weeks <= 0) return m.news.thisWeek;
+  if (weeks === 1) return m.news.nextWeek;
   return formatAs(date, date.slice(0, 4) === today.slice(0, 4) ? "MMMM" : "MMMM yyyy");
 }
 
@@ -87,7 +88,7 @@ export const calendarEvents = (data: CalendarResponse): CalendarEvent[] =>
       orderbookId: r.orderbook.id,
       type: r.orderbook.instrumentType,
       name: r.companyName || r.orderbook.name,
-      what: `${r.reportType.charAt(0)}${r.reportType.slice(1).toLowerCase().replaceAll("_", " ")} report`,
+      what: m.news.report(r.reportType),
     })),
     ...(month.upcomingDividends?.upcomingDividends ?? []).map((d) => ({
       key: `d-${d.orderbook.id}-${d.exclusiveDividendDate}`,
@@ -95,6 +96,6 @@ export const calendarEvents = (data: CalendarResponse): CalendarEvent[] =>
       orderbookId: d.orderbook.id,
       type: d.orderbook.instrumentType,
       name: d.orderbook.name,
-      what: `Ex-dividend ${formatPrice(d.amount)} ${d.currency}${d.established ? "" : " (est.)"}`,
+      what: m.news.exDividend(formatPrice(d.amount), d.currency, !d.established),
     })),
   ]);

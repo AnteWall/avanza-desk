@@ -5,6 +5,7 @@ import { accountIds } from "@/lib/account";
 import { TransactionSide } from "@/lib/avanza/codes";
 import { fundAnalysisQuery, totalValuesQuery, transactionFilterQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { stockholmDay } from "@/lib/snapshots";
 
 // Avanza's currency exchange fee for most customers; the real one depends on the price class.
@@ -47,23 +48,23 @@ export function FeesSummary() {
     <div className="flex flex-col gap-3">
       <StatList
         stats={[
-          { label: "Courtage", value: formatInteger(courtage), sensitive: true },
+          { label: m.analysis.tax.courtage, value: formatInteger(courtage), sensitive: true },
           {
-            label: "Currency exchange",
+            label: m.analysis.tax.fx,
             value: formatInteger(fx),
-            note: "estimate, 0,25 % of foreign trades",
+            note: m.analysis.tax.fxNote,
             sensitive: true,
           },
           {
-            label: "Fund fees",
+            label: m.analysis.tax.fundFees,
             value: formatInteger(fundFees),
-            note: "per year at today's holdings",
+            note: m.analysis.tax.fundFeesNote,
             sensitive: true,
           },
           {
-            label: "Total",
+            label: m.common.total,
             value: formatInteger(total),
-            note: value > 0 ? `${formatShare(total / value)} of your portfolio` : undefined,
+            note: value > 0 ? m.analysis.tax.ofPortfolio(formatShare(total / value)) : undefined,
             sensitive: true,
           },
         ]}

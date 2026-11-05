@@ -11,6 +11,7 @@ import { useFocusInstrument } from "@/components/workspace/use-focused-instrumen
 import { instrumentItem } from "@/lib/ai/context";
 import { InstrumentType } from "@/lib/avanza/codes";
 import { indexConstituentsQuery, instrumentQuery, marketCapsQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 
 // shortcut: one stock-guide read per member (sector, logo ISIN); bigger indices skip it, so
 // their tiles keep their market-cap size but have no sectors or logos. Upgrade to a batch
@@ -20,7 +21,7 @@ const DETAILS_LIMIT = 100;
 const col = dataTableColumns<IndexConstituent>();
 const columns = col.columns([
   col.accessor("name", {
-    header: "Constituent",
+    header: m.markets.columns.constituent,
     cell: (c) => (
       <span className="flex items-center gap-1.5">
         <span className="font-medium">{c.getValue()}</span>
@@ -29,7 +30,7 @@ const columns = col.columns([
     ),
   }),
   col.accessor("changePercent", {
-    header: "Today",
+    header: m.common.today,
     // Despite its name, Avanza sends a ratio here (0.0389 = +3.89 %), unlike the quote's percent.
     cell: (c) => (c.getValue() == null ? "–" : <Change ratio={c.getValue()!} />),
     meta: { align: "end" },
@@ -78,7 +79,7 @@ export function IndexConstituents({
     };
   });
 
-  if (rows.length === 0) return <Empty>Avanza lists no constituents for this index.</Empty>;
+  if (rows.length === 0) return <Empty>{m.markets.index.noConstituents}</Empty>;
   if (view === "map")
     return (
       <div className="h-full p-1">

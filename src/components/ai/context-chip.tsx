@@ -4,6 +4,7 @@ import { LayoutGrid, Newspaper, Wallet, X } from "lucide-react";
 import { InstrumentLogo } from "@/components/common/instrument-logo";
 import { pages } from "@/components/layout/pages";
 import type { ContextItem } from "@/lib/ai/context";
+import { m } from "@/lib/i18n";
 
 const label = (item: ContextItem) =>
   item.kind === "instrument" ? item.name : item.kind === "article" ? item.title : item.label;
@@ -48,8 +49,8 @@ export function ContextChip({
         <button
           type="button"
           onClick={onRemove}
-          aria-label={`Don't send ${label(item)}`}
-          title="Don't send with this message"
+          aria-label={m.ai.chip.dontSend(label(item))}
+          title={m.ai.chip.dontSendTitle}
           className="text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:ring-ring/50 grid size-4 shrink-0 place-items-center rounded-sm transition-colors outline-none focus-visible:ring-2"
         >
           <X className="size-3" />

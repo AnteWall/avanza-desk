@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import { encode } from "uqr";
 
+import { m } from "@/lib/i18n";
+
 /**
  * BankID QR code. Always dark modules on a white tile, in both themes: phone scanners
  * expect dark-on-light. Swaps without animation since the payload changes every second.
@@ -24,7 +26,7 @@ export function BankIdQr({ payload }: { payload: string }) {
         className="size-48 fill-black"
         shapeRendering="crispEdges"
         role="img"
-        aria-label="BankID QR code"
+        aria-label={m.auth.qrLabel}
       >
         <path d={path} />
       </svg>

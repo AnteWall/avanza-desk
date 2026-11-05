@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 
 import logo from "@/assets/providers/claude.svg";
+import { m } from "@/lib/i18n";
 import { saveSetting } from "@/lib/settings";
 
 import type { ModelOption, Provider, ProviderSetup } from "../types";
@@ -37,7 +38,7 @@ export function toSetup(probe: ClaudeProbe): ProviderSetup {
       bin,
       custom,
       version: version ?? undefined,
-      error: error ?? "Claude Code didn't start.",
+      error: error ?? m.ai.provider.errors.claudeDidntStart,
     };
   if (!probe.loggedIn) return { state: "signed-out", bin, custom, version };
   const recommended = probe.models.find((m) => m.value === "default")?.resolvedModel;
@@ -75,8 +76,7 @@ export const claude: Provider = {
   name: "Claude",
   vendor: "Anthropic",
   logo,
-  billing:
-    "AvanzaDesk runs Claude Code on this computer and talks to Claude through it, so your questions use your Claude subscription (Pro or Max) and count toward its usage limits. No API key and no extra cost.",
+  billing: m.ai.provider.billing.claude,
   installUrl: "https://code.claude.com/docs/en/setup",
   guideUrl: "https://code.claude.com/docs/en/quickstart",
   plansUrl: "https://claude.com/pricing",

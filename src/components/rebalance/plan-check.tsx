@@ -13,6 +13,7 @@ import type { RebalanceRow } from "@/components/rebalance/use-rebalance-plan";
 import { orderbookChartsQuery } from "@/lib/avanza/queries";
 import { rebase, type ReturnPoint } from "@/lib/benchmark";
 import { formatDate, formatDecimal, formatInteger, formatPercent, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import {
   alignGrowth,
   badMonth,
@@ -30,9 +31,9 @@ import {
 } from "@/lib/rebalance-check";
 
 const periods = [
-  { label: "3M", value: 3 },
-  { label: "1Y", value: 12 },
-  { label: "3Y", value: 36 },
+  { label: m.rebalance.check.periods.m3, value: 3 },
+  { label: m.rebalance.check.periods.y1, value: 12 },
+  { label: m.rebalance.check.periods.y3, value: 36 },
 ] as const;
 
 /** The last `months` months up to today; the dates as Avanza's yyyy-MM-dd. */
@@ -66,25 +67,25 @@ export function PlanCheck({ rows, cashLeft }: { rows: RebalanceRow[]; cashLeft: 
     <section className="flex flex-col border-t">
       <header className="flex items-start gap-3 p-3 pb-0">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <h3 className="font-medium">Check the orders</h3>
-          <p className="text-muted-foreground text-xs">
-            What if you had owned the planned mix instead of today's over the chosen period? Both
-            are replayed on real prices, bought on day one and left alone. Use it to see how the
-            orders change your risk, not to predict returns.
-          </p>
+          <h3 className="font-medium">{m.rebalance.check.title}</h3>
+          <p className="text-muted-foreground text-xs">{m.rebalance.check.description}</p>
         </div>
         <Segmented
-          label="Period"
+          label={m.rebalance.check.period}
           numeric
           className="ml-auto"
           options={periods}
           value={range.months}
-          onChange={(m) => setRange(rangeFor(m))}
+          onChange={(months) => setRange(rangeFor(months))}
         />
       </header>
       {error ? (
         <div className="p-3">
-          <LoadError what="price history" error={error} onRetry={() => void refetch()} />
+          <LoadError
+            what={m.rebalance.check.priceHistory}
+            error={error}
+            onRetry={() => void refetch()}
+          />
         </div>
       ) : !data ? (
         <div className="p-3">
@@ -136,8 +137,7 @@ function Comparison({
   const wa = priced.map((it) => it.after);
   const [before, after] = [wb, wa].map((w) => holdValue(w, g)) as [number[], number[]];
   const days = g.timestamps.length - 1;
-  if (days < 2)
-    return <p className="text-muted-foreground p-3">Not enough price history to compare.</p>;
+  if (days < 2) return <p className="text-muted-foreground p-3">{m.rebalance.check.tooShort}</p>;
 
   const enough = days >= MIN_DAYS;
   const cov = covariance(priced.map((_, i) => dailyReturns(g.growth[i]!)));
@@ -176,10 +176,10 @@ function Comparison({
       note: (
         <>
           {prefix}
-          Today {format(b)}
+          {m.rebalance.check.today(format(b))}
           {!same && (
             <span className={better ? "text-up" : "text-down"}>
-              {better ? " · better" : " · worse"}
+              {better ? m.rebalance.check.better : m.rebalance.check.worse}
             </span>
           )}
         </>
@@ -187,16 +187,16 @@ function Comparison({
     };
   };
   const stats: Stat[] = [
-    pair("Return", ha.ret, hb.ret, formatPercent, true),
-    pair("Volatility, per year", ha.vol, hb.vol, formatShare, false),
-    pair("Largest fall", -ha.maxDrawdown, -hb.maxDrawdown, formatPercent, true),
-    ...(enough ? [pair("Sharpe ratio", ha.sharpe, hb.sharpe, formatDecimal, true)] : []),
+    pair(m.common.return, ha.ret, hb.ret, formatPercent, true),
+    pair(m.rebalance.check.volatility, ha.vol, hb.vol, formatShare, false),
+    pair(m.rebalance.check.largestFall, -ha.maxDrawdown, -hb.maxDrawdown, formatPercent, true),
+    ...(enough ? [pair(m.rebalance.check.sharpe, ha.sharpe, hb.sharpe, formatDecimal, true)] : []),
     ...(enough
       ? [
-          pair("Expected volatility", yearly(volA), yearly(volB), formatShare, false),
+          pair(m.rebalance.check.expectedVol, yearly(volA), yearly(volB), formatShare, false),
           // As a share: in SEK it grows with new money even when the mix gets calmer.
           pair(
-            "Bad month, 1 in 20",
+            m.rebalance.check.badMonth,
             -badMonth(volA),
             -badMonth(volB),
             formatPercent,
@@ -206,16 +206,16 @@ function Comparison({
         ]
       : []),
     pair(
-      "Even holdings it equals",
+      m.rebalance.check.evenHoldings,
       effectiveHoldings(items.map((it) => it.after)),
       effectiveHoldings(items.map((it) => it.before)),
       (v) => formatDecimal(Math.round(v * 10) / 10),
       true,
     ),
     {
-      label: "Differs from today",
+      label: m.rebalance.check.differs,
       value: formatShare(trackingError(before, after)),
-      note: "typical gap per year",
+      note: m.rebalance.check.differsNote,
     },
   ];
 
@@ -223,20 +223,16 @@ function Comparison({
     <div className="@container flex flex-col gap-4 p-3">
       <BenchmarkChart
         series={[
-          { label: "Today's mix", points: line(before) },
-          { label: "After the orders", points: line(after) },
+          { label: m.rebalance.check.todaysMix, points: line(before) },
+          { label: m.rebalance.check.afterOrders, points: line(after) },
         ]}
       />
       <StatList stats={stats} />
       {enough && (
         <div className="flex flex-col gap-2">
           <h3 className="flex items-center gap-1 text-xs font-medium">
-            Where the risk is
-            <InfoTip label="where the risk is">
-              Each holding's share of the money and of the ups and downs after the orders. One that
-              moves a lot, or with the rest, takes more risk than money. The bar is today, the tick
-              after the orders.
-            </InfoTip>
+            {m.rebalance.check.risk}
+            <InfoTip label={m.rebalance.check.riskLabel}>{m.rebalance.check.riskTip}</InfoTip>
           </h3>
           <RiskShares
             items={priced.map((it, i) => ({
@@ -249,23 +245,15 @@ function Comparison({
         </div>
       )}
       <p className="text-muted-foreground flex flex-wrap items-center gap-1 text-xs">
-        {formatDate(start)} to today, {days} days.
-        {cut && ` ${cut.name} has no older prices.`}
+        {m.rebalance.check.span(formatDate(start), days)}
+        {cut && m.rebalance.check.noOlder(cut.name)}
         {unpriced.length > 0 &&
-          ` No price history for ${unpriced.map((it) => it.name).join(", ")}: counted as cash.`}
-        {!enough && " Too short for expected risk."}
-        <InfoTip label="how this is worked out">
-          <p>
-            Both mixes are bought on the first day and left alone, so a winner grows its share as it
-            would have in your account. Cash left over earns nothing.
-          </p>
-          <p>
-            The past is no promise. Over a short period the return line is mostly luck: which stocks
-            happened to rally. Volatility, the largest fall and the expected risk say more about the
-            mix itself. Expected volatility uses how the holdings moved together in this period; a
-            bad month is about 1.65 times its monthly volatility.
-          </p>
-          <p>Returns are in each instrument's own currency: currency moves are left out.</p>
+          m.rebalance.check.unpriced(unpriced.map((it) => it.name).join(", "))}
+        {!enough && m.rebalance.check.noExpected}
+        <InfoTip label={m.rebalance.check.howLabel}>
+          <p>{m.rebalance.check.howHeld}</p>
+          <p>{m.rebalance.check.howPast}</p>
+          <p>{m.rebalance.check.howCurrency}</p>
         </InfoTip>
       </p>
     </div>

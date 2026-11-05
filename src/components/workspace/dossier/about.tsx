@@ -8,6 +8,7 @@ import { Section } from "@/components/workspace/dossier/section";
 import type { Instrument } from "@/lib/avanza/instrument";
 import { stockDetailsQuery } from "@/lib/avanza/queries";
 import { formatCompact } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 /** What the company does, who runs it and how big it is. */
 export function About({ instrument }: { instrument: Instrument }) {
@@ -16,20 +17,23 @@ export function About({ instrument }: { instrument: Instrument }) {
   const cap = instrument.stock?.keyIndicators.marketCapital;
 
   const stats = [
-    instrument.sector && { label: "Sector", value: instrument.sector, text: true },
-    cap && { label: "Market cap", value: `${formatCompact(cap.value)} ${cap.currency}` },
+    instrument.sector && { label: m.workspace.about.sector, value: instrument.sector, text: true },
+    cap && {
+      label: m.workspace.about.marketCap,
+      value: `${formatCompact(cap.value)} ${cap.currency}`,
+    },
     company?.totalNumberOfShares && {
-      label: "Shares",
+      label: m.workspace.about.shares,
       value: formatCompact(company.totalNumberOfShares),
     },
-    company?.ceo && { label: "CEO", value: company.ceo, text: true },
-    company?.chairman && { label: "Chairman", value: company.chairman, text: true },
+    company?.ceo && { label: m.workspace.about.ceo, value: company.ceo, text: true },
+    company?.chairman && { label: m.workspace.about.chairman, value: company.chairman, text: true },
   ].filter((s) => !!s);
 
   if (!company?.description && stats.length === 0) return null;
   return (
     <Section
-      title="About"
+      title={m.workspace.about.title}
       aside={
         company?.homepage && (
           <Button
@@ -38,7 +42,7 @@ export function About({ instrument }: { instrument: Instrument }) {
             className="text-muted-foreground"
             onClick={() => void openUrl(company.homepage!)}
           >
-            Investor site <ArrowUpRight />
+            {m.workspace.about.investorSite} <ArrowUpRight />
           </Button>
         )
       }

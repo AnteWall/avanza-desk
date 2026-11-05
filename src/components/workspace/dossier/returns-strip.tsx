@@ -4,17 +4,18 @@ import { Change } from "@/components/common/change";
 import type { Instrument } from "@/lib/avanza/instrument";
 import { quoteQuery } from "@/lib/avanza/queries";
 import { periodReturns } from "@/lib/avanza/stock-details";
+import { m } from "@/lib/i18n";
 
 // Avanza's closing-price keys.
 const periods = [
-  { label: "1W", key: "oneWeek" },
-  { label: "1M", key: "oneMonth" },
-  { label: "3M", key: "threeMonths" },
-  { label: "YTD", key: "startOfYear" },
-  { label: "1Y", key: "oneYear" },
-  { label: "3Y", key: "threeYears" },
-  { label: "5Y", key: "fiveYears" },
-  { label: "10Y", key: "tenYears" },
+  { label: m.workspace.periods.w1, key: "oneWeek" },
+  { label: m.workspace.periods.m1, key: "oneMonth" },
+  { label: m.workspace.periods.m3, key: "threeMonths" },
+  { label: m.workspace.periods.ytd, key: "startOfYear" },
+  { label: m.workspace.periods.y1, key: "oneYear" },
+  { label: m.workspace.periods.y3, key: "threeYears" },
+  { label: m.workspace.periods.y5, key: "fiveYears" },
+  { label: m.workspace.periods.y10, key: "tenYears" },
 ];
 
 /** Return over each period up to the live price, so the trend reads without switching ranges. */

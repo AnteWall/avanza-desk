@@ -1,9 +1,13 @@
 import { ruleKindIcon } from "@/components/alerts/rule-kind-icon";
 import { ruleKinds, type RuleKind } from "@/lib/alert-rules";
+import { m } from "@/lib/i18n";
 
 const groups: { title: string; kinds: RuleKind[] }[] = [
-  { title: "Stocks you hold or watch", kinds: ["price", "day-move", "signal", "short", "upside"] },
-  { title: "Your portfolio", kinds: ["loss", "weight", "drift", "ltv"] },
+  {
+    title: m.alerts.picker.stocks,
+    kinds: ["price", "day-move", "signal", "short", "upside"],
+  },
+  { title: m.alerts.picker.portfolio, kinds: ["loss", "weight", "drift", "ltv"] },
 ];
 
 /** Step one of a new rule: what to watch, each kind with a line on what it catches. */

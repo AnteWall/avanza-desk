@@ -5,6 +5,7 @@ import { StatList } from "@/components/workspace/chart/stat-list";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { yearSummaryQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatPercent } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 /** One year in review: development against benchmarks, cash flows, best and worst. Suspends. */
 export function YearSummary({ year }: { year: number }) {
@@ -38,24 +39,44 @@ export function YearSummary({ year }: { year: number }) {
     <div className="flex flex-col gap-4 p-3">
       <StatList
         stats={[
-          { label: "Return", value: pct(perf.performanceForPeriod) },
-          { label: "Avanza customers", value: pct(perf.performanceAllCustomers) },
+          { label: m.common.return, value: pct(perf.performanceForPeriod) },
+          { label: m.portfolio.year.customers, value: pct(perf.performanceAllCustomers) },
           { label: "OMXS30", value: pct(perf.performanceOMXS30) },
-          { label: "Start value", value: formatInteger(dev.startValue), className: "sensitive" },
-          { label: "End value", value: formatInteger(dev.currentValue), className: "sensitive" },
-          { label: "Deposits", value: formatInteger(dev.totalDeposits), className: "sensitive" },
-          { label: "Dividends", value: formatInteger(dev.totalDividends), className: "sensitive" },
-          { label: "Fees", value: formatInteger(dev.totalOtherFees), className: "sensitive" },
           {
-            label: "Transactions",
+            label: m.portfolio.year.startValue,
+            value: formatInteger(dev.startValue),
+            className: "sensitive",
+          },
+          {
+            label: m.portfolio.year.endValue,
+            value: formatInteger(dev.currentValue),
+            className: "sensitive",
+          },
+          {
+            label: m.portfolio.year.deposits,
+            value: formatInteger(dev.totalDeposits),
+            className: "sensitive",
+          },
+          {
+            label: m.common.dividends,
+            value: formatInteger(dev.totalDividends),
+            className: "sensitive",
+          },
+          {
+            label: m.portfolio.year.fees,
+            value: formatInteger(dev.totalOtherFees),
+            className: "sensitive",
+          },
+          {
+            label: m.portfolio.year.transactions,
             value: formatInteger(data.numberOfTransactionsView.numberOfTransactions),
           },
         ]}
       />
       <dl className="flex flex-wrap gap-x-6 gap-y-1">
         {[
-          { label: "Best day", day: perf.bestDay },
-          { label: "Worst day", day: perf.worstDay },
+          { label: m.portfolio.year.bestDay, day: perf.bestDay },
+          { label: m.portfolio.year.worstDay, day: perf.worstDay },
         ].map(
           ({ label, day }) =>
             // A year with no history yet has no days.
@@ -74,8 +95,8 @@ export function YearSummary({ year }: { year: number }) {
         )}
       </dl>
       <div className="grid max-w-3xl grid-cols-2 gap-x-10 gap-y-4">
-        {securities("Best holdings", dev.bestSecurities)}
-        {securities("Worst holdings", dev.worstSecurities)}
+        {securities(m.portfolio.year.bestHoldings, dev.bestSecurities)}
+        {securities(m.portfolio.year.worstHoldings, dev.worstSecurities)}
       </div>
     </div>
   );

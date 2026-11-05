@@ -7,12 +7,13 @@ import { SignedAmount } from "@/components/common/signed-amount";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { instrumentItem } from "@/lib/ai/context";
 import { formatDate, formatInteger } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import type { Evidence, Finding } from "@/lib/trading-profile";
 
 const col = dataTableColumns<Evidence>();
 const columns = col.columns([
   col.accessor("name", {
-    header: "Instrument",
+    header: m.common.instrument,
     cell: (c) => (
       <span className="flex items-center gap-1.5">
         <InstrumentLogo isin={c.row.original.isin} name={c.getValue()} />
@@ -22,27 +23,27 @@ const columns = col.columns([
     ),
   }),
   col.accessor("from", {
-    header: "From",
+    header: m.analysis.profile.from,
     cell: (c) => formatDate(c.getValue()),
     meta: { className: "num text-muted-foreground" },
   }),
   col.accessor("to", {
-    header: "To",
+    header: m.analysis.profile.to,
     cell: (c) => formatDate(c.getValue()),
     meta: { className: "num text-muted-foreground" },
   }),
   col.accessor("days", {
-    header: "Days",
+    header: m.analysis.profile.days,
     cell: (c) => formatInteger(c.getValue()),
     meta: { align: "end", className: "num" },
   }),
   col.accessor("change", {
-    header: "Change",
+    header: m.analysis.profile.change,
     cell: (c) => <Change ratio={c.getValue()} />,
     meta: { align: "end" },
   }),
   col.accessor("result", {
-    header: "Result (SEK)",
+    header: m.analysis.profile.result,
     cell: (c) => <SignedAmount value={c.getValue()} />,
     meta: { align: "end", className: "sensitive font-medium" },
   }),
@@ -54,7 +55,7 @@ export function EvidenceTable({ finding }: { finding: Finding }) {
   return (
     <>
       {finding.evidence.length === 0 ? (
-        <Empty>No trades to list.</Empty>
+        <Empty>{m.analysis.profile.noEvidence}</Empty>
       ) : (
         <DataTable
           columns={columns}

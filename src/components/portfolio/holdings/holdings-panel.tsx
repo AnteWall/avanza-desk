@@ -24,6 +24,7 @@ import { KeyFigures } from "@/components/portfolio/key-figures";
 import { YearPanel } from "@/components/portfolio/year-panel";
 import { TabbedPanel } from "@/components/workspace/tabbed-panel";
 import { holdingsColumns } from "@/lib/holdings-columns";
+import { m } from "@/lib/i18n";
 
 export function HoldingsPanel() {
   const account = useAccount();
@@ -48,61 +49,84 @@ export function HoldingsPanel() {
       tabs={[
         {
           value: "holdings",
-          label: "Holdings",
+          label: m.portfolio.holdings.tabs.holdings,
           icon: Layers,
           content: (
-            <AsyncBoundary what="your holdings" fallback={<TableSkeleton rows={8} columns={9} />}>
+            <AsyncBoundary
+              what={m.portfolio.holdings.loading.holdings}
+              fallback={<TableSkeleton rows={8} columns={9} />}
+            >
               <HoldingsTable />
             </AsyncBoundary>
           ),
         },
         {
           value: "dividends",
-          label: "Dividends",
+          label: m.portfolio.holdings.tabs.dividends,
           icon: HandCoins,
           content: (
-            <AsyncBoundary what="dividends" fallback={<TableSkeleton rows={6} columns={7} />}>
+            <AsyncBoundary
+              what={m.portfolio.holdings.loading.dividends}
+              fallback={<TableSkeleton rows={6} columns={7} />}
+            >
               <DividendsTable />
             </AsyncBoundary>
           ),
         },
         {
           value: "paid",
-          label: "Paid",
+          label: m.portfolio.holdings.tabs.paid,
           icon: Coins,
           content: (
-            <AsyncBoundary what="paid dividends" fallback={<TableSkeleton rows={6} columns={5} />}>
+            <AsyncBoundary
+              what={m.portfolio.holdings.loading.paid}
+              fallback={<TableSkeleton rows={6} columns={5} />}
+            >
               <PaidDividendsTable />
             </AsyncBoundary>
           ),
         },
         {
           value: "transactions",
-          label: "Transactions",
+          label: m.portfolio.holdings.tabs.transactions,
           icon: Receipt,
           content: (
-            <AsyncBoundary what="transactions" fallback={<TableSkeleton rows={8} columns={8} />}>
+            <AsyncBoundary
+              what={m.portfolio.holdings.loading.transactions}
+              fallback={<TableSkeleton rows={8} columns={8} />}
+            >
               <TransactionsTable />
             </AsyncBoundary>
           ),
         },
-        { value: "year", label: "Year", icon: CalendarRange, content: <YearPanel /> },
+        {
+          value: "year",
+          label: m.portfolio.holdings.tabs.year,
+          icon: CalendarRange,
+          content: <YearPanel />,
+        },
         {
           value: "accounts",
-          label: "Accounts",
+          label: m.portfolio.holdings.tabs.accounts,
           icon: Wallet,
           content: (
-            <AsyncBoundary what="your accounts" fallback={<TableSkeleton rows={4} columns={6} />}>
+            <AsyncBoundary
+              what={m.portfolio.holdings.loading.accounts}
+              fallback={<TableSkeleton rows={4} columns={6} />}
+            >
               <AccountsTable />
             </AsyncBoundary>
           ),
         },
         {
           value: "figures",
-          label: "Key figures",
+          label: m.portfolio.holdings.tabs.figures,
           icon: Gauge,
           content: (
-            <AsyncBoundary what="key figures" fallback={<TableSkeleton rows={4} columns={4} />}>
+            <AsyncBoundary
+              what={m.portfolio.holdings.loading.figures}
+              fallback={<TableSkeleton rows={4} columns={4} />}
+            >
               <KeyFigures />
             </AsyncBoundary>
           ),

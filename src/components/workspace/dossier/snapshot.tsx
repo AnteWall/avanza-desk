@@ -24,6 +24,7 @@ import {
   formatPrice,
   formatShare,
 } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { openRuleDialog, type RuleDraft } from "@/lib/rule-dialog";
 
 // `text`: a word value (a rating), not set in the numeral font. `rule`: the alert its bell
@@ -38,13 +39,14 @@ type Fact = {
   tip?: string;
 };
 
+const t = m.workspace.snapshot;
 const words = (code: string) => code.toLowerCase().replaceAll("_", " ");
 const DAY = 24 * 60 * 60_000;
 const isoDaysAgo = (days: number) => new Date(Date.now() - days * DAY).toISOString().slice(0, 10);
 
 function daysUntil(date: string) {
   const days = Math.round((Date.parse(date) - Date.now()) / DAY);
-  return days <= 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`;
+  return days <= 0 ? t.today : days === 1 ? t.tomorrow : t.inDays(days);
 }
 
 /** The stock in a few plain sentences: valuation, analysts, next report, dividend, insiders. */
@@ -69,38 +71,49 @@ export function Snapshot({ instrument }: { instrument: Instrument }) {
   const delta = vsAverage(ratio?.latest, ratio?.average);
   if (ratio?.latest != null && delta != null)
     facts.push({
-      label: "Valuation",
+      label: t.valuation,
       value: `${ratioName} ${formatPrice(ratio.latest)}`,
-      note: `${formatShare(Math.abs(delta))} ${delta >= 0 ? "above" : "below"} its own average of ${formatPrice(ratio.average!)}`,
+      note: t.vsOwnAverage(formatShare(Math.abs(delta)), delta >= 0, formatPrice(ratio.average!)),
     });
 
   const rec = data.recommendations;
   // Avanza omits the consensus (and report type below) for some instruments despite the types.
   if (rec?.consensusAction)
     facts.push({
-      label: "Analysts",
-      value: <span className="capitalize">{words(rec.consensusAction)}</span>,
+      label: t.analysts,
+      value: (
+        <span className="capitalize">
+          {m.workspace.analysts.consensus[rec.consensusAction] ?? words(rec.consensusAction)}
+        </span>
+      ),
       text: true,
       rule: { kind: "signal", signalKind: "consensus", target },
-      note: `${rec.numberOfBuy + rec.numberOfOutperform} buy · ${rec.numberOfHold} hold · ${rec.numberOfSell + rec.numberOfUnderperform} sell`,
+      note: m.workspace.analysts.split(
+        rec.numberOfBuy + rec.numberOfOutperform,
+        rec.numberOfHold,
+        rec.numberOfSell + rec.numberOfUnderperform,
+      ),
     });
 
   const targets = data.targets;
   if (targets?.numberOfEstimates && last)
     facts.push({
-      label: "Price target",
+      label: t.priceTarget,
       value: <Change ratio={targets.averagePriceTarget / last - 1} />,
       rule: { kind: "upside", target },
-      note: `Average ${formatPrice(targets.averagePriceTarget)} from ${targets.numberOfEstimates} analysts`,
+      note: t.targetNote(formatPrice(targets.averagePriceTarget), targets.numberOfEstimates),
     });
 
   if (ki.nextReport)
     facts.push({
-      label: "Next report",
+      label: t.nextReport,
       value: formatDay(ki.nextReport.date),
       rule: { kind: "signal", signalKind: "report", target, threshold: 1 },
       note: ki.nextReport.reportType
-        ? `${words(ki.nextReport.reportType)} report, ${daysUntil(ki.nextReport.date)}`
+        ? t.reportNote(
+            t.reportTypes[ki.nextReport.reportType] ?? words(ki.nextReport.reportType),
+            daysUntil(ki.nextReport.date),
+          )
         : daysUntil(ki.nextReport.date),
     });
 
@@ -108,12 +121,18 @@ export function Snapshot({ instrument }: { instrument: Instrument }) {
   const lastPaid = details?.dividends?.pastEvents[0];
   if (ki.directYield != null || upcoming)
     facts.push({
-      label: "Dividend yield",
+      label: t.dividendYield,
       value: ki.directYield != null ? formatShare(ki.directYield) : "–",
       note: upcoming
-        ? `Ex-date ${formatDay(upcoming.exDate)}: ${formatPrice(upcoming.amount)} ${upcoming.currencyCode}`
+        ? t.exDate(
+            formatDay(upcoming.exDate),
+            `${formatPrice(upcoming.amount)} ${upcoming.currencyCode}`,
+          )
         : lastPaid
-          ? `Last ${formatPrice(lastPaid.amount)} ${lastPaid.currencyCode} on ${formatDay(lastPaid.exDate)}`
+          ? t.lastPaid(
+              `${formatPrice(lastPaid.amount)} ${lastPaid.currencyCode}`,
+              formatDay(lastPaid.exDate),
+            )
           : undefined,
     });
 
@@ -121,37 +140,39 @@ export function Snapshot({ instrument }: { instrument: Instrument }) {
   if (trades.length) {
     const flow = insiderFlow(trades, isoDaysAgo(90));
     facts.push({
-      label: "Insiders, 3 months",
+      label: t.insiders,
       value:
         flow.buys + flow.sells === 0
-          ? "No trades"
-          : `${flow.net > 0 ? "Net bought" : "Net sold"} ${formatCompact(Math.abs(flow.net))} ${flow.currency}`,
+          ? t.noTrades
+          : (flow.net > 0 ? t.netBought : t.netSold)(
+              `${formatCompact(Math.abs(flow.net))} ${flow.currency}`,
+            ),
       rule: { kind: "signal", signalKind: "insider", target },
-      note: `${flow.buys} buys · ${flow.sells} sells`,
+      note: t.buysSells(flow.buys, flow.sells),
     });
   }
 
   if (ki.shortSellingRatio != null)
     facts.push({
-      label: "Short interest",
+      label: t.shortInterest,
       value: formatShare(ki.shortSellingRatio),
-      tip: "Share of the company's stock that investors have borrowed and sold, betting the price will fall. A few percent is common; a high or rising number means many are pessimistic.",
+      tip: t.shortTip,
       rule: { kind: "short", target },
     });
 
   const owners = data.owners;
   if (owners)
     facts.push({
-      label: "Avanza owners",
+      label: t.avanzaOwners,
       value: formatInteger(ki.numberOfOwners),
       rule: { kind: "signal", signalKind: "owners", target },
       // Avanza sends percent units.
-      note: `${formatPercent(owners.historySummary.oneYearChangePercent)} in a year`,
+      note: t.inAYear(formatPercent(owners.historySummary.oneYearChangePercent)),
     });
 
   if (facts.length === 0) return null;
   return (
-    <Section title="At a glance">
+    <Section title={t.title}>
       <dl className="grid grid-cols-2 gap-x-6 gap-y-3 @2xl:grid-cols-4">
         {facts.map((f) => (
           <div key={f.label} className="group min-w-0">
@@ -162,8 +183,8 @@ export function Snapshot({ instrument }: { instrument: Instrument }) {
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  aria-label={`Alert me about ${f.label.toLowerCase()}`}
-                  title="Create an alert rule"
+                  aria-label={t.alertAbout(f.label.toLowerCase())}
+                  title={t.createRule}
                   // Shown on hover or keyboard focus, so the facts stay calm.
                   className="size-4 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
                   onClick={() => openRuleDialog(f.rule)}

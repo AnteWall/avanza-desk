@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { ColumnPicks } from "@/lib/column-picks";
+import { m } from "@/lib/i18n";
 
 /** A table's optional columns, ticked on and off from a small menu in its panel's actions. */
 export function ColumnsMenu<C extends string>({ picks }: { picks: ColumnPicks<C> }) {
@@ -23,8 +24,8 @@ export function ColumnsMenu<C extends string>({ picks }: { picks: ColumnPicks<C>
             variant="ghost"
             size="icon-xs"
             className="text-muted-foreground"
-            aria-label="Columns"
-            title="Columns"
+            aria-label={m.common.columns}
+            title={m.common.columns}
           />
         }
       >
@@ -32,7 +33,9 @@ export function ColumnsMenu<C extends string>({ picks }: { picks: ColumnPicks<C>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="text-muted-foreground text-xs">Columns</DropdownMenuLabel>
+          <DropdownMenuLabel className="text-muted-foreground text-xs">
+            {m.common.columns}
+          </DropdownMenuLabel>
           {(Object.keys(picks.labels) as C[]).map((c) => (
             <DropdownMenuCheckboxItem
               key={c}

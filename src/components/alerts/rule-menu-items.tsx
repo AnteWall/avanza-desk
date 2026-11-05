@@ -8,6 +8,7 @@ import { ruleKinds, type RuleKind } from "@/lib/alert-rules";
 import { InstrumentType } from "@/lib/avanza/codes";
 import { aggregateHoldings } from "@/lib/avanza/portfolio";
 import { allPositionsQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 import { openRuleDialog } from "@/lib/rule-dialog";
 
 /**
@@ -35,7 +36,7 @@ export function RuleMenuItems({ item }: { item: Extract<ContextItem, { kind: "in
     <ContextMenuGroup>
       <ContextMenuLabel className="text-muted-foreground flex items-center gap-1.5 text-xs">
         <Bell className="size-3" aria-hidden />
-        Alert me
+        {m.alerts.menu.alertMe}
       </ContextMenuLabel>
       {kinds.map((kind) => {
         const Icon = ruleKindIcon[kind];
@@ -47,7 +48,9 @@ export function RuleMenuItems({ item }: { item: Extract<ContextItem, { kind: "in
         );
       })}
       {kinds.length === 0 && (
-        <ContextMenuItem onClick={() => openRuleDialog({ target })}>Choose a rule…</ContextMenuItem>
+        <ContextMenuItem onClick={() => openRuleDialog({ target })}>
+          {m.alerts.menu.chooseRule}
+        </ContextMenuItem>
       )}
     </ContextMenuGroup>
   );

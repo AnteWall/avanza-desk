@@ -2,6 +2,7 @@ import { TableSkeleton } from "@/components/common/table-skeleton";
 import { AllocationTable } from "@/components/portfolio/allocation/allocation-table";
 import { useLookThroughs } from "@/components/portfolio/use-holdings";
 import { lookThrough, unclassified } from "@/lib/avanza/portfolio";
+import { m } from "@/lib/i18n";
 
 /** Industry exposure: stocks by Avanza sector, funds and ETFs by their reported sectors. */
 export function SectorAllocation() {
@@ -13,7 +14,7 @@ export function SectorAllocation() {
     <AllocationTable
       slices={lookThrough(holdings, (h) => byKey.get(h.key)?.sectors)}
       rest={unclassified}
-      restNote="bonds, cash in funds, or instruments without sector data"
+      restNote={m.portfolio.allocation.sectorNote}
     />
   );
 }

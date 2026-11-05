@@ -1,5 +1,7 @@
 import { TZDate } from "@date-fns/tz";
 
+import { m } from "@/lib/i18n";
+
 import { getSetting, saveSetting } from "./settings";
 
 // Regular trading hours of the exchanges Avanza trades or shows indices from, in each exchange's own time zone, so
@@ -18,12 +20,13 @@ export type Exchange = {
   at: [number, number];
 };
 
+const names = m.workspace.exchanges.names;
 const hm = (h: number, m = 0) => h * 60 + m;
 
 export const exchanges: Exchange[] = [
   {
     short: "STO",
-    name: "Stockholm",
+    name: names.stockholm,
     tz: "Europe/Stockholm",
     open: hm(9),
     close: hm(17, 30),
@@ -32,7 +35,7 @@ export const exchanges: Exchange[] = [
   },
   {
     short: "OSL",
-    name: "Oslo",
+    name: names.oslo,
     tz: "Europe/Oslo",
     open: hm(9),
     close: hm(16, 20),
@@ -41,7 +44,7 @@ export const exchanges: Exchange[] = [
   },
   {
     short: "CPH",
-    name: "Copenhagen",
+    name: names.copenhagen,
     tz: "Europe/Copenhagen",
     open: hm(9),
     close: hm(17),
@@ -50,7 +53,7 @@ export const exchanges: Exchange[] = [
   },
   {
     short: "HEL",
-    name: "Helsinki",
+    name: names.helsinki,
     tz: "Europe/Helsinki",
     open: hm(10),
     close: hm(18, 30),
@@ -68,7 +71,7 @@ export const exchanges: Exchange[] = [
   },
   {
     short: "PAR",
-    name: "Paris",
+    name: names.paris,
     tz: "Europe/Paris",
     open: hm(9),
     close: hm(17, 30),
@@ -77,7 +80,7 @@ export const exchanges: Exchange[] = [
   },
   {
     short: "LSE",
-    name: "London",
+    name: names.london,
     tz: "Europe/London",
     open: hm(8),
     close: hm(16, 30),
@@ -95,7 +98,7 @@ export const exchanges: Exchange[] = [
   },
   {
     short: "TSX",
-    name: "Toronto",
+    name: names.toronto,
     tz: "America/Toronto",
     open: hm(9, 30),
     close: hm(16),
@@ -104,7 +107,7 @@ export const exchanges: Exchange[] = [
   },
   {
     short: "AMS",
-    name: "Amsterdam",
+    name: names.amsterdam,
     tz: "Europe/Amsterdam",
     open: hm(9),
     close: hm(17, 30),
@@ -113,7 +116,7 @@ export const exchanges: Exchange[] = [
   },
   {
     short: "BRU",
-    name: "Brussels",
+    name: names.brussels,
     tz: "Europe/Brussels",
     open: hm(9),
     close: hm(17, 30),
@@ -122,7 +125,7 @@ export const exchanges: Exchange[] = [
   },
   {
     short: "MIL",
-    name: "Milan",
+    name: names.milan,
     tz: "Europe/Rome",
     open: hm(9),
     close: hm(17, 30),
@@ -131,7 +134,7 @@ export const exchanges: Exchange[] = [
   },
   {
     short: "LIS",
-    name: "Lisbon",
+    name: names.lisbon,
     tz: "Europe/Lisbon",
     open: hm(8),
     close: hm(16, 30),
@@ -140,7 +143,7 @@ export const exchanges: Exchange[] = [
   },
   {
     short: "NSE",
-    name: "Mumbai",
+    name: names.mumbai,
     tz: "Asia/Kolkata",
     open: hm(9, 15),
     close: hm(15, 30),
@@ -149,7 +152,7 @@ export const exchanges: Exchange[] = [
   },
   {
     short: "KRX",
-    name: "Seoul",
+    name: names.seoul,
     tz: "Asia/Seoul",
     open: hm(9),
     close: hm(15, 30),
@@ -158,7 +161,7 @@ export const exchanges: Exchange[] = [
   },
   {
     short: "TYO",
-    name: "Tokyo",
+    name: names.tokyo,
     tz: "Asia/Tokyo",
     open: hm(9),
     close: hm(15, 30),
@@ -167,7 +170,7 @@ export const exchanges: Exchange[] = [
   },
   {
     short: "HKG",
-    name: "Hong Kong",
+    name: names.hongKong,
     tz: "Asia/Hong_Kong",
     open: hm(9, 30),
     close: hm(16),
@@ -211,8 +214,6 @@ export function exchangeStatus(ex: Exchange, now: Date) {
   return { open, next: new Date(next) };
 }
 
-const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
 /**
  * The trading day Avanza's "last trading day" changes refer to, as a label: "Today" once
  * Stockholm has opened on a weekday, else the weekday before ("Yesterday", "Friday").
@@ -221,8 +222,8 @@ const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frida
 export function sessionLabel(now: Date) {
   const sto = exchanges[0]!;
   const { day, minutes } = wallClock(sto.tz, now);
-  if (weekday(day) && minutes >= sto.open) return "Today";
+  if (weekday(day) && minutes >= sto.open) return m.common.today;
   let back = 1;
   while (!weekday((day - back + 7) % 7)) back++;
-  return back === 1 ? "Yesterday" : dayNames[(day - back + 7) % 7]!;
+  return back === 1 ? m.common.yesterday : m.workspace.exchanges.days[(day - back + 7) % 7]!;
 }

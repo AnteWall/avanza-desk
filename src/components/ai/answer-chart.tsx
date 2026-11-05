@@ -9,26 +9,28 @@ import type { AnswerBlock } from "@/lib/ai/blocks";
 import { InstrumentType } from "@/lib/avanza/codes";
 import { fundChartQuery, instrumentQuery, priceChartQuery } from "@/lib/avanza/queries";
 import { formatPercent } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
+const p = m.ai.chart.periods;
 const periods: Record<ChartPeriod | PerformancePeriod, string> = {
-  today: "Today",
-  one_week: "1 week",
-  one_month: "1 month",
-  three_months: "3 months",
-  this_year: "This year",
-  one_year: "1 year",
-  three_years: "3 years",
-  five_years: "5 years",
-  infinity: "All time",
-  TODAY: "Today",
-  ONE_WEEK: "1 week",
-  ONE_MONTH: "1 month",
-  THREE_MONTHS: "3 months",
-  THIS_YEAR: "This year",
-  ONE_YEAR: "1 year",
-  THREE_YEARS: "3 years",
-  FIVE_YEARS: "5 years",
-  ALL_TIME: "All time",
+  today: p.today,
+  one_week: p.oneWeek,
+  one_month: p.oneMonth,
+  three_months: p.threeMonths,
+  this_year: p.thisYear,
+  one_year: p.oneYear,
+  three_years: p.threeYears,
+  five_years: p.fiveYears,
+  infinity: p.all,
+  TODAY: p.today,
+  ONE_WEEK: p.oneWeek,
+  ONE_MONTH: p.oneMonth,
+  THREE_MONTHS: p.threeMonths,
+  THIS_YEAR: p.thisYear,
+  ONE_YEAR: p.oneYear,
+  THREE_YEARS: p.threeYears,
+  FIVE_YEARS: p.fiveYears,
+  ALL_TIME: p.all,
 };
 
 // Fund series are % development since the period start, in percent units.
@@ -86,14 +88,14 @@ function History({
       </header>
       <div className="h-44 px-1 pb-1">
         {points.length === 0 ? (
-          <p className="text-muted-foreground p-3 text-xs">No history in this period.</p>
+          <p className="text-muted-foreground p-3 text-xs">{m.ai.chart.noHistory}</p>
         ) : (
           <PriceChart
             points={points}
             intraday={block.period === "today"}
             {...(fund && {
               formatValue: formatDevelopment,
-              valueLabel: "Development",
+              valueLabel: m.common.development,
               previousClose: 0,
             })}
           />
@@ -120,7 +122,7 @@ export function AnswerChart({
     <>
       <header className="flex items-center gap-2 px-3 pt-2">
         <span className="font-medium">
-          {block.mode === "value" ? "Portfolio value" : "Portfolio return"}
+          {block.mode === "value" ? m.ai.chart.portfolioValue : m.ai.chart.portfolioReturn}
         </span>
         <span className="text-muted-foreground text-xs">{periods[block.period]}</span>
       </header>

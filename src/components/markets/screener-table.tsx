@@ -10,6 +10,7 @@ import { useFocusInstrument } from "@/components/workspace/use-focused-instrumen
 import { instrumentItem } from "@/lib/ai/context";
 import { screenStocksQuery } from "@/lib/avanza/queries";
 import { formatCompact, formatInteger, formatPrice, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 const dash = "–";
 const num = (value: number | undefined, format: (v: number) => string) =>
@@ -20,7 +21,7 @@ const change = (value: number | undefined) => (value == null ? dash : <Change ra
 const col = dataTableColumns<ScreenedStock>();
 const columns = col.columns([
   col.accessor("name", {
-    header: "Stock",
+    header: m.markets.columns.stock,
     cell: (c) => (
       <span className="flex items-center gap-1.5">
         <span className="max-w-48 truncate font-medium">{c.getValue()}</span>
@@ -29,43 +30,37 @@ const columns = col.columns([
     ),
   }),
   col.accessor("lastPrice", {
-    header: "Last",
+    header: m.common.last,
     cell: (c) => num(c.getValue(), formatPrice),
     meta: { align: "end", className: "num" },
   }),
   col.accessor("oneDayChangePercent", {
-    header: "Today",
+    header: m.common.today,
     cell: (c) => change(c.getValue()),
     meta: { align: "end" },
   }),
   col.accessor("startOfYearChangePercent", {
-    header: "YTD",
+    header: m.markets.columns.ytd,
     cell: (c) => change(c.getValue()),
     meta: { align: "end" },
   }),
   col.accessor("priceEarningsRatio", {
-    header: infoHeader(
-      "P/E",
-      "Price per share divided by profit per share: how many years of today's profit the price pays for. Lower is cheaper, but fast growers often have a high P/E.",
-    ),
+    header: infoHeader(m.markets.screener.pe, m.markets.screener.peTip),
     cell: (c) => num(c.getValue(), formatPrice),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.accessor("directYield", {
-    header: infoHeader(
-      "Yield",
-      "The yearly dividend as a share of today's price: what the stock pays you each year for holding it.",
-    ),
+    header: infoHeader(m.common.yield, m.markets.screener.yieldTip),
     cell: (c) => num(c.getValue(), formatShare),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.accessor("marketCapitalization", {
-    header: infoHeader("Market cap", "What the whole company is worth on the stock market."),
+    header: infoHeader(m.markets.screener.marketCap, m.markets.screener.marketCapTip),
     cell: (c) => num(c.getValue(), formatCompact),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.accessor("numberOfOwners", {
-    header: "Owners",
+    header: m.markets.columns.owners,
     cell: (c) => num(c.getValue(), formatInteger),
     meta: { align: "end", className: "num font-medium" },
   }),
@@ -76,7 +71,7 @@ export function ScreenerTable({ name }: { name: string }) {
   const { data } = useSuspenseQuery(screenStocksQuery(name));
   const focus = useFocusInstrument();
 
-  if (data.stocks.length === 0) return <Empty>No stocks match.</Empty>;
+  if (data.stocks.length === 0) return <Empty>{m.markets.screener.empty}</Empty>;
   return (
     <DataTable
       columns={columns}

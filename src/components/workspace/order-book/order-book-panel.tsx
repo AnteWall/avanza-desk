@@ -13,6 +13,7 @@ import { TabbedPanel } from "@/components/workspace/tabbed-panel";
 import { useFocusedInstrument } from "@/components/workspace/use-focused-instrument";
 import { InstrumentType } from "@/lib/avanza/codes";
 import { instrumentQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 
 /** Order depth (as a table or a price ladder with your orders), the trade tape (time & sales) and broker statistics of the focused instrument. */
 export function OrderBookPanel() {
@@ -25,7 +26,7 @@ export function OrderBookPanel() {
 
   const view = (what: string, table: ReactNode) =>
     !focus ? null : fund ? (
-      <Empty>Funds trade once a day at NAV, so there is no order book.</Empty>
+      <Empty>{m.workspace.orderBook.fund}</Empty>
     ) : (
       <AsyncBoundary what={what} fallback={<TableSkeleton rows={10} />} resetKey={focus.id}>
         {table}
@@ -39,27 +40,27 @@ export function OrderBookPanel() {
       tabs={[
         {
           value: "depth",
-          label: "Depth",
+          label: m.workspace.orderBook.depth,
           icon: Layers,
-          content: focus && view("the order book", <OrderBookTable focus={focus} />),
+          content: focus && view(m.workspace.orderBook.whatBook, <OrderBookTable focus={focus} />),
         },
         {
           value: "ladder",
-          label: "Ladder",
+          label: m.workspace.orderBook.ladder,
           icon: ListOrdered,
-          content: focus && view("the order book", <LadderTable focus={focus} />),
+          content: focus && view(m.workspace.orderBook.whatBook, <LadderTable focus={focus} />),
         },
         {
           value: "trades",
-          label: "Trades",
+          label: m.workspace.orderBook.trades,
           icon: ArrowLeftRight,
-          content: focus && view("trades", <TradesTable focus={focus} />),
+          content: focus && view(m.workspace.orderBook.whatTrades, <TradesTable focus={focus} />),
         },
         {
           value: "brokers",
-          label: "Brokers",
+          label: m.workspace.orderBook.brokers,
           icon: Users,
-          content: focus && view("broker statistics", <BrokersTable focus={focus} />),
+          content: focus && view(m.workspace.orderBook.whatBrokers, <BrokersTable focus={focus} />),
         },
       ]}
     />

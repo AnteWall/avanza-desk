@@ -5,6 +5,7 @@ import { SettingsRow } from "@/components/settings/settings-row";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { Switch } from "@/components/ui/switch";
 import { getPreferences, MAX_ABOUT, savePreferences, type Preferences } from "@/lib/ai/preferences";
+import { m } from "@/lib/i18n";
 
 function Segmented<T extends string>({
   label,
@@ -54,67 +55,73 @@ export function AssistantPreferences() {
 
   return (
     <>
-      <SettingsSection title="Answers">
-        <SettingsRow label="Language" hint="Auto answers in the language you write in">
+      <SettingsSection title={m.settings.assistant.answers}>
+        <SettingsRow
+          label={m.settings.assistant.language.label}
+          hint={m.settings.assistant.language.hint}
+        >
           <Segmented
-            label="Language"
+            label={m.settings.assistant.language.label}
             value={prefs.language}
             onChange={(language) => update({ language })}
             options={[
-              { value: "auto", label: "Auto" },
+              { value: "auto", label: m.settings.assistant.language.auto },
               { value: "en", label: "English" },
               { value: "sv", label: "Svenska" },
             ]}
           />
         </SettingsRow>
-        <SettingsRow label="Length" hint="How much detail by default">
+        <SettingsRow
+          label={m.settings.assistant.length.label}
+          hint={m.settings.assistant.length.hint}
+        >
           <Segmented
-            label="Answer length"
+            label={m.settings.assistant.length.aria}
             value={prefs.detail}
             onChange={(detail) => update({ detail })}
             options={[
-              { value: "brief", label: "Brief" },
-              { value: "balanced", label: "Balanced" },
-              { value: "detailed", label: "Detailed" },
+              { value: "brief", label: m.settings.assistant.length.brief },
+              { value: "balanced", label: m.settings.assistant.length.balanced },
+              { value: "detailed", label: m.settings.assistant.length.detailed },
             ]}
           />
         </SettingsRow>
       </SettingsSection>
-      <SettingsSection title="Tools">
-        <SettingsRow label="Web search" hint="Look up what Avanza doesn't have, like background">
+      <SettingsSection title={m.settings.assistant.tools}>
+        <SettingsRow
+          label={m.settings.assistant.webSearch.label}
+          hint={m.settings.assistant.webSearch.hint}
+        >
           <Switch
-            aria-label="Web search"
+            aria-label={m.settings.assistant.webSearch.label}
             checked={prefs.webSearch}
             onCheckedChange={(webSearch) => update({ webSearch })}
             className="data-checked:bg-brand"
           />
         </SettingsRow>
         <SettingsRow
-          label="External articles"
-          hint="Read Placera, Direkt and other articles from your news on their sites"
+          label={m.settings.assistant.externalArticles.label}
+          hint={m.settings.assistant.externalArticles.hint}
         >
           <Switch
-            aria-label="External articles"
+            aria-label={m.settings.assistant.externalArticles.label}
             checked={prefs.externalArticles}
             onCheckedChange={(externalArticles) => update({ externalArticles })}
             className="data-checked:bg-brand"
           />
         </SettingsRow>
       </SettingsSection>
-      <SettingsSection title="About you">
+      <SettingsSection title={m.settings.assistant.about.title}>
         <label className="flex flex-col gap-1.5 px-3 pt-1 pb-2">
-          <span className="text-muted-foreground text-xs">
-            Your goals, horizon and risk appetite, or anything the assistant should always keep in
-            mind.
-          </span>
+          <span className="text-muted-foreground text-xs">{m.settings.assistant.about.hint}</span>
           <textarea
-            aria-label="About you"
+            aria-label={m.settings.assistant.about.title}
             value={prefs.about}
             maxLength={MAX_ABOUT}
             rows={4}
             onChange={(e) => update({ about: e.target.value }, false)}
             onBlur={() => void savePreferences(prefs)}
-            placeholder="E.g. Long-term saver, 20+ year horizon. Prefer dividend stocks and index funds. Avoid crypto."
+            placeholder={m.settings.assistant.about.placeholder}
             className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 resize-y rounded-md border bg-transparent px-2.5 py-2 leading-relaxed outline-none focus-visible:ring-3"
           />
           <span className="text-muted-foreground num self-end text-xs">

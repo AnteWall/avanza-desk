@@ -6,6 +6,7 @@ import { useAccount } from "@/components/layout/use-account";
 import { useFocusedInstrument } from "@/components/workspace/use-focused-instrument";
 import type { ContextItem } from "@/lib/ai/context";
 import { instrumentQuery, newsFeedQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 
 /**
  * What the user is looking at right now, as context for the assistant: the page, the account
@@ -27,7 +28,7 @@ export function useViewContext(): ContextItem[] {
 
   const items: ContextItem[] = [];
   const page = pathname.startsWith("/settings")
-    ? "Settings"
+    ? m.common.settings
     : pages.find((p) => p.to === pathname)?.label;
   if (page) items.push({ kind: "page", label: page });
   if (account.id) items.push({ kind: "account", label: account.label });
@@ -47,7 +48,7 @@ export function useViewContext(): ContextItem[] {
     items.push({
       kind: "article",
       url: article,
-      title: item?.title ?? "The open article",
+      title: item?.title ?? m.ai.openArticle,
       external: item?.externalLink ?? false,
     });
   }

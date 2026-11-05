@@ -2,13 +2,7 @@ import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import type { Phase } from "@/lib/ai/types";
-
-const labels: Record<Phase, string> = {
-  starting: "Starting",
-  thinking: "Thinking",
-  writing: "Writing",
-  tool: "Fetching data",
-};
+import { m } from "@/lib/i18n";
 
 /** The live line under a running answer: what Claude is doing and for how long. */
 export function ChatStatus({ phase }: { phase: Phase }) {
@@ -24,7 +18,9 @@ export function ChatStatus({ phase }: { phase: Phase }) {
   return (
     <p role="status" className="text-muted-foreground flex items-center gap-2 text-xs">
       <LoaderCircle className="size-3.5 motion-safe:animate-spin" aria-hidden />
-      <span className="motion-safe:text-shimmer motion-safe:animate-shimmer">{labels[phase]}…</span>
+      <span className="motion-safe:text-shimmer motion-safe:animate-shimmer">
+        {m.ai.status[phase]}…
+      </span>
       {seconds > 0 && <span className="num ml-auto">{seconds} s</span>}
     </p>
   );

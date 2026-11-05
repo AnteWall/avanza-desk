@@ -2,6 +2,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
 
+import { m } from "@/lib/i18n";
+
 // Settings live in the app's SQLite database (src-tauri/src/db.rs). They are loaded once before
 // the first render, then read synchronously from memory and written through on change.
 const cache = new Map<string, unknown>();
@@ -42,9 +44,9 @@ export function saveSetting(key: string, value: unknown) {
   // Best effort (and absent in tests): the save below is what counts.
   emit(EVENT, { key, value, from: self }).catch(() => undefined);
   return invoke("setting_save", { key, value: JSON.stringify(value) }).catch((error) => {
-    toast.error("Couldn't save settings", {
+    toast.error(m.settings.saveFailed.title, {
       id: "setting-save",
-      description: `Changes may be lost on restart. ${String(error)}`,
+      description: m.settings.saveFailed.description(String(error)),
     });
     throw error;
   });

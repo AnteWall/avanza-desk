@@ -15,8 +15,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useChartView } from "@/components/workspace/chart/use-chart-view";
 import { overlayLabels, setChartView, type LowerPane, type Overlay } from "@/lib/chart-view";
+import { m } from "@/lib/i18n";
 
-const lowerLabels: Record<LowerPane, string> = { none: "None", rsi: "RSI 14", macd: "MACD" };
+const lowerLabels: Record<LowerPane, string> = {
+  none: m.workspace.chart.noPane,
+  rsi: "RSI 14",
+  macd: "MACD",
+};
 
 /** Line or candles, and the indicators drawn over and under the price. */
 export function ChartControls({ intraday }: { intraday: boolean }) {
@@ -32,23 +37,24 @@ export function ChartControls({ intraday }: { intraday: boolean }) {
   return (
     <div className="flex items-center gap-1">
       <Segmented
-        label="Chart style"
+        label={m.workspace.chart.style}
         options={[
-          { label: "Line", value: "line" },
-          { label: "Candles", value: "candles" },
+          { label: m.workspace.chart.line, value: "line" },
+          { label: m.workspace.chart.candles, value: "candles" },
         ]}
         value={view.style}
         onChange={(style) => setChartView({ style })}
       />
       <DropdownMenu>
         <DropdownMenuTrigger render={<Button variant="outline" size="xs" />}>
-          Indicators{count > 0 && <span className="num text-muted-foreground">{count}</span>}
+          {m.workspace.chart.indicators}
+          {count > 0 && <span className="num text-muted-foreground">{count}</span>}
           <ChevronDown />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44">
           <DropdownMenuGroup>
             <DropdownMenuLabel className="text-muted-foreground text-xs">
-              On the price
+              {m.workspace.chart.onPrice}
             </DropdownMenuLabel>
             {(Object.keys(overlayLabels) as Overlay[]).map((o) => (
               <DropdownMenuCheckboxItem
@@ -64,7 +70,9 @@ export function ChartControls({ intraday }: { intraday: boolean }) {
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuLabel className="text-muted-foreground text-xs">Below</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-muted-foreground text-xs">
+              {m.workspace.chart.below}
+            </DropdownMenuLabel>
             <DropdownMenuRadioGroup
               value={view.lower}
               onValueChange={(lower: LowerPane) => setChartView({ lower })}

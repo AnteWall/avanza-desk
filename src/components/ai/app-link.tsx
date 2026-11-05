@@ -5,6 +5,7 @@ import { InstrumentLogo } from "@/components/common/instrument-logo";
 import { useOpenArticle } from "@/components/news/use-open-article";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import type { AppLink as Link } from "@/lib/ai/links";
+import { m } from "@/lib/i18n";
 
 /**
  * An instrument or article named in an answer, as a chip that opens it in the app: the
@@ -25,10 +26,10 @@ export function AppLink({ link, children }: { link: Link; children: ReactNode })
       }
       title={
         link.kind === "instrument"
-          ? "Open in the workspace"
+          ? m.ai.link.workspace
           : link.external
-            ? "Open in the browser"
-            : "Read in News"
+            ? m.ai.link.browser
+            : m.ai.link.news
       }
       className="bg-muted/60 hover:bg-muted focus-visible:ring-ring/50 decoration-border text-foreground mx-px inline-flex max-w-full translate-y-px items-baseline gap-1 rounded-sm px-1 align-baseline font-medium underline-offset-2 transition-colors outline-none hover:underline focus-visible:ring-2"
     >

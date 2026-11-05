@@ -6,6 +6,7 @@ import { Empty } from "@/components/common/empty";
 import { NewsGroup } from "@/components/news/news-group";
 import { useHoldings } from "@/components/portfolio/use-holdings";
 import { newsFeedQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 import { groupNews } from "@/lib/news";
 
 /** The last week's news on your holdings and watchlists, grouped per instrument. Suspends. */
@@ -19,7 +20,7 @@ export function NewsFeed() {
   // Logos are keyed by ISIN, which the feed lacks; holdings have it (watch-only ones show an initial).
   const isins = useMemo(() => new Map(holdings.map((h) => [h.orderbookId, h.isin])), [holdings]);
 
-  if (groups.length === 0) return <Empty>No news on your holdings this week.</Empty>;
+  if (groups.length === 0) return <Empty>{m.news.feed.empty}</Empty>;
   return (
     <div>
       {groups.map((g) => (

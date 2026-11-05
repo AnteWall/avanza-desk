@@ -10,20 +10,24 @@ import { instrumentItem } from "@/lib/ai/context";
 import { toOrderRow, type OrderRow } from "@/lib/avanza/loose-records";
 import { ordersQuery } from "@/lib/avanza/queries";
 import { formatDate, formatDateTime, formatInteger, formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 const dash = "–";
 
 const col = dataTableColumns<OrderRow>();
 const columns = col.columns([
   col.accessor("time", {
-    header: "Placed",
+    header: m.orders.columns.placed,
     cell: (c) => (c.getValue() ? formatDateTime(c.getValue()!) : dash),
     meta: { className: "num text-muted-foreground" },
   }),
-  col.accessor("name", { header: "Instrument", meta: { className: "font-medium" } }),
-  col.accessor("side", { header: "Side", cell: (c) => <Side side={c.getValue()} /> }),
+  col.accessor("name", { header: m.common.instrument, meta: { className: "font-medium" } }),
+  col.accessor("side", {
+    header: m.orders.columns.side,
+    cell: (c) => <Side side={c.getValue()} />,
+  }),
   col.accessor("volume", {
-    header: "Filled / qty",
+    header: m.orders.columns.filled,
     cell: (c) =>
       c.getValue() == null
         ? dash
@@ -31,7 +35,7 @@ const columns = col.columns([
     meta: { align: "end", className: "sensitive num" },
   }),
   col.accessor("price", {
-    header: "Limit",
+    header: m.orders.columns.limit,
     cell: (c) =>
       c.getValue() == null
         ? dash
@@ -39,27 +43,23 @@ const columns = col.columns([
     meta: { align: "end", className: "num font-medium" },
   }),
   col.accessor("state", {
-    header: "State",
+    header: m.orders.columns.state,
     cell: (c) => c.getValue()?.toLowerCase().replaceAll("_", " ") ?? dash,
     meta: { className: "text-muted-foreground" },
   }),
   col.accessor("validUntil", {
-    header: "Valid until",
+    header: m.orders.columns.validUntil,
     cell: (c) => (c.getValue() ? formatDate(c.getValue()!) : dash),
     meta: { className: "num text-muted-foreground" },
   }),
   col.accessor("account", {
-    header: "Account",
+    header: m.common.account,
     cell: (c) => c.getValue() ?? dash,
     meta: { className: "text-muted-foreground" },
   }),
 ]);
 
-const emptyText: Record<keyof OrdersResponse, string> = {
-  orders: "No open orders.",
-  fundOrders: "No fund orders.",
-  cancelledOrders: "No cancelled orders.",
-};
+const emptyText: Record<keyof OrdersResponse, string> = m.orders.empty;
 
 /** One of Avanza's order lists; clicking an order focuses its instrument. Suspends. */
 export function OrdersTable({ list }: { list: keyof OrdersResponse }) {

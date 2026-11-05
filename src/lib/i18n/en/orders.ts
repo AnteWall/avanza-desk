@@ -1,0 +1,40 @@
+export const orders = {
+  page: {
+    aside: (account: string) => `${account} · manage orders in Avanza`,
+    tabs: {
+      open: "Open",
+      deals: "Today's trades",
+      stopLoss: "Stop-loss",
+      fund: "Fund orders",
+      cancelled: "Cancelled",
+    },
+    what: {
+      orders: "your orders",
+      deals: "today's trades",
+      stopLoss: "stop-loss orders",
+      fund: "fund orders",
+      cancelled: "cancelled orders",
+    },
+  },
+  columns: {
+    time: "Time",
+    placed: "Placed",
+    side: "Side",
+    amount: "Amount",
+    filled: "Filled / qty",
+    limit: "Limit",
+    state: "State",
+    validUntil: "Valid until",
+    trigger: "Trigger",
+    thenSide: "Then",
+    orderPrice: "Order price",
+    status: "Status",
+  },
+  empty: {
+    deals: "No trades today.",
+    orders: "No open orders.",
+    fundOrders: "No fund orders.",
+    cancelledOrders: "No cancelled orders.",
+    stopLoss: "No stop-loss orders.",
+  },
+};

@@ -10,53 +10,54 @@ import { useFocusInstrument } from "@/components/workspace/use-focused-instrumen
 import { transactionsQuery } from "@/lib/avanza/queries";
 import { formatDate, formatInteger, formatPrice } from "@/lib/format";
 import { inGroup } from "@/lib/groups";
+import { m } from "@/lib/i18n";
 
 const dash = "–";
 
 const col = dataTableColumns<Transaction>();
 const columns = col.columns([
   col.accessor("date", {
-    header: "Date",
+    header: m.common.date,
     cell: (c) => formatDate(c.getValue()),
     meta: { className: "num text-muted-foreground" },
   }),
   col.accessor((t) => t.backofficeTypeText || t.type, {
     id: "type",
-    header: "Type",
+    header: m.common.type,
   }),
   col.accessor((t) => t.orderbook?.name ?? t.instrumentName ?? t.description, {
     id: "instrument",
-    header: "Instrument",
+    header: m.common.instrument,
     meta: { className: "max-w-56 truncate font-medium" },
   }),
   col.accessor((t) => t.volume?.value, {
     id: "qty",
-    header: "Qty",
+    header: m.common.quantity,
     cell: (c) => (c.getValue() == null ? dash : formatInteger(c.getValue()!)),
     meta: { align: "end", className: "sensitive num" },
   }),
   col.accessor((t) => t.priceInTradedCurrency, {
     id: "price",
-    header: "Price",
+    header: m.common.price,
     cell: (c) =>
       c.getValue() ? `${formatPrice(c.getValue()!.value)} ${c.getValue()!.unit}` : dash,
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.accessor((t) => t.amount?.value, {
     id: "amount",
-    header: "Amount (SEK)",
+    header: m.portfolio.transactions.amount,
     cell: (c) => (c.getValue() == null ? dash : <SignedAmount value={c.getValue()!} />),
     meta: { align: "end", className: "sensitive font-medium" },
   }),
   col.accessor((t) => t.commission?.value, {
     id: "fee",
-    header: "Fee",
+    header: m.portfolio.transactions.fee,
     cell: (c) => (c.getValue() ? formatPrice(c.getValue()!) : dash),
     meta: { align: "end", className: "sensitive num text-muted-foreground" },
   }),
   col.accessor((t) => t.account.name, {
     id: "account",
-    header: "Account",
+    header: m.common.account,
     meta: { className: "text-muted-foreground" },
   }),
 ]);
@@ -80,7 +81,7 @@ export function TransactionsTable() {
     .filter((t) => !group || inGroup(group, t.orderbook?.id, t.isin))
     .sort((a, b) => b.date.localeCompare(a.date));
 
-  if (rows.length === 0) return <Empty>No transactions in the last 12 months.</Empty>;
+  if (rows.length === 0) return <Empty>{m.portfolio.transactions.empty}</Empty>;
   return (
     <DataTable
       columns={columns}

@@ -1,22 +1,14 @@
 import { ArrowUpRight } from "lucide-react";
 
-const suggestions = [
-  "How is my portfolio doing today?",
-  "What are my largest holdings and how concentrated am I?",
-  "Summarize the latest news on my holdings",
-  "Do I have any open orders?",
-];
+import { m } from "@/lib/i18n";
 
 /** The empty chat: one line of context and a few questions to start from. */
 export function ChatSuggestions({ onPick }: { onPick: (text: string) => void }) {
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-muted-foreground">
-        Ask about your holdings, orders, an instrument or the news. The assistant reads your account
-        but can't trade.
-      </p>
+      <p className="text-muted-foreground">{m.ai.suggestions.intro}</p>
       <ul className="flex flex-col">
-        {suggestions.map((text) => (
+        {m.ai.suggestions.questions.map((text) => (
           <li key={text}>
             <button
               type="button"

@@ -164,7 +164,8 @@ for (const shot of SHOTS) {
   if (only.length && !only.includes(shot.name)) continue;
   for (const theme of shot.themes ?? ["dark"]) {
     problems.length = 0;
-    const settings = { theme, ...shot.settings };
+    // The README and website are English; LANG_UI=sv takes the shots in Swedish.
+    const settings = { theme, language: process.env.LANG_UI ?? "en", ...shot.settings };
     const url = `${base}${shot.path}?demo=${encodeURIComponent(JSON.stringify(settings))}`;
     const file = theme === "dark" ? `${shot.name}.png` : `${shot.name}-${theme}.png`;
     try {

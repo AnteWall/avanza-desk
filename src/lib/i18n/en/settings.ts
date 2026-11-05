@@ -1,0 +1,181 @@
+export const settings = {
+  language: {
+    label: "Language",
+    hint: "The language AvanzaDesk speaks. Changing it reloads the app.",
+  },
+  saveFailed: {
+    title: "Couldn't save settings",
+    description: (error: string) => `Changes may be lost on restart. ${error}`,
+  },
+  categories: {
+    label: "Settings categories",
+    general: "General",
+    data: "Data",
+    notifications: "Notifications",
+    statusBar: "Status bar",
+    shortcuts: "Shortcuts",
+    assistant: "Assistant",
+  },
+  general: {
+    appearance: "Appearance",
+    theme: {
+      label: "Theme",
+      hint: "How AvanzaDesk looks. System follows your OS light or dark mode.",
+    },
+    textSize: {
+      label: "Text size",
+      hint: "Comfortable is easier to read. Compact fits more rows on screen, like a trading terminal.",
+      comfortable: "Comfortable",
+      compact: "Compact",
+    },
+    workspace: {
+      label: "Workspace",
+      hint: "Simple shows your watchlist and everything about the instrument. Trading adds the order book and a pre-trade estimate.",
+      simple: "Simple",
+      trading: "Trading",
+    },
+    window: "Window",
+    openOn: {
+      label: "Open on",
+      hint: "The page you see after signing in. Home sums up your portfolio; Workspace is charts and the order book.",
+    },
+    inAppFrame: {
+      label: "In-app window controls",
+      hint: "Minimize, maximize and close in the top bar instead of the system title bar",
+    },
+    updates: "Updates",
+    privacy: "Privacy",
+    startPrivate: {
+      label: "Start in privacy mode",
+      hint: "Blur amounts every time AvanzaDesk opens, for screen sharing",
+    },
+  },
+  update: {
+    checking: "Checking for updates…",
+    failed: (error: string) => `Couldn't check for updates: ${error}`,
+    available: (version: string) => `v${version} is available`,
+    latest: "You're on the latest version",
+    installing: "Updating…",
+    install: "Update and restart",
+    check: "Check for updates",
+  },
+  seconds: (label: string) => `${label}, seconds`,
+  data: {
+    refreshIntervals: "Refresh intervals",
+    fields: {
+      positions: { label: "Positions", hint: "Holdings and account values" },
+      alerts: { label: "Alerts", hint: "Avanza price alerts" },
+      news: { label: "News", hint: "News feed and instrument news" },
+      market: { label: "Market movers", hint: "Gainers and losers" },
+      indices: { label: "Index ticker", hint: "Indices in the top bar" },
+    },
+    withDefault: (hint: string, seconds: number) => `${hint} · default ${seconds}s`,
+    spreadsheets: "Spreadsheets",
+    quotesFile: {
+      label: "Live quotes file",
+      writing: (path: string) =>
+        `Writing your watchlists' quotes to ${path} while AvanzaDesk runs.`,
+      hint: "A CSV of your watchlists' quotes, rewritten as prices move. Point Excel or Sheets at it and refresh.",
+      change: "Change file…",
+      choose: "Choose file…",
+      stop: "Stop",
+    },
+    writeEvery: {
+      label: "Write every",
+      hint: (seconds: number) =>
+        `How often the file is rewritten while prices move · default ${seconds}s`,
+      aria: "Write the live quotes file every",
+    },
+    reset: {
+      title: "Reset",
+      button: "Reset",
+      layouts: { label: "Panel layouts", hint: "Panel sizes back to default. Reloads the window." },
+      tabs: { label: "Open tabs", hint: "Every page opens on its first tab. Reloads the window." },
+    },
+  },
+  notifications: {
+    desktop: "Desktop notifications",
+    events: {
+      fills: { label: "Order filled", hint: "When one of your orders is executed" },
+      alerts: { label: "Avanza alerts", hint: "Price alerts you set on Avanza" },
+      stopLosses: { label: "Stop-loss", hint: "When a stop-loss is placed, triggers or ends" },
+      rules: { label: "Alert rules", hint: "Your local rules under Alerts › Rules" },
+    },
+    content: "Content",
+    quantities: {
+      label: "Show quantities",
+      hint: "Number of shares in fill notifications. Always hidden in privacy mode.",
+    },
+  },
+  statusBar: {
+    title: "Status bar",
+    exchanges: { label: "Exchanges", hint: "Regular hours, in Swedish time" },
+  },
+  shortcuts: {
+    general: "General",
+    pages: "Go to page",
+    fixed: "Inside pages (fixed)",
+    actions: {
+      search: { label: "Search", hint: "Find an instrument or page from anywhere." },
+      assistant: { label: "Assistant", hint: "Open or close the assistant panel." },
+    },
+    fixedRows: {
+      chartRange: { label: "Chart range", hint: "In the workspace's overview." },
+      tables: { label: "Tables", hint: "Move through rows and open one." },
+      addInstrument: { label: "Add instrument", hint: "On the Rebalance page." },
+    },
+    recorder: {
+      taken: "Pages use that key on its own. Add Ctrl or Alt.",
+      moved: (from: string) => `Moved from ${from}`,
+      recording: "Recording: press the new keys",
+      change: "Change shortcut",
+      pressKeys: "Press keys…",
+      none: "None",
+      restore: "Restore default",
+      escToCancel: "Esc to cancel",
+    },
+  },
+  assistant: {
+    title: "Assistant",
+    providers: "Providers",
+    disconnect: "Disconnect",
+    disconnectHint: (name: string) => `Stop using ${name}. Your chats and preferences stay.`,
+    locate: (program: string) => `Locate ${program}`,
+    connected: "Connected",
+    details: (program: string) => `${program} details`,
+    removeKey: "Remove API key",
+    chosenByYou: "Chosen by you",
+    autoDetected: "Auto-detected",
+    change: "Change…",
+    useAutoDetect: "Use auto-detect",
+    answers: "Answers",
+    language: {
+      label: "Language",
+      hint: "Auto answers in the language you write in",
+      auto: "Auto",
+    },
+    length: {
+      label: "Length",
+      hint: "How much detail by default",
+      aria: "Answer length",
+      brief: "Brief",
+      balanced: "Balanced",
+      detailed: "Detailed",
+    },
+    tools: "Tools",
+    webSearch: {
+      label: "Web search",
+      hint: "Look up what Avanza doesn't have, like background",
+    },
+    externalArticles: {
+      label: "External articles",
+      hint: "Read Placera, Direkt and other articles from your news on their sites",
+    },
+    about: {
+      title: "About you",
+      hint: "Your goals, horizon and risk appetite, or anything the assistant should always keep in mind.",
+      placeholder:
+        "E.g. Long-term saver, 20+ year horizon. Prefer dividend stocks and index funds. Avoid crypto.",
+    },
+  },
+};

@@ -12,6 +12,7 @@ import type { Focus } from "@/components/workspace/use-focused-instrument";
 import { instrumentItem } from "@/lib/ai/context";
 import { InstrumentType } from "@/lib/avanza/codes";
 import { instrumentQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 
 export const headerSkeleton = (
   <div className="flex items-center gap-3">
@@ -44,7 +45,12 @@ export function ChartBody({ focus, period }: { focus: Focus; period: ChartPeriod
         )}
         trigger={
           <div>
-            <AsyncBoundary what="the quote" fallback={headerSkeleton} compact resetKey={focus.id}>
+            <AsyncBoundary
+              what={m.workspace.chart.whatQuote}
+              fallback={headerSkeleton}
+              compact
+              resetKey={focus.id}
+            >
               {fund ? (
                 <FundHeader instrument={instrument} />
               ) : (
@@ -55,7 +61,11 @@ export function ChartBody({ focus, period }: { focus: Focus; period: ChartPeriod
         }
       />
       <div className="min-h-0 flex-1">
-        <AsyncBoundary what="the chart" fallback={plotSkeleton} resetKey={`${focus.id}:${period}`}>
+        <AsyncBoundary
+          what={m.workspace.chart.whatChart}
+          fallback={plotSkeleton}
+          resetKey={`${focus.id}:${period}`}
+        >
           {fund ? (
             <FundChart instrument={instrument} period={fundPeriod} />
           ) : (

@@ -1,6 +1,8 @@
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { toast } from "sonner";
 
+import { m } from "@/lib/i18n";
+
 /** Opens (or brings forward) a window pinned to one instrument: its chart and order book. */
 export async function openPopout(id: string, name: string, type?: string) {
   // One window per instrument; labels allow only letters, digits and - / : _.
@@ -17,6 +19,6 @@ export async function openPopout(id: string, name: string, type?: string) {
     minHeight: 400,
   });
   void window.once("tauri://error", (e) =>
-    toast.error("Couldn't open the window", { description: String(e.payload) }),
+    toast.error(m.workspace.popoutError, { description: String(e.payload) }),
   );
 }

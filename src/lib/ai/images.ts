@@ -1,3 +1,5 @@
+import { m } from "@/lib/i18n";
+
 // Images pasted or dropped into the message box. Downscaled before sending: providers resize
 // anything larger anyway, and big base64 strings slow the chat and bloat saved history.
 
@@ -25,7 +27,7 @@ export async function readImage(file: File): Promise<Attachment> {
     mimeType,
     data: url.slice(url.indexOf(",") + 1),
     url,
-    name: file.name || "Pasted image",
+    name: file.name || m.ai.composer.pastedImage,
   };
 }
 

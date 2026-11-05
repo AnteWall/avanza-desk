@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Section } from "@/components/workspace/dossier/section";
 import { stockDetailsQuery } from "@/lib/avanza/queries";
 import { reportText } from "@/lib/avanza/stock-details";
+import { m } from "@/lib/i18n";
 
 /** Avanza's written summary of the latest company report, with its highlights. */
 export function LatestReport({ orderbookId }: { orderbookId: string }) {
@@ -13,7 +14,7 @@ export function LatestReport({ orderbookId }: { orderbookId: string }) {
 
   const { reportPeriod, financialYear } = report.reportPeriodAndYear;
   return (
-    <Section title="Latest report" aside={`${reportPeriod} ${financialYear}`}>
+    <Section title={m.workspace.report.title} aside={`${reportPeriod} ${financialYear}`}>
       <div className="flex max-w-prose flex-col gap-2 leading-relaxed">
         {reportText(summary.summary)
           .split("\n")

@@ -17,6 +17,7 @@ import {
 } from "@/lib/avanza/queries";
 import { buildBriefing, startOfDayOf, type LastVisit } from "@/lib/briefing";
 import { formatDate } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { calendarEvents, stockholmToday } from "@/lib/news";
 
 /**
@@ -62,8 +63,8 @@ export function BriefingView({ since, switcher }: { since?: LastVisit; switcher?
             <BriefingMasthead b={b} today={!since} />
             {b.movers.length > 0 && (
               <BriefingSection
-                title="What moved"
-                dek={since ? "your holdings, since then" : "your holdings, today"}
+                title={m.briefing.sections.moved}
+                dek={since ? m.briefing.sections.movedSince : m.briefing.sections.movedToday}
                 to="/portfolio"
               >
                 <BriefingMovers movers={b.movers} />
@@ -71,8 +72,8 @@ export function BriefingView({ since, switcher }: { since?: LastVisit; switcher?
             )}
             {b.activity.length > 0 && (
               <BriefingSection
-                title={since ? "While you were away" : "Today"}
-                dek="trades, dividends and alerts"
+                title={since ? m.briefing.sections.away : m.common.today}
+                dek={m.briefing.sections.activity}
                 to="/portfolio"
               >
                 <BriefingTimeline activity={b.activity} />
@@ -80,8 +81,8 @@ export function BriefingView({ since, switcher }: { since?: LastVisit; switcher?
             )}
             {b.upcoming.length > 0 && (
               <BriefingSection
-                title="The next two weeks"
-                dek="reports and ex-dividend dates"
+                title={m.briefing.sections.ahead}
+                dek={m.briefing.sections.aheadDek}
                 to="/news"
               >
                 <BriefingAhead events={b.upcoming} isins={b.isins} />

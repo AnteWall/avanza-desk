@@ -8,28 +8,29 @@ import { instrumentItem } from "@/lib/ai/context";
 import { toAlertRow, type AlertRow } from "@/lib/avanza/loose-records";
 import { alertsQuery } from "@/lib/avanza/queries";
 import { formatDate, formatDateTime, formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 const dash = "–";
 
 const col = dataTableColumns<AlertRow>();
 const columns = col.columns([
-  col.accessor("name", { header: "Instrument", meta: { className: "font-medium" } }),
+  col.accessor("name", { header: m.common.instrument, meta: { className: "font-medium" } }),
   col.accessor("direction", {
-    header: "When",
+    header: m.alerts.table.when,
     cell: (c) => c.getValue()?.toLowerCase().replaceAll("_", " ") ?? dash,
   }),
   col.accessor("value", {
-    header: "Level",
+    header: m.alerts.table.level,
     cell: (c) => (c.getValue() == null ? dash : formatPrice(c.getValue()!)),
     meta: { align: "end", className: "num font-medium" },
   }),
   col.accessor("channels", {
-    header: "Notify by",
+    header: m.alerts.table.notifyBy,
     cell: (c) => c.getValue() || dash,
     meta: { className: "text-muted-foreground" },
   }),
   col.accessor("validUntil", {
-    header: "Valid until",
+    header: m.alerts.table.validUntil,
     cell: (c) => (c.getValue() ? formatDate(c.getValue()!) : dash),
     meta: { className: "num text-muted-foreground" },
   }),
@@ -37,19 +38,14 @@ const columns = col.columns([
 
 const triggeredColumns = col.columns([
   col.accessor("triggered", {
-    header: "Triggered",
+    header: m.alerts.table.triggered,
     cell: (c) => (c.getValue() ? formatDateTime(c.getValue()!) : dash),
     meta: { className: "num text-muted-foreground" },
   }),
   ...columns.slice(0, 3),
 ]);
 
-const emptyText = {
-  priceAlerts: "No price alerts.",
-  percentAlerts: "No percent alerts.",
-  newsAlerts: "No news alerts.",
-  triggered: "No alerts have triggered.",
-};
+const emptyText = m.alerts.table.empty;
 
 /**
  * One kind of alert, or the ones that have triggered. Read-only: avanza-ts can't create

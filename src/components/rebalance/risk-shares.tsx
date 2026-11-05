@@ -1,5 +1,6 @@
 import { WeightBar } from "@/components/rebalance/weight-bar";
 import { formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 export type RiskShare = { name: string; weight: number; before: number; after: number };
 
@@ -13,9 +14,9 @@ export function RiskShares({ items }: { items: readonly RiskShare[] }) {
   const scale = Math.max(...shown.flatMap((r) => [r.before, r.after]));
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_4rem_9rem_7rem] items-center gap-x-6 gap-y-1.5 text-xs">
-      <span className="text-muted-foreground">Instrument</span>
-      <span className="text-muted-foreground text-right">Money</span>
-      <span className="text-muted-foreground text-right">Risk today → after</span>
+      <span className="text-muted-foreground">{m.common.instrument}</span>
+      <span className="text-muted-foreground text-right">{m.rebalance.riskShares.money}</span>
+      <span className="text-muted-foreground text-right">{m.rebalance.riskShares.risk}</span>
       <span />
       {shown.map((r) => (
         <div key={r.name} className="contents">

@@ -1,5 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 
+import { m } from "@/lib/i18n";
+
 import { type ContentBlock, withHistory } from "../content";
 import { createSession } from "../session";
 import type { ChatSession, SessionOptions } from "../types";
@@ -56,8 +58,7 @@ export function createCodexSession(options: () => SessionOptions, resume?: strin
           threadId = undefined;
           await core.start();
           core.setStatus({
-            notice:
-              "The earlier session couldn't be restored, so the assistant got the chat as text.",
+            notice: m.ai.provider.notRestored,
           });
           return send(withHistory(blocks, messages));
         }

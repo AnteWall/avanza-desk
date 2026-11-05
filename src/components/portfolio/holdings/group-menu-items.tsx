@@ -9,19 +9,19 @@ import {
   ContextMenuSubTrigger,
 } from "@/components/ui/context-menu";
 import { updateGroup } from "@/lib/groups";
+import { m } from "@/lib/i18n";
 
 /** Right-click items for selected holdings: add them to a group, or take them out of one. */
 export function GroupMenuItems({ keys, onNewGroup }: { keys: string[]; onNewGroup: () => void }) {
   const groups = useGroups();
   // Every group holding any of the selection.
   const holding = groups.filter((g) => keys.some((k) => g.keys.includes(k)));
-  const what = keys.length === 1 ? "" : ` ${keys.length} holdings`;
   return (
     <>
       <ContextMenuSub>
         <ContextMenuSubTrigger>
           <FolderPlus />
-          Add{what} to group
+          {m.portfolio.groups.addTo(keys.length)}
         </ContextMenuSubTrigger>
         <ContextMenuSubContent>
           {groups.map((g) => (
@@ -37,7 +37,7 @@ export function GroupMenuItems({ keys, onNewGroup }: { keys: string[]; onNewGrou
           {groups.length > 0 && <ContextMenuSeparator />}
           <ContextMenuItem onClick={onNewGroup}>
             <Plus />
-            New group…
+            {m.portfolio.groups.newGroup}
           </ContextMenuItem>
         </ContextMenuSubContent>
       </ContextMenuSub>
@@ -45,7 +45,7 @@ export function GroupMenuItems({ keys, onNewGroup }: { keys: string[]; onNewGrou
         <ContextMenuSub>
           <ContextMenuSubTrigger>
             <FolderMinus />
-            Remove{what} from group
+            {m.portfolio.groups.removeFrom(keys.length)}
           </ContextMenuSubTrigger>
           <ContextMenuSubContent>
             {holding.map((g) => (

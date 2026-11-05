@@ -4,6 +4,7 @@ import { ruleKindIcon } from "@/components/alerts/rule-kind-icon";
 import { useRuleState } from "@/components/alerts/use-rule-state";
 import { Button } from "@/components/ui/button";
 import { describeRule, saveRule, suggestRules, type AlertRule } from "@/lib/alert-rules";
+import { m } from "@/lib/i18n";
 import { openRuleDialog } from "@/lib/rule-dialog";
 import { stockholmDay } from "@/lib/snapshots";
 
@@ -20,7 +21,7 @@ export function RuleSuggestions({ rules }: { rules: readonly AlertRule[] }) {
     <section className="flex flex-col gap-1 border-b p-3">
       <h3 className="text-muted-foreground flex items-center gap-1.5 text-xs">
         <Lightbulb className="size-3.5" aria-hidden />
-        Suggested from your portfolio
+        {m.alerts.suggestions.title}
       </h3>
       <ul className="flex flex-col">
         {suggestions.map((s) => {
@@ -30,14 +31,14 @@ export function RuleSuggestions({ rules }: { rules: readonly AlertRule[] }) {
               <Icon className="text-muted-foreground size-3.5 shrink-0" aria-hidden />
               <span className="min-w-0 flex-1 truncate">{describeRule(s)}</span>
               <Button variant="ghost" size="xs" onClick={() => openRuleDialog(s)}>
-                Adjust…
+                {m.alerts.suggestions.adjust}
               </Button>
               <Button
                 variant="outline"
                 size="xs"
                 onClick={() => saveRule({ ...s, id: crypto.randomUUID(), created: stockholmDay() })}
               >
-                Add
+                {m.common.add}
               </Button>
             </li>
           );

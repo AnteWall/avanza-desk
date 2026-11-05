@@ -18,6 +18,7 @@ import { avanza } from "@/lib/avanza/client";
 import { applyRowQuote, follow } from "@/lib/avanza/push";
 import { positionsQuery, watchlistRowsQuery, watchlistsQuery } from "@/lib/avanza/queries";
 import { formatCompact, formatInteger, formatPercent, formatPrice } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { watchlistColumns } from "@/lib/watchlist-columns";
 
 type Row = WatchlistRow & { held: boolean };
@@ -36,7 +37,7 @@ const allColumns = col.columns([
   col.accessor("shortName", {
     // Explicit: key-accessor columns carry no `id` on their definition, and the filter below needs one.
     id: "instrument",
-    header: "Instrument",
+    header: m.common.instrument,
     cell: (c) => {
       const { held, tools, isin, flagCode } = c.row.original;
       return (
@@ -44,10 +45,20 @@ const allColumns = col.columns([
           <InstrumentLogo isin={isin} name={c.getValue()} />
           <span className="font-medium">{c.getValue()}</span>
           <CountryFlag code={flagCode} />
-          {held && <span className="bg-brand size-1.5 rounded-full" title="In your portfolio" />}
-          {tools.hasAlert && <Bell className="text-muted-foreground size-3" aria-label="Alert" />}
+          {held && (
+            <span className="bg-brand size-1.5 rounded-full" title={m.workspace.watchlist.held} />
+          )}
+          {tools.hasAlert && (
+            <Bell
+              className="text-muted-foreground size-3"
+              aria-label={m.workspace.watchlist.alert}
+            />
+          )}
           {tools.hasNote && (
-            <NotebookPen className="text-muted-foreground size-3" aria-label="Note" />
+            <NotebookPen
+              className="text-muted-foreground size-3"
+              aria-label={m.workspace.watchlist.note}
+            />
           )}
         </span>
       );
@@ -55,7 +66,7 @@ const allColumns = col.columns([
   }),
   col.accessor((r) => r.quote.lastPrice, {
     id: "last",
-    header: "Last",
+    header: m.common.last,
     cell: (c) => <Flash value={c.getValue()}>{formatPrice(c.getValue())}</Flash>,
     meta: { align: "end", className: "num" },
   }),
@@ -68,7 +79,7 @@ const allColumns = col.columns([
   }),
   col.accessor((r) => r.quote.change, {
     id: "changeAbs",
-    header: "Change",
+    header: m.workspace.watchlist.columns.changeAbs,
     cell: (c) => (
       <span className={c.getValue() > 0 ? "text-up" : c.getValue() < 0 ? "text-down" : ""}>
         {formatPrice(c.getValue())}
@@ -76,8 +87,8 @@ const allColumns = col.columns([
     ),
     meta: { align: "end", className: "num" },
   }),
-  priceColumn("bid", "Bid", (q) => q.buyPrice),
-  priceColumn("ask", "Ask", (q) => q.sellPrice),
+  priceColumn("bid", m.workspace.watchlist.columns.bid, (q) => q.buyPrice),
+  priceColumn("ask", m.workspace.watchlist.columns.ask, (q) => q.sellPrice),
   col.accessor(
     (r) => {
       const { buyPrice: b, sellPrice: a } = r.quote;
@@ -85,23 +96,23 @@ const allColumns = col.columns([
     },
     {
       id: "spread",
-      header: "Spread",
+      header: m.workspace.watchlist.columns.spread,
       cell: (c) => (c.getValue() == null ? "–" : formatPercent(c.getValue()!).replace("+", "")),
       meta: { align: "end", className: "num text-muted-foreground" },
     },
   ),
-  priceColumn("high", "High", (q) => q.highestPrice),
-  priceColumn("low", "Low", (q) => q.lowestPrice),
-  priceColumn("close", "Prev close", (q) => q.closingPrice),
+  priceColumn("high", m.common.high, (q) => q.highestPrice),
+  priceColumn("low", m.common.low, (q) => q.lowestPrice),
+  priceColumn("close", m.workspace.watchlist.columns.prevClose, (q) => q.closingPrice),
   col.accessor((r) => r.quote.totalVolumeTraded, {
     id: "volume",
-    header: "Volume",
+    header: m.common.volume,
     cell: (c) => formatInteger(c.getValue()),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.accessor((r) => r.quote.totalValueTraded, {
     id: "turnover",
-    header: "Turnover",
+    header: m.common.turnover,
     cell: (c) => formatCompact(c.getValue()),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
@@ -140,7 +151,7 @@ export function WatchlistTable({ watchListId }: { watchListId: string | null }) 
   );
 
   if (rows.length === 0)
-    return <p className="text-muted-foreground p-3">This watchlist is empty.</p>;
+    return <p className="text-muted-foreground p-3">{m.workspace.watchlist.empty}</p>;
   return (
     <DataTable
       columns={columns}

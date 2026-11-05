@@ -2,6 +2,7 @@ import { cn } from "cn";
 
 import { InstrumentLogo } from "@/components/common/instrument-logo";
 import type { ContextItem } from "@/lib/ai/context";
+import { m } from "@/lib/i18n";
 
 type Instrument = Extract<ContextItem, { kind: "instrument" }>;
 
@@ -23,15 +24,15 @@ export function MentionList({
   return (
     <div
       role="listbox"
-      aria-label="Mention an instrument"
+      aria-label={m.ai.mention.label}
       className="bg-popover ring-foreground/10 absolute inset-x-0 bottom-full mb-1.5 flex flex-col gap-0.5 rounded-lg p-1 shadow-md ring-1"
     >
       <span className="text-muted-foreground px-2 pt-0.5 pb-1 text-xs">
-        {query ? `Instruments matching “${query}”` : "Your holdings"}
+        {query ? m.ai.mention.matching(query) : m.ai.mention.holdings}
       </span>
       {options.length === 0 && (
         <span className="text-muted-foreground px-2 py-1.5 text-xs">
-          {query.length < 2 ? "Type a name…" : "No matches."}
+          {query.length < 2 ? m.ai.mention.typeName : m.ai.mention.noMatches}
         </span>
       )}
       {options.map((item, i) => (
@@ -51,8 +52,8 @@ export function MentionList({
           <InstrumentLogo isin={item.isin} name={item.name} className="size-4" />
           <span className="truncate">{item.name}</span>
           {item.type && (
-            <span className="text-muted-foreground ml-auto shrink-0 text-xs capitalize">
-              {item.type.toLowerCase().replace(/_/g, " ")}
+            <span className="text-muted-foreground ml-auto shrink-0 text-xs">
+              {m.ai.mention.types[item.type] ?? item.type.toLowerCase().replace(/_/g, " ")}
             </span>
           )}
         </button>

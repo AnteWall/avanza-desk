@@ -6,6 +6,7 @@ import { tooltip } from "@tanstack/charts/tooltip";
 import { useMemo } from "react";
 
 import { formatCompact, formatInteger } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { statusLabel, toneLabel, type Metric, type Period, type Tone } from "@/lib/trading-profile";
 
 // Bars take the verdict's color, the same one its label wears.
@@ -56,11 +57,11 @@ export function MetricChart({ history, metric }: { history: readonly Period[]; m
             rows: [
               { label: metric.label, value: period.metric },
               {
-                label: "Verdict",
+                label: m.analysis.profile.verdict,
                 value: period.tone ? toneLabel[period.tone] : statusLabel[period.status],
               },
-              { label: "Trades", value: formatInteger(period.sample) },
-              { label: "Flagged", value: metric.cutoffText },
+              { label: m.analysis.profile.trades, value: formatInteger(period.sample) },
+              { label: m.analysis.profile.flaggedAt, value: metric.cutoffText },
             ],
           };
         },
@@ -71,7 +72,7 @@ export function MetricChart({ history, metric }: { history: readonly Period[]; m
   return (
     <Chart
       definition={definition}
-      ariaLabel={`${metric.label} per year`}
+      ariaLabel={m.analysis.profile.perYear(metric.label)}
       className="num text-muted-foreground text-xs"
       style={{ height: "100%" }}
     />

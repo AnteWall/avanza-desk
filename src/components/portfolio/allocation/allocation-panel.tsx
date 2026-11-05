@@ -10,6 +10,7 @@ import { SectorAllocation } from "@/components/portfolio/allocation/sector-alloc
 import { TypeAllocation } from "@/components/portfolio/allocation/type-allocation";
 import { UnderlyingAllocation } from "@/components/portfolio/allocation/underlying-allocation";
 import { TabbedPanel } from "@/components/workspace/tabbed-panel";
+import { m } from "@/lib/i18n";
 
 const body = (what: string, table: ReactNode) => (
   <AsyncBoundary what={what} fallback={<TableSkeleton rows={8} columns={4} />}>
@@ -28,39 +29,39 @@ export function AllocationPanel() {
       tabs={[
         {
           value: "instrument",
-          label: "Instruments",
+          label: m.portfolio.allocation.tabs.instrument,
           icon: Briefcase,
-          content: body("instruments", <HoldingAllocation />),
+          content: body(m.portfolio.allocation.loading.instrument, <HoldingAllocation />),
         },
         {
           value: "sector",
-          label: "Industries",
+          label: m.portfolio.allocation.tabs.sector,
           icon: Factory,
-          content: body("industries", <SectorAllocation />),
+          content: body(m.portfolio.allocation.loading.sector, <SectorAllocation />),
         },
         {
           value: "country",
-          label: "Countries",
+          label: m.portfolio.allocation.tabs.country,
           icon: Globe,
-          content: body("countries", <CountryAllocation />),
+          content: body(m.portfolio.allocation.loading.country, <CountryAllocation />),
         },
         {
           value: "type",
-          label: "Asset types",
+          label: m.portfolio.allocation.tabs.type,
           icon: Shapes,
-          content: body("asset types", <TypeAllocation />),
+          content: body(m.portfolio.allocation.loading.type, <TypeAllocation />),
         },
         {
           value: "currency",
-          label: "Currencies",
+          label: m.portfolio.allocation.tabs.currency,
           icon: Coins,
-          content: body("currencies", <CurrencyAllocation />),
+          content: body(m.portfolio.allocation.loading.currency, <CurrencyAllocation />),
         },
         {
           value: "underlying",
-          label: "Companies",
+          label: m.portfolio.allocation.tabs.underlying,
           icon: Building2,
-          content: body("companies", <UnderlyingAllocation />),
+          content: body(m.portfolio.allocation.loading.underlying, <UnderlyingAllocation />),
         },
       ]}
     />

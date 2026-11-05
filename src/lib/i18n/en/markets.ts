@@ -1,0 +1,53 @@
+export const markets = {
+  page: {
+    gainers: "Gainers",
+    losers: "Losers",
+    trending: "Trending",
+    movers: "today's movers",
+    trendingStocks: "trending stocks",
+  },
+  columns: {
+    stock: "Stock",
+    ytd: "YTD",
+    week: "Week",
+    owners: "Owners",
+    newOwners: "New owners",
+    owners1w: "Owners 1W",
+    owners1m: "Owners 1M",
+    forumPosts: "Forum posts",
+    constituent: "Constituent",
+    market: "Market",
+  },
+  movers: { empty: "No movers yet today." },
+  trending: { empty: "Nothing new is trending." },
+  screener: {
+    title: "Popular on Avanza",
+    subtitle: "the stocks most Avanza customers own",
+    filter: "Filter by name",
+    filterLabel: "Filter stocks by name",
+    what: "the screener",
+    empty: "No stocks match.",
+    pe: "P/E",
+    peTip:
+      "Price per share divided by profit per share: how many years of today's profit the price pays for. Lower is cheaper, but fast growers often have a high P/E.",
+    yieldTip:
+      "The yearly dividend as a share of today's price: what the stock pays you each year for holding it.",
+    marketCap: "Market cap",
+    marketCapTip: "What the whole company is worth on the stock market.",
+  },
+  index: {
+    views: { map: "Heatmap", list: "List", world: "World" },
+    view: "View",
+    regions: { topBar: "Top bar", nordic: "Nordic", europe: "Europe", us: "US" },
+    worldIndices: "world indices",
+    theIndex: "the index",
+    noConstituents: "Avanza lists no constituents for this index.",
+  },
+  world: {
+    status: (open: boolean, when: string) => `${open ? "Open · closes" : "Closed · opens"} ${when}`,
+    hours: (exchange: string) => `${exchange}. Regular hours; holidays not included.`,
+    open: "Open",
+    closed: "Closed",
+    hint: "Point at a market to see its indices",
+  },
+};

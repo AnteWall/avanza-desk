@@ -8,6 +8,7 @@ import { instrumentItem } from "@/lib/ai/context";
 import type { Holding } from "@/lib/avanza/portfolio";
 import { stockKeyRatiosQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatPrice, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 type Row = {
   holding: Holding;
@@ -25,7 +26,7 @@ const col = dataTableColumns<Row>();
 const columns = col.columns([
   col.accessor((r) => r.holding.name, {
     id: "name",
-    header: "Instrument",
+    header: m.common.instrument,
     cell: (c) => (
       <span className="flex items-center gap-1.5">
         <InstrumentLogo isin={c.row.original.holding.isin} name={c.getValue()} />
@@ -34,35 +35,35 @@ const columns = col.columns([
     ),
   }),
   col.accessor("date", {
-    header: "Next",
+    header: m.portfolio.dividends.next,
     cell: (c) => c.getValue() ?? dash,
     meta: { className: "num" },
   }),
   col.accessor("perShare", {
-    header: "Per share",
+    header: m.portfolio.dividends.perShare,
     cell: (c) =>
       c.getValue() == null ? dash : `${formatPrice(c.getValue()!)} ${c.row.original.currency}`,
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.accessor((r) => (r.perShare == null ? null : r.perShare * r.holding.volume), {
     id: "payout",
-    header: "Next payout",
+    header: m.portfolio.dividends.nextPayout,
     cell: (c) =>
       c.getValue() == null ? dash : `${formatInteger(c.getValue()!)} ${c.row.original.currency}`,
     meta: { align: "end", className: "sensitive num font-medium" },
   }),
   col.accessor("perYear", {
-    header: "Per year",
+    header: m.portfolio.dividends.perYear,
     cell: (c) => (c.getValue() ? `${c.getValue()}×` : dash),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
   col.accessor("dividendYield", {
-    header: "Yield",
+    header: m.common.yield,
     cell: (c) => formatShare(c.getValue()),
     meta: { align: "end", className: "num" },
   }),
   col.accessor("yearly", {
-    header: "Est. yearly SEK",
+    header: m.portfolio.dividends.yearly,
     cell: (c) => formatInteger(c.getValue()),
     meta: { align: "end", className: "sensitive num font-medium" },
   }),
@@ -95,7 +96,7 @@ export function DividendsTable() {
   rows.sort((a, b) => (a.date ?? "~").localeCompare(b.date ?? "~"));
 
   if (rows.length === 0)
-    return <p className="text-muted-foreground p-3">No dividend-paying stocks.</p>;
+    return <p className="text-muted-foreground p-3">{m.portfolio.dividends.empty}</p>;
   return (
     <DataTable
       columns={columns}

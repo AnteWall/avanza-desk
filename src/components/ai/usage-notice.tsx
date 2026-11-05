@@ -2,12 +2,7 @@ import { cn } from "cn";
 
 import type { RateLimit } from "@/lib/ai/types";
 import { formatShare, formatTime } from "@/lib/format";
-
-const windows: Record<string, string> = {
-  five_hour: "5-hour",
-  seven_day: "weekly",
-  seven_day_opus: "weekly Opus",
-};
+import { m } from "@/lib/i18n";
 
 /**
  * Your Claude plan's usage, shown only when it matters: close to the limit (from 80 %), or over
@@ -17,8 +12,9 @@ export function UsageNotice({ limit }: { limit: RateLimit }) {
   const blocked = limit.status === "rejected";
   const near = limit.status === "allowed_warning" || (limit.utilization ?? 0) >= 0.8;
   if (!blocked && !near) return null;
-  const window = (limit.window && windows[limit.window]) ?? "usage";
-  const resets = limit.resetsAt ? ` It resets at ${formatTime(limit.resetsAt * 1000)}.` : "";
+  const { usage } = m.ai;
+  const name = (limit.window && usage.limits[limit.window]) || usage.limits.other;
+  const resets = limit.resetsAt ? usage.resets(formatTime(limit.resetsAt * 1000)) : "";
   return (
     <p
       role="status"
@@ -32,8 +28,8 @@ export function UsageNotice({ limit }: { limit: RateLimit }) {
         aria-hidden
       />
       {blocked
-        ? `You've reached your ${window} usage limit.${resets}`
-        : `${formatShare(limit.utilization ?? 0.8)} of your ${window} usage limit used.${resets}`}
+        ? usage.reached(name) + resets
+        : usage.used(formatShare(limit.utilization ?? 0.8), name) + resets}
     </p>
   );
 }

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useShortcutBindings } from "@/components/layout/use-shortcuts";
 import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { m } from "@/lib/i18n";
 import {
   bindingFromEvent,
   bindingKeys,
@@ -40,13 +41,13 @@ export function ShortcutRecorder({ action }: { action: ShortcutAction }) {
       const binding = bindingFromEvent(e);
       if (binding === "modifier") return;
       if (binding === "taken") {
-        setNote({ text: "Pages use that key on its own. Add Ctrl or Alt.", warn: true });
+        setNote({ text: m.settings.shortcuts.recorder.taken, warn: true });
         return;
       }
       const moved = boundTo(binding, action)?.label;
       setBinding(action, binding);
       setRecording(false);
-      setNote(moved ? { text: `Moved from ${moved}`, warn: true } : undefined);
+      setNote(moved ? { text: m.settings.shortcuts.recorder.moved(moved), warn: true } : undefined);
     };
     window.addEventListener("keydown", onKey, true);
     return () => window.removeEventListener("keydown", onKey, true);
@@ -60,14 +61,18 @@ export function ShortcutRecorder({ action }: { action: ShortcutAction }) {
           size="sm"
           aria-pressed={recording}
           className={cn("min-w-32 justify-center", recording && "ring-ring ring-2")}
-          aria-label={recording ? "Recording: press the new keys" : "Change shortcut"}
+          aria-label={
+            recording
+              ? m.settings.shortcuts.recorder.recording
+              : m.settings.shortcuts.recorder.change
+          }
           onClick={() => {
             setNote(undefined);
             setRecording((r) => !r);
           }}
         >
           {recording ? (
-            <span className="text-brand text-xs">Press keys…</span>
+            <span className="text-brand text-xs">{m.settings.shortcuts.recorder.pressKeys}</span>
           ) : keys.length ? (
             <KbdGroup>
               {keys.map((k) => (
@@ -75,14 +80,16 @@ export function ShortcutRecorder({ action }: { action: ShortcutAction }) {
               ))}
             </KbdGroup>
           ) : (
-            <span className="text-muted-foreground text-xs">None</span>
+            <span className="text-muted-foreground text-xs">
+              {m.settings.shortcuts.recorder.none}
+            </span>
           )}
         </Button>
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label="Restore default"
-          title="Restore default"
+          aria-label={m.settings.shortcuts.recorder.restore}
+          title={m.settings.shortcuts.recorder.restore}
           disabled={!changed}
           onClick={() => {
             setNote(undefined);
@@ -94,7 +101,7 @@ export function ShortcutRecorder({ action }: { action: ShortcutAction }) {
       </span>
       {(recording || note) && (
         <span className={cn("text-xs", note?.warn ? "text-warning" : "text-muted-foreground")}>
-          {note?.text ?? "Esc to cancel"}
+          {note?.text ?? m.settings.shortcuts.recorder.escToCancel}
         </span>
       )}
     </span>

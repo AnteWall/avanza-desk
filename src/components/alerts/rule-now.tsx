@@ -1,5 +1,6 @@
 import { useRuleState } from "@/components/alerts/use-rule-state";
 import { measure, type AlertRule } from "@/lib/alert-rules";
+import { m } from "@/lib/i18n";
 
 const SHOWN = 4;
 
@@ -9,7 +10,7 @@ const SHOWN = 4;
  */
 export function RuleNow({ rule }: { rule: AlertRule }) {
   const state = useRuleState([rule]);
-  if (!state) return <p className="text-muted-foreground text-xs">Reading current values…</p>;
+  if (!state) return <p className="text-muted-foreground text-xs">{m.alerts.now.reading}</p>;
   const all = measure(rule, state).sort(
     (a, b) => +b.fires - +a.fires || Math.abs(b.value) - Math.abs(a.value),
   );
@@ -17,32 +18,29 @@ export function RuleNow({ rule }: { rule: AlertRule }) {
     return (
       <p className="text-muted-foreground text-xs">
         {rule.kind === "signal"
-          ? "No recent signals here. New ones will notify as they appear."
+          ? m.alerts.now.noSignals
           : rule.kind === "drift"
-            ? "No rebalance targets saved yet: set them on the Rebalance page."
-            : "Avanza has no current value for this yet."}
+            ? m.alerts.now.noTargets
+            : m.alerts.now.noValue}
       </p>
     );
-  const firing = all.filter((m) => m.fires).length;
+  const firing = all.filter((x) => x.fires).length;
   return (
     <div className="flex flex-col gap-1 text-xs">
       <ul className="flex flex-col gap-0.5">
-        {all.slice(0, SHOWN).map((m) => (
-          <li key={m.key} className="flex justify-between gap-3">
-            <span className="truncate">{m.name}</span>
-            <span className={m.fires ? "num text-warning" : "num text-muted-foreground"}>
-              {m.text}
+        {all.slice(0, SHOWN).map((x) => (
+          <li key={x.key} className="flex justify-between gap-3">
+            <span className="truncate">{x.name}</span>
+            <span className={x.fires ? "num text-warning" : "num text-muted-foreground"}>
+              {x.text}
             </span>
           </li>
         ))}
       </ul>
-      {all.length > SHOWN && <p className="text-muted-foreground">and {all.length - SHOWN} more</p>}
-      {firing > 0 && (
-        <p className="text-warning">
-          {firing === 1 ? "This holds" : `${firing} of these hold`} already: you'll be notified
-          right away.
-        </p>
+      {all.length > SHOWN && (
+        <p className="text-muted-foreground">{m.alerts.now.more(all.length - SHOWN)}</p>
       )}
+      {firing > 0 && <p className="text-warning">{m.alerts.now.holds(firing)}</p>}
     </div>
   );
 }

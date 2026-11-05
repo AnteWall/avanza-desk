@@ -10,6 +10,7 @@ import {
 import { InstrumentType } from "@/lib/avanza/codes";
 import { instrumentQuery } from "@/lib/avanza/queries";
 import { formatCompact, formatDate, formatPrice, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 // Fund guide breakdowns are percent units.
 const rows = (points: readonly FundPortfolioPoint[]): ExposureRow[] =>
@@ -29,11 +30,11 @@ export function FundDetails({ orderbookId }: { orderbookId: string }) {
   // The fund guide is already cached by the chart header.
   const { data: instrument } = useSuspenseQuery(instrumentQuery(orderbookId, InstrumentType.Fund));
   const fund = instrument.fund;
-  if (!fund) return <Empty>Avanza has no details for this fund.</Empty>;
+  if (!fund) return <Empty>{m.workspace.fund.empty}</Empty>;
 
   // Fees and ratios are percent units.
   const pct = (v: number | null) => (v == null ? "–" : formatShare(v / 100));
-  const managers = fund.fundManagers.map((m) => m.name).join(", ");
+  const managers = fund.fundManagers.map((manager) => manager.name).join(", ");
 
   return (
     <div className="flex flex-col">
@@ -41,36 +42,49 @@ export function FundDetails({ orderbookId }: { orderbookId: string }) {
         <StatList
           stats={[
             // productFee is Avanza's "total avgift": the yearly ongoing cost, management fee included.
-            { label: "Total fee / yr", value: pct(fund.productFee) },
-            { label: "Management fee", value: pct(fund.managementFee) },
+            { label: m.workspace.fund.totalFee, value: pct(fund.productFee) },
+            { label: m.workspace.fund.managementFee, value: pct(fund.managementFee) },
             // Percent of 10 000 is the fee times 100.
             {
-              label: "Per 10 000 kr / yr",
+              label: m.workspace.fund.per10k,
               value: `${formatPrice(fund.productFee * 100)} kr`,
             },
-            { label: "Risk", value: `${fund.risk} of 7` },
-            { label: "Rating", value: fund.rating == null ? "–" : `${fund.rating} of 5` },
+            { label: m.workspace.fund.risk, value: m.workspace.fund.outOf(fund.risk, 7) },
+            {
+              label: m.workspace.fund.rating,
+              value: fund.rating == null ? "–" : m.workspace.fund.outOf(fund.rating, 5),
+            },
             {
               label: "Sharpe",
               value: fund.sharpeRatio == null ? "–" : formatPrice(fund.sharpeRatio),
             },
-            { label: "Std dev", value: pct(fund.standardDeviation) },
-            { label: "Fund size", value: `${formatCompact(fund.capital)} ${fund.currency}` },
-            { label: "Sustainability", value: fund.sustainabilityRatingCategoryName || "–" },
-            { label: "Holdings as of", value: formatDate(fund.portfolioDate) },
+            { label: m.workspace.fund.stdDev, value: pct(fund.standardDeviation) },
+            {
+              label: m.workspace.fund.size,
+              value: `${formatCompact(fund.capital)} ${fund.currency}`,
+            },
+            {
+              label: m.workspace.fund.sustainability,
+              value: fund.sustainabilityRatingCategoryName || "–",
+            },
+            { label: m.workspace.fund.holdingsAsOf, value: formatDate(fund.portfolioDate) },
           ]}
         />
         <StatList
           stats={[
-            { label: "Managers", value: managers || "–", text: true },
-            { label: "Benchmark", value: fund.primaryBenchmark || "–", text: true },
-            { label: "Horizon", value: fund.recommendedHoldingPeriod || "–", text: true },
-            { label: "Started", value: formatDate(fund.startDate) },
-            { label: "Pricing", value: fund.pricingFrequency || "–", text: true },
+            { label: m.workspace.fund.managers, value: managers || "–", text: true },
+            { label: m.workspace.fund.benchmark, value: fund.primaryBenchmark || "–", text: true },
+            {
+              label: m.workspace.fund.horizon,
+              value: fund.recommendedHoldingPeriod || "–",
+              text: true,
+            },
+            { label: m.workspace.fund.started, value: formatDate(fund.startDate) },
+            { label: m.workspace.fund.pricing, value: fund.pricingFrequency || "–", text: true },
           ]}
         />
         <p className="text-muted-foreground max-w-3xl">
-          {[fund.fundTypeName, fund.adminCompany.name, fund.indexFund && "Index fund"]
+          {[fund.fundTypeName, fund.adminCompany.name, fund.indexFund && m.workspace.fund.indexFund]
             .filter(Boolean)
             .join(" · ")}
         </p>

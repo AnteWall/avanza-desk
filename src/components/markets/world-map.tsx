@@ -12,6 +12,7 @@ import { Flash } from "@/components/common/flash";
 import { worldIndicesQuery } from "@/lib/avanza/queries";
 import { type Exchange, exchanges, exchangeStatus, getShownExchanges } from "@/lib/exchanges";
 import { formatAs, formatClock, formatDate } from "@/lib/format";
+import { m } from "@/lib/i18n";
 import { nightPath, subsolarPoint } from "@/lib/sun";
 
 // world.svg is Natural Earth 110m land, equirectangular, cropped to these latitudes.
@@ -26,7 +27,7 @@ const when = (next: Date, now: Date) =>
 
 const statusText = (ex: Exchange, now: Date) => {
   const { open, next } = exchangeStatus(ex, now);
-  return `${open ? "Open · closes" : "Closed · opens"} ${when(next, now)}`;
+  return m.markets.world.status(open, when(next, now));
 };
 
 function useNow() {
@@ -61,7 +62,7 @@ const columns = (now: Date) =>
   col.columns([
     col.accessor((r) => r.chart.shortName, {
       id: "index",
-      header: "Index",
+      header: m.common.index,
       cell: (c) => (
         <span className="flex items-center gap-1.5" title={c.row.original.chart.name}>
           <CountryFlag code={c.row.original.chart.orderbook.countryCode} />
@@ -72,7 +73,7 @@ const columns = (now: Date) =>
     }),
     col.accessor((r) => r.ex?.name ?? "", {
       id: "market",
-      header: "Market",
+      header: m.markets.columns.market,
       cell: (c) => {
         const ex = c.row.original.ex;
         if (!ex) return <span className="text-muted-foreground">–</span>;
@@ -81,7 +82,7 @@ const columns = (now: Date) =>
         return (
           <span
             className="text-muted-foreground flex items-center gap-1.5"
-            title={`${ex.name}. Regular hours; holidays not included.`}
+            title={m.markets.world.hours(ex.name)}
           >
             <Icon className={cn("size-3.5", open && "text-brand")} aria-hidden />
             <span className="num">{statusText(ex, now)}</span>
@@ -90,7 +91,7 @@ const columns = (now: Date) =>
       },
     }),
     col.accessor("change", {
-      header: "Today",
+      header: m.common.today,
       cell: (c) =>
         c.getValue() == null ? (
           "–"
@@ -229,12 +230,12 @@ export function WorldMap() {
         })}
         <div className="text-muted-foreground pointer-events-none absolute bottom-0 left-0 flex items-center gap-3 text-xs">
           <span className="flex items-center gap-1.5">
-            <span className="bg-brand size-1.5 rounded-full" /> Open
+            <span className="bg-brand size-1.5 rounded-full" /> {m.markets.world.open}
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="bg-muted-foreground size-1.5 rounded-full" /> Closed
+            <span className="bg-muted-foreground size-1.5 rounded-full" /> {m.markets.world.closed}
           </span>
-          <span>Point at a market to see its indices</span>
+          <span>{m.markets.world.hint}</span>
         </div>
       </div>
       <div className="min-h-0 flex-1 overflow-auto border-t">

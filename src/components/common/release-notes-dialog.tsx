@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { RELEASES_URL, REPO_URL, releaseUrl, type Release } from "@/lib/changelog";
 import { formatDate } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 /** Release notes grouped New / Fixed / Faster; with several releases each gets its version. */
 export function ReleaseNotesDialog({
@@ -33,7 +34,7 @@ export function ReleaseNotesDialog({
         overlayClassName="bg-black/50 supports-backdrop-filter:backdrop-blur-sm"
       >
         <DialogHeader className="p-4 pb-3">
-          <DialogTitle>What's new in AvanzaDesk</DialogTitle>
+          <DialogTitle>{m.common.releaseNotes.title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <div className="flex max-h-[60vh] flex-col gap-4 overflow-y-auto border-t p-4">
@@ -48,21 +49,25 @@ export function ReleaseNotesDialog({
                     onClick={() => void openUrl(releaseUrl(release.version))}
                     className="hover:text-foreground ml-auto inline-flex cursor-pointer items-center gap-0.5 transition-colors"
                   >
-                    On GitHub
+                    {m.common.releaseNotes.onGithub}
                     <ArrowUpRight className="size-3" aria-hidden />
                   </button>
                 </h3>
               )}
               {release.groups.map((group) => (
                 <div key={group.title} className="flex flex-col gap-1.5">
-                  <h4 className="text-xs font-semibold tracking-wider uppercase">{group.title}</h4>
+                  <h4 className="text-xs font-semibold tracking-wider uppercase">
+                    {m.common.releaseNotes.groups[group.title] ?? group.title}
+                  </h4>
                   <ul className="flex flex-col gap-1.5">
                     {group.items.map((item) => (
                       <li key={item.text} className="flex gap-2">
                         <span className="bg-brand mt-[0.45rem] size-1.5 shrink-0 rounded-full" />
                         <span>
                           {item.breaking && (
-                            <span className="text-warning font-medium">Breaking: </span>
+                            <span className="text-warning font-medium">
+                              {m.common.releaseNotes.breaking}
+                            </span>
                           )}
                           {item.scope && <span className="font-medium">{item.scope}: </span>}
                           <span className="text-muted-foreground">{item.text}</span>
@@ -78,15 +83,15 @@ export function ReleaseNotesDialog({
         <DialogFooter className="m-0 rounded-b-xl sm:justify-between">
           <div className="flex gap-1">
             <Button variant="ghost" onClick={() => void openUrl(RELEASES_URL)}>
-              All releases
+              {m.common.releaseNotes.allReleases}
               <ArrowUpRight aria-hidden />
             </Button>
             <Button variant="ghost" onClick={() => void openUrl(`${REPO_URL}/stargazers`)}>
               <Star aria-hidden />
-              Star on GitHub
+              {m.common.releaseNotes.star}
             </Button>
           </div>
-          <Button onClick={onClose}>Got it</Button>
+          <Button onClick={onClose}>{m.common.releaseNotes.gotIt}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

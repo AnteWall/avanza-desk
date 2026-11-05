@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import type { ContextItem } from "@/lib/ai/context";
 import { pickCsvPath, toCsv, writeCsv } from "@/lib/csv";
+import { m } from "@/lib/i18n";
 import { stockholmDay } from "@/lib/snapshots";
 
 type DataTableColumnMeta = {
@@ -58,13 +59,16 @@ async function exportTable(table: HTMLTableElement | null) {
   if (!table) return;
   const cells = (tr: HTMLTableRowElement) => [...tr.cells].map((c) => c.innerText.trim());
   const rows = [...table.querySelectorAll<HTMLTableRowElement>("thead tr, tbody tr")].map(cells);
-  const path = await pickCsvPath("Export table", `avanzadesk-${stockholmDay()}.csv`);
+  const path = await pickCsvPath(
+    m.common.dataTable.exportTitle,
+    `avanzadesk-${stockholmDay()}.csv`,
+  );
   if (!path) return;
   try {
     await writeCsv(path, toCsv(rows));
-    toast("Table exported", { description: path });
+    toast(m.common.dataTable.exported, { description: path });
   } catch (error) {
-    toast.error("Couldn't export the table", { description: String(error) });
+    toast.error(m.common.dataTable.exportFailed, { description: String(error) });
   }
 }
 
@@ -241,12 +245,12 @@ export function DataTable<TData extends RowData>({
               {extra}
               <ContextMenuItem onClick={() => copyRows(tableRef.current)}>
                 <Copy />
-                {selectedRows.length === 1 ? "Copy row" : `Copy ${selectedRows.length} rows`}
+                {m.common.dataTable.copyRows(selectedRows.length)}
                 <ContextMenuShortcut>⌘C</ContextMenuShortcut>
               </ContextMenuItem>
               <ContextMenuItem onClick={() => void exportTable(tableRef.current)}>
                 <FileDown />
-                Export table as CSV…
+                {m.common.dataTable.exportCsv}
               </ContextMenuItem>
             </>
           )

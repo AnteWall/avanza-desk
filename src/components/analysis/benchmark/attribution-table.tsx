@@ -7,6 +7,7 @@ import { SignedAmount } from "@/components/common/signed-amount";
 import { useFocusInstrument } from "@/components/workspace/use-focused-instrument";
 import { insightsQuery } from "@/lib/avanza/queries";
 import { formatPercent } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 type Row = {
   isin: string;
@@ -24,7 +25,7 @@ const amount = (c: { getValue: () => number }) => <SignedAmount value={c.getValu
 const col = dataTableColumns<Row>();
 const columns = col.columns([
   col.accessor("name", {
-    header: "Instrument",
+    header: m.common.instrument,
     cell: (c) => (
       <span className="flex items-center gap-1.5">
         <InstrumentLogo isin={c.row.original.isin} name={c.getValue()} />
@@ -33,22 +34,22 @@ const columns = col.columns([
     ),
   }),
   col.accessor("development", {
-    header: "Price",
+    header: m.analysis.benchmark.price,
     cell: amount,
     meta: { align: "end", className: "sensitive" },
   }),
   col.accessor("dividends", {
-    header: "Dividends",
+    header: m.common.dividends,
     cell: amount,
     meta: { align: "end", className: "sensitive" },
   }),
   col.accessor("total", {
-    header: "Total SEK",
+    header: m.analysis.benchmark.total,
     cell: amount,
     meta: { align: "end", className: "sensitive font-medium" },
   }),
   col.accessor("share", {
-    header: "Of result",
+    header: m.analysis.benchmark.ofResult,
     cell: (c) => formatPercent(c.getValue()),
     meta: { align: "end", className: "num text-muted-foreground" },
   }),
@@ -73,7 +74,7 @@ export function AttributionTable({ period }: { period: InsightsPeriod }) {
     }))
     .sort((a, b) => b.total - a.total);
   if (rows.length === 0)
-    return <p className="text-muted-foreground p-3">No holdings in this period.</p>;
+    return <p className="text-muted-foreground p-3">{m.analysis.benchmark.empty}</p>;
   return (
     <DataTable
       columns={columns}

@@ -15,6 +15,7 @@ import { instrumentQuery, marketplaceQuery, quoteQuery } from "@/lib/avanza/quer
 import { REPO_URL } from "@/lib/changelog";
 import { connection } from "@/lib/connection";
 import { formatDuration, formatTime } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 export function StatusBar() {
   // Status chrome, not a data panel: if these fail the indicators just stay hidden.
@@ -59,14 +60,18 @@ export function StatusBar() {
           />
           {/* Avanza's status is exact (holidays too). Its opening time has no day, and its
               countdown while closed is not to the open, so only the closing side is shown. */}
-          <span className="text-foreground">{instrument?.marketPlaceName ?? "Market"}</span>
+          <span className="text-foreground">
+            {instrument?.marketPlaceName ?? m.layout.statusBar.market}
+          </span>
           {market.marketOpen ? (
             <span className="num">
-              open · closes {market.todayClosingTime.slice(0, 5)} · in{" "}
-              {formatDuration(market.timeLeftMs - (now.getTime() - dataUpdatedAt))}
+              {m.layout.statusBar.closesIn(
+                market.todayClosingTime.slice(0, 5),
+                formatDuration(market.timeLeftMs - (now.getTime() - dataUpdatedAt)),
+              )}
             </span>
           ) : (
-            "closed"
+            m.layout.statusBar.closed
           )}
         </span>
       )}
@@ -80,7 +85,7 @@ export function StatusBar() {
               quote.isRealTime ? "bg-brand" : "bg-muted-foreground",
             )}
           />
-          {quote.isRealTime ? "Real-time" : "Delayed"}
+          {quote.isRealTime ? m.layout.statusBar.realTime : m.layout.statusBar.delayed}
         </span>
       )}
       <span className={cn("flex items-center gap-1.5", !quote && "ml-auto")}>
@@ -99,8 +104,8 @@ export function StatusBar() {
         <button
           type="button"
           onClick={() => void openUrl(REPO_URL)}
-          title="AvanzaDesk on GitHub"
-          aria-label="AvanzaDesk on GitHub"
+          title={m.layout.statusBar.github}
+          aria-label={m.layout.statusBar.github}
           className="group cursor-pointer"
         >
           <img
@@ -119,8 +124,8 @@ export function StatusBar() {
         <button
           type="button"
           onClick={() => void openUrl(`${REPO_URL}/stargazers`)}
-          title="Star AvanzaDesk on GitHub"
-          aria-label="Star AvanzaDesk on GitHub"
+          title={m.layout.statusBar.star}
+          aria-label={m.layout.statusBar.star}
           className="hover:text-foreground cursor-pointer transition-colors"
         >
           <Star className="size-3" aria-hidden />

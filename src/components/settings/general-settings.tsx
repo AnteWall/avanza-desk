@@ -16,29 +16,35 @@ import {
   type Density,
   type WorkspaceLayout,
 } from "@/lib/density";
+import { lang, languages, m, setLanguage, type Language } from "@/lib/i18n";
 import { getStartPrivate, setStartPrivate } from "@/lib/privacy";
 import { getTheme, setTheme, type Theme } from "@/lib/theme";
 import { setInAppFrame } from "@/lib/window-frame";
 
 const themes: { value: Theme; label: string }[] = [
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-  { value: "system", label: "System" },
+  { value: "light", label: m.layout.settingsMenu.themes.light },
+  { value: "dark", label: m.layout.settingsMenu.themes.dark },
+  { value: "system", label: m.layout.settingsMenu.themes.system },
 ];
 
+const languageOptions = Object.entries(languages).map(([value, label]) => ({
+  value: value as Language,
+  label,
+}));
+
 const densities: { value: Density; label: string }[] = [
-  { value: "comfortable", label: "Comfortable" },
-  { value: "compact", label: "Compact" },
+  { value: "comfortable", label: m.settings.general.textSize.comfortable },
+  { value: "compact", label: m.settings.general.textSize.compact },
 ];
 
 const startPages: { value: StartPage; label: string }[] = [
-  { value: "home", label: "Home" },
-  { value: "workspace", label: "Workspace" },
+  { value: "home", label: m.layout.pages.home.label },
+  { value: "workspace", label: m.layout.pages.workspace.label },
 ];
 
 const layouts: { value: WorkspaceLayout; label: string }[] = [
-  { value: "simple", label: "Simple" },
-  { value: "trading", label: "Trading" },
+  { value: "simple", label: m.settings.general.workspace.simple },
+  { value: "trading", label: m.settings.general.workspace.trading },
 ];
 
 export function GeneralSettings() {
@@ -51,12 +57,13 @@ export function GeneralSettings() {
 
   return (
     <>
-      <SettingsSection title="Appearance">
-        <SettingsRow
-          label="Theme"
-          hint="How AvanzaDesk looks. System follows your OS light or dark mode."
-        >
-          <div className="flex gap-2 py-1.5" role="radiogroup" aria-label="Theme">
+      <SettingsSection title={m.settings.general.appearance}>
+        <SettingsRow label={m.settings.general.theme.label} hint={m.settings.general.theme.hint}>
+          <div
+            className="flex gap-2 py-1.5"
+            role="radiogroup"
+            aria-label={m.settings.general.theme.label}
+          >
             {themes.map((t) => (
               <button
                 key={t.value}
@@ -88,12 +95,20 @@ export function GeneralSettings() {
             ))}
           </div>
         </SettingsRow>
+        <SettingsRow label={m.settings.language.label} hint={m.settings.language.hint}>
+          <Segmented
+            label={m.settings.language.label}
+            options={languageOptions}
+            value={lang}
+            onChange={(l) => void setLanguage(l)}
+          />
+        </SettingsRow>
         <SettingsRow
-          label="Text size"
-          hint="Comfortable is easier to read. Compact fits more rows on screen, like a trading terminal."
+          label={m.settings.general.textSize.label}
+          hint={m.settings.general.textSize.hint}
         >
           <Segmented
-            label="Text size"
+            label={m.settings.general.textSize.label}
             options={densities}
             value={density}
             onChange={(d) => {
@@ -103,11 +118,11 @@ export function GeneralSettings() {
           />
         </SettingsRow>
         <SettingsRow
-          label="Workspace"
-          hint="Simple shows your watchlist and everything about the instrument. Trading adds the order book and a pre-trade estimate."
+          label={m.settings.general.workspace.label}
+          hint={m.settings.general.workspace.hint}
         >
           <Segmented
-            label="Workspace"
+            label={m.settings.general.workspace.label}
             options={layouts}
             value={layout}
             onChange={(l) => {
@@ -117,13 +132,10 @@ export function GeneralSettings() {
           />
         </SettingsRow>
       </SettingsSection>
-      <SettingsSection title="Window">
-        <SettingsRow
-          label="Open on"
-          hint="The page you see after signing in. Home sums up your portfolio; Workspace is charts and the order book."
-        >
+      <SettingsSection title={m.settings.general.window}>
+        <SettingsRow label={m.settings.general.openOn.label} hint={m.settings.general.openOn.hint}>
           <Segmented
-            label="Open on"
+            label={m.settings.general.openOn.label}
             options={startPages}
             value={startPage}
             onChange={(p) => {
@@ -133,27 +145,27 @@ export function GeneralSettings() {
           />
         </SettingsRow>
         <SettingsRow
-          label="In-app window controls"
-          hint="Minimize, maximize and close in the top bar instead of the system title bar"
+          label={m.settings.general.inAppFrame.label}
+          hint={m.settings.general.inAppFrame.hint}
         >
           <Switch
-            aria-label="In-app window controls"
+            aria-label={m.settings.general.inAppFrame.label}
             checked={inAppFrame}
             onCheckedChange={(on) => void setInAppFrame(on)}
             className="data-checked:bg-brand"
           />
         </SettingsRow>
       </SettingsSection>
-      <SettingsSection title="Updates">
+      <SettingsSection title={m.settings.general.updates}>
         <UpdateRow />
       </SettingsSection>
-      <SettingsSection title="Privacy">
+      <SettingsSection title={m.settings.general.privacy}>
         <SettingsRow
-          label="Start in privacy mode"
-          hint="Blur amounts every time AvanzaDesk opens, for screen sharing"
+          label={m.settings.general.startPrivate.label}
+          hint={m.settings.general.startPrivate.hint}
         >
           <Switch
-            aria-label="Start in privacy mode"
+            aria-label={m.settings.general.startPrivate.label}
             checked={startPrivate}
             onCheckedChange={(on) => {
               setStartPrivateState(on);

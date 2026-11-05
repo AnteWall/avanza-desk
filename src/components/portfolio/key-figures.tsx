@@ -6,6 +6,7 @@ import { useHoldings } from "@/components/portfolio/use-holdings";
 import { InstrumentType } from "@/lib/avanza/codes";
 import { fundAnalysisQuery, keyRatiosQuery, totalValuesQuery } from "@/lib/avanza/queries";
 import { formatInteger, formatPrice, formatShare } from "@/lib/format";
+import { m } from "@/lib/i18n";
 
 const dash = "–";
 
@@ -40,29 +41,30 @@ export function KeyFigures() {
 
   return (
     <dl className="grid grid-cols-2 gap-x-6">
-      <Row label="Holdings">{holdings.length}</Row>
-      <Row label="Largest">{largest ? `${largest.name} · ${share(largest.value)}` : dash}</Row>
-      <Row label="Top 5 share">{share(top5)}</Row>
-      <Row label="Buying power">
+      <Row label={m.common.holdings}>{holdings.length}</Row>
+      <Row label={m.portfolio.figures.largest}>
+        {largest ? `${largest.name} · ${share(largest.value)}` : dash}
+      </Row>
+      <Row label={m.portfolio.figures.top5}>{share(top5)}</Row>
+      <Row label={m.portfolio.accounts.buyingPower}>
         <span className="sensitive">{formatInteger(totals.buyingPower.total.value)}</span>
       </Row>
-      <Row
-        label="Fund fees / yr"
-        hint="Average ongoing charge of your funds, applied to their value"
-      >
+      <Row label={m.portfolio.figures.fundFees} hint={m.portfolio.figures.fundFeesHint}>
         {fundFee == null ? (
           dash
         ) : (
           <span className="sensitive">{`≈ ${formatInteger(fundValue * fundFee)} (${formatShare(fundFee)})`}</span>
         )}
       </Row>
-      <Row label="CAGR" hint="Compound annual growth rate since the start">
+      <Row label="CAGR" hint={m.portfolio.figures.cagrHint}>
         {ratios ? <Change ratio={ratios.compoundAnnualGrowthRate.value / 100} /> : dash}
       </Row>
-      <Row label="Volatility" hint="Standard deviation of returns">
+      <Row label={m.portfolio.figures.volatility} hint={m.portfolio.figures.volatilityHint}>
         {ratios ? formatShare(ratios.standardDeviation.value / 100) : dash}
       </Row>
-      <Row label="Sharpe ratio">{ratios ? formatPrice(ratios.sharpeRatio.value) : dash}</Row>
+      <Row label={m.portfolio.figures.sharpe}>
+        {ratios ? formatPrice(ratios.sharpeRatio.value) : dash}
+      </Row>
     </dl>
   );
 }

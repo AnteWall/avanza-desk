@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 
 import { InstrumentType } from "@/lib/avanza/codes";
 import { searchQuery } from "@/lib/avanza/queries";
+import { m } from "@/lib/i18n";
 import { toAdded, type AddedInstrument } from "@/lib/rebalance";
 
 /** The feed behind the holdings table on paretosec.se/analystjanster/manadsportfolj. */
@@ -21,12 +22,12 @@ export function paretoTickers(json: string): string[] {
 // ponytail: first-hit ticker match; match on ISIN if Pareto's feed ever sends one.
 export async function loadParetoPortfolio(qc: QueryClient): Promise<AddedInstrument[]> {
   const tickers = paretoTickers(await invoke<string>("article_fetch", { url }));
-  if (!tickers.length) throw new Error("Pareto's portfolio came back empty.");
+  if (!tickers.length) throw new Error(m.portfolio.pareto.empty);
   return Promise.all(
     tickers.map(async (ticker) => {
       const hits = await qc.fetchQuery(searchQuery(ticker));
       const hit = hits.find((h) => h.type === InstrumentType.Stock && h.flagCode === "SE");
-      if (!hit) throw new Error(`Couldn't find ${ticker} on Avanza.`);
+      if (!hit) throw new Error(m.portfolio.pareto.notFound(ticker));
       return toAdded(qc, hit);
     }),
   );

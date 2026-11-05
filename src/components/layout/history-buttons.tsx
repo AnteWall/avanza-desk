@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { m } from "@/lib/i18n";
 
 /**
  * Back and forward through the pages you visited. Also on the mouse's side buttons,
@@ -64,8 +65,8 @@ export function HistoryButtons() {
       <Button
         variant="ghost"
         size="icon"
-        aria-label="Back"
-        title="Back"
+        aria-label={m.layout.history.back}
+        title={m.layout.history.back}
         disabled={at === 0}
         onClick={() => history.back()}
       >
@@ -74,8 +75,8 @@ export function HistoryButtons() {
       <Button
         variant="ghost"
         size="icon"
-        aria-label="Forward"
-        title="Forward"
+        aria-label={m.layout.history.forward}
+        title={m.layout.history.forward}
         disabled={at >= end}
         onClick={() => history.forward()}
       >
