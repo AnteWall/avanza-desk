@@ -4,6 +4,7 @@ import { scaleLinear } from "@tanstack/charts/scales/linear";
 import { tooltip } from "@tanstack/charts/tooltip";
 import { useMemo } from "react";
 
+import { crosshairLabel } from "@/components/common/price-chart";
 import type { ReturnPoint } from "@/lib/benchmark";
 import { formatDate, formatPercent } from "@/lib/format";
 
@@ -24,7 +25,6 @@ export function BenchmarkChart({
     () =>
       defineChart({
         marks: [
-          crosshair({ x: { label: true }, y: { label: true }, strokeDasharray: "2 2" }),
           ruleY([0], { stroke: "var(--muted-foreground)", strokeWidth: 1, strokeDasharray: "4 3" }),
           ...series.map((s, i) =>
             lineY(
@@ -37,6 +37,12 @@ export function BenchmarkChart({
               },
             ),
           ),
+          // Last, so the guide and its labels draw over the axes (earlier marks put it under).
+          crosshair({
+            x: crosshairLabel(formatDate),
+            y: crosshairLabel(formatPercent),
+            strokeDasharray: "2 2",
+          }),
         ],
         scales: {
           x: { scale: scaleLinear, axis: { ticks: { format: (v: number) => formatDate(v) } } },

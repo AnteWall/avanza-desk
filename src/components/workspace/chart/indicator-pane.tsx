@@ -4,7 +4,7 @@ import { scaleLinear } from "@tanstack/charts/scales/linear";
 import { tooltip } from "@tanstack/charts/tooltip";
 import { useMemo } from "react";
 
-import { STACKED_MARGIN } from "@/components/common/price-chart";
+import { crosshairLabel, STACKED_MARGIN } from "@/components/common/price-chart";
 import type { LowerPane } from "@/lib/chart-view";
 import { formatClock, formatDate, formatDecimal } from "@/lib/format";
 import { macd, rsi } from "@/lib/indicators";
@@ -92,8 +92,13 @@ export function IndicatorPane({
 
     return defineChart({
       marks: [
-        crosshair({ x: { label: false }, y: { label: true }, strokeDasharray: "2 2" }),
         ...marks,
+        // Last, so the guide and its labels draw over the axes (earlier marks put it under).
+        crosshair({
+          x: { label: false },
+          y: crosshairLabel(formatDecimal),
+          strokeDasharray: "2 2",
+        }),
       ],
       scales: {
         x,

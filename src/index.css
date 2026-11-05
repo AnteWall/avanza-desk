@@ -287,6 +287,7 @@
     --ts-chart-3: var(--chart-3);
     --ts-chart-4: var(--chart-4);
     --ts-chart-5: var(--chart-5);
+    --ts-chart-crosshair-label-halo: var(--card);
   }
   /* Chart tooltips look like our popovers: flat, bordered, labels muted, values mono. The
      tooltip may be portaled out of the host, so it carries the variables itself. */

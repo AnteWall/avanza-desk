@@ -29,6 +29,14 @@ export type OverlayLine = {
   points: readonly ChartPoint[];
 };
 
+/**
+ * A crosshair axis label in the axis' own format (the library only formats values that land on a
+ * tick, else prints the raw number), over a wide card-colored halo that hides the ticks beneath.
+ */
+export const crosshairLabel = (format: (value: number) => string) => ({
+  label: { format, strokeWidth: 10 },
+});
+
 /** Left margin when charts are stacked, so their x axes line up. */
 export const STACKED_MARGIN = 64;
 
@@ -133,7 +141,6 @@ export function PriceChart({
         ];
     return defineChart({
       marks: [
-        crosshair({ x: { label: true }, y: { label: true }, strokeDasharray: "2 2" }),
         rect(bars, {
           x1: "x1",
           x2: "x2",
@@ -167,6 +174,12 @@ export function PriceChart({
           inRange.filter((t) => t.side === OrderSide.Sell),
           { x: "timestamp", y: "price", r: 4, fill: "var(--down)", stroke: "var(--card)" },
         ),
+        // Last, so the guide and its labels draw over the axes (earlier marks put it under).
+        crosshair({
+          x: crosshairLabel(format),
+          y: crosshairLabel(formatValue),
+          strokeDasharray: "2 2",
+        }),
       ],
       scales: {
         x: { scale: scaleLinear, axis: { ticks: { format: (v: number) => format(v) } } },

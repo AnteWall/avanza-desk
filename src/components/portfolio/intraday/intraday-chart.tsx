@@ -5,6 +5,7 @@ import { tooltip } from "@tanstack/charts/tooltip";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
+import { crosshairLabel } from "@/components/common/price-chart";
 import { Skeleton } from "@/components/common/skeleton";
 import { LegendRow as Row } from "@/components/portfolio/intraday/legend-row";
 import { LinePresets } from "@/components/portfolio/intraday/line-presets";
@@ -135,7 +136,6 @@ export function IntradayChart() {
       );
     return defineChart({
       marks: [
-        crosshair({ x: { label: true }, y: { label: true }, strokeDasharray: "2 2" }),
         ruleY([0], { stroke: "var(--muted-foreground)", strokeWidth: 1, strokeDasharray: "4 3" }),
         ...series.map((s) => line(s, 1.5)),
         line(
@@ -152,6 +152,12 @@ export function IntradayChart() {
           { key: "portfolio", label: "Portfolio", points: portfolio, stroke: "var(--foreground)" },
           2.5,
         ),
+        // Last, so the guide and its labels draw over the axes (earlier marks put it under).
+        crosshair({
+          x: crosshairLabel(formatClock),
+          y: crosshairLabel(formatPercent),
+          strokeDasharray: "2 2",
+        }),
       ],
       scales: {
         // The Stockholm session, stretched for anything trading outside it.
