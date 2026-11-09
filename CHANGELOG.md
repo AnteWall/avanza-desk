@@ -2,6 +2,21 @@
 
 What changed in each AvanzaDesk release. Generated from commit messages by git-cliff.
 
+## 0.7.0 (2026-11-09)
+
+### New
+
+- **Workspace:** Fund overview shows yearly cost, managers, countries and sectors
+- **Workspace:** Etf overview shows yearly cost, risk, holdings, countries and sectors
+- **Portfolio:** Key ratios tab charts your sharpe ratio, volatility and cagr over time
+- **Settings:** The app is in swedish, pick the language in settings
+
+### Fixed
+
+- **Rebalance:** Buys never spend more than the sells free up after rounding to whole shares
+- **Portfolio:** Totals bar keeps its height when the assistant panel is open wide
+- **Charts:** Hovering a chart shows a readable date and value on top of the axis
+
 ## 0.6.0 (2026-11-04)
 
 ### New
